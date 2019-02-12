@@ -18,6 +18,22 @@ public class Tokenizer {
             put("}", new RightCurlyToken());
             put("if", new IfToken());
             put("else", new ElseToken());
+            put("class", new ClassToken());
+            put(";", new ColonToken());
+            put("extends", new ExtendsToken());
+            put("new", new NewToken()); 
+            put("Object", new ObjectToken());
+            put(".", new PeriodToken());
+            put("private", new PrivateToken()); 
+            put("public", new PublicToken()); 
+            put("\"", new QuoteToken()); 
+            put(";", new SemicolonToken()); 
+            put("String", new StringToken());
+            put("this", new ThisToken()); 
+            put("void", new VoidToken()); 
+            put("int", new IntToken()); 
+            put("println", new PrintToken()); 
+            
         }};
     // end static variables
     
