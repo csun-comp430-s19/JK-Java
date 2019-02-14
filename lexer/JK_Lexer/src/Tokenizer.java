@@ -33,7 +33,7 @@ public class Tokenizer {
             put("void", new VoidToken()); 
             put("int", new IntToken()); 
             put("println", new PrintToken()); 
-            
+            put("=", new AssignmentToken());
         }};
     // end static variables
     
