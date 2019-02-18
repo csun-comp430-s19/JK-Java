@@ -34,6 +34,10 @@ public class Tokenizer {
             put("int", new IntToken()); 
             put("println", new PrintToken()); 
             put("=", new AssignmentToken());
+            put(",", new CommaToken());
+            put("return", new ReturnToken());
+            put("<", new LessThanToken());
+            put(">", new GreaterThanToken());
         }};
     // end static variables
     
