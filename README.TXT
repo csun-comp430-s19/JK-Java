@@ -16,11 +16,11 @@ exp::= VAR | STRING | INT | <type> |		Variables, strings, integers, generics are
 	exp.METHODNAME(exp*) |		Calls method	
 	new.CLASSNAME(exp*)    |		Creates new instance of class
 	new.CLASSNAME<type>(exp*)		Creates new instance of a generic class
-	VAR=exp; |				Assignment			
+vardec::=type VAR; 				Declares variable
+statement::=vardec; 	|			Declares variable
+	VAR=exp; |			Assignment			
 	return exp; |			return an expression
 	return; 				return Void
-vardec::=type VAR; 				Declares variable
-statement::=vardec; 				Declares variable
 accessModifier::= public | private			Access modifiers
 methoddef::=accessModifier type METHODNAME(vardec*) 		Creates method
 instancedec::= accessModifier vardec;				Declares instance of variable
