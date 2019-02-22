@@ -305,4 +305,10 @@ public class TokenizerTest {
     								  new RightCurlyToken(),
     								  new RightCurlyToken()});
     }
+    
+    @Test
+    public void testTokenizeQuotedString() {
+        assertTokenizes("\"123\"",
+                        new Token[]{ new QuotedStringToken("123") });
+    }
 }
