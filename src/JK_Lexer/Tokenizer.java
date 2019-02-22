@@ -104,6 +104,35 @@ public class Tokenizer {
             return new NameToken(name);
         }
     }
+    
+    private QuotedStringToken tryTokenizeQuotedString() {
+    	final int initialInputPos = inputPos;
+    	//check for quoted strings
+    	if(input[inputPos] == '"') {
+    		inputPos++;
+    		int strStart = inputPos;
+    		while(input[inputPos] != '"') {
+    			if(input[inputPos] == '\\') {
+    				inputPos++;
+    			}
+    			inputPos++;
+    			//if end of program is hit and quote is never closed
+    			//then resets inputPos and returns null
+    			if(inputPos >= input.length) {
+    				inputPos = initialInputPos;
+    				return null;
+    			}
+    		}
+        	inputPos++;
+        	return new QuotedStringToken(new String(input, strStart, inputPos-strStart-1));
+    	}else {
+        	//Quoted String must start with a quote
+        	//then resets inputPos and returns null
+    		inputPos = initialInputPos;
+			return null;
+    	}
+    	
+    }
 
     private boolean prefixCharsEqual(final String probe) {
         int targetPos = inputPos;
@@ -121,6 +150,7 @@ public class Tokenizer {
             
     // returns null if it couldn't parse a token
     private Token tryTokenizeOther() {
+    	//check for other tokens
         for (final Map.Entry<String, Token> entry : TOKEN_MAPPING.entrySet()) {
             final String key = entry.getKey();
             if (prefixCharsEqual(key)) {
@@ -142,12 +172,15 @@ public class Tokenizer {
     public Token tokenizeSingle() throws TokenizerException {
         NameToken var = null;
         NumberToken num = null;
+        QuotedStringToken str = null;
         Token otherToken = null;
 
         skipWhitespace();
 
         if (inputPos >= input.length) {
             return null;
+        } else if ((str = tryTokenizeQuotedString()) != null) {
+        	return str;
         } else if ((var = tryTokenizeName()) != null) {
             return var;
         } else if ((num = tryTokenizeNumber()) != null) {
