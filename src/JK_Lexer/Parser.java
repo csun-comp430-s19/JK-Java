@@ -145,7 +145,7 @@ public class Parser {
         if (current instanceof NumberToken) { //INT
             resultExp = new NumberExp(((NumberToken)current).number);
             resultPos = startPos + 1;
-        } else if (current instanceof NameToken) { //VARIABLE
+        } else if (current instanceof NameToken && (tokens.length <= startPos+1 || !(getToken(startPos+1) instanceof PeriodToken))) { //VARIABLE
             resultExp = new VariableExp(((NameToken)current).name);
             resultPos = startPos + 1;
         } else if (current instanceof QuoteToken) { //STRING
@@ -165,7 +165,7 @@ public class Parser {
         	assertTokenAtPos(new SemicolonToken(), startPos+4); 
         	resultExp = new PrintExp(((NameToken)next).name);
         	resultPos = startPos+5; 
-        } else if(current instanceof NameToken && getToken(startPos+1)==new PeriodToken()) {    //call method 
+        } else if(current instanceof NameToken && getToken(startPos+1) instanceof PeriodToken) {    //call method
         	String first = ((NameToken)current).name; 
         	assertTokenAtPos(new PeriodToken(), startPos+1); 
         	String methodname = ((NameToken)getToken(startPos+2)).name; 
@@ -191,7 +191,7 @@ public class Parser {
         }  else { //ERROR
             throw new ParserException("Expected primary at " + startPos);
         }
-
+        
         return new ParseResult<Exp>(resultExp, resultPos);
     } // parsePrimary
 } // Parser
