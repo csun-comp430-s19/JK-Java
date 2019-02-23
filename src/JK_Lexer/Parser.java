@@ -153,11 +153,17 @@ public class Parser {
         	resultExp = new StringExp(((QuotedStringToken)next).string);
         	assertTokenAtPos(new QuoteToken(), startPos+2); 
         	resultPos = startPos+3; 
-        } else if(current instanceof ThisToken) {
+        } else if(current instanceof ThisToken) {    //this.var
         	assertTokenAtPos(new PeriodToken(), startPos+1); 
         	Token next=getToken(startPos+2); 
         	resultExp = new ThisExp(((NameToken)next).name);
         	resultPos = startPos+3; 
+        } else if(current instanceof PrintToken) {
+        	assertTokenAtPos(new LeftParenToken(), startPos+1); 
+        	Token next = getToken(startPos+2); 
+        	assertTokenAtPos(new RightParenToken(), startPos+3); 
+        	resultExp = new PrintExp(((NameToken)next).name);
+        	resultPos = startPos+4; 
         }
         else if (current instanceof LeftParenToken) { //(EXP)
             final ParseResult<Exp> nested = parseExp(startPos + 1);

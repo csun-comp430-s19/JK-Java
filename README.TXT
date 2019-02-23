@@ -10,12 +10,12 @@ type::= INT | VOID | 				Built in types
             classname<type> 			Generic type represented by <>
 op::= + | - | * | / 				Arithmetic operation
 exp::= VAR | STRING | INT | <type> |		Variables, strings, integers, generics are expressions
-	this.exp |				My instance				
-	println(exp) |			Print statement
+	this.VAR |				My instance				
+	println(VAR) |			Print statement
 	exp op exp |			Arithmetic operation
-	exp.METHODNAME(exp*) |		Calls method	
-	new.CLASSNAME(exp*)    |		Creates new instance of class
-	new.CLASSNAME<type>(exp*)		Creates new instance of a generic class
+	VAR.METHODNAME(VAR) |		Calls method	
+	new.CLASSNAME(VAR)    |		Creates new instance of class
+	new.CLASSNAME<type>(VAR)		Creates new instance of a generic class
 vardec::=type VAR; 				Declares variable
 stmt::=vardec; 	|			Declares variable
 	VAR=exp; |			Assignment			

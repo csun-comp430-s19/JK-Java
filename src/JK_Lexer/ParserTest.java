@@ -150,7 +150,13 @@ public class ParserTest {
     							 new NameToken("boo") }; 
     	final Exp expected = new ThisExp("boo"); 
     	assertParses(tokens, expected); 
-    	
     }
-    
+    public void testPrint() {
+    	final Token [] tokens = { new PrintToken(), 
+    							  new LeftParenToken(), 
+    							  new NameToken("Hello World"), 
+    							  new RightParenToken() }; 
+    	final Exp expected = new PrintExp("Hello World");
+    	assertParses(tokens, expected); 
+    }
 }
