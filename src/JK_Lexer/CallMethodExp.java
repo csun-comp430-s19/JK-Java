@@ -1,13 +1,13 @@
 package JK_Lexer;
 
 public class CallMethodExp implements Exp{
-	public final Exp first; 
-	public final Exp methodname; 
-	public final Exp second; 
+	public final String first; 
+	public final String methodname; 
+	public final String second; 
 	
-	public CallMethodExp(final Exp first,
-						 final Exp methodname,
-						 final Exp second) {
+	public CallMethodExp(final String first,
+						 final String methodname,
+						 final String second) {
 		this.first=first;
 		this.methodname=methodname;
 		this.second=second; 

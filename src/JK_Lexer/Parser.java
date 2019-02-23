@@ -158,12 +158,30 @@ public class Parser {
         	Token next=getToken(startPos+2); 
         	resultExp = new ThisExp(((NameToken)next).name);
         	resultPos = startPos+3; 
-        } else if(current instanceof PrintToken) {
+        } else if(current instanceof PrintToken) {    // println(var);
         	assertTokenAtPos(new LeftParenToken(), startPos+1); 
         	Token next = getToken(startPos+2); 
         	assertTokenAtPos(new RightParenToken(), startPos+3); 
+        	assertTokenAtPos(new SemicolonToken(), startPos+4); 
         	resultExp = new PrintExp(((NameToken)next).name);
-        	resultPos = startPos+4; 
+        	resultPos = startPos+5; 
+        } else if(current instanceof NameToken && getToken(startPos+1)==new PeriodToken()) {    //call method 
+        	String first = ((NameToken)current).name; 
+        	assertTokenAtPos(new PeriodToken(), startPos+1); 
+        	String methodname = ((NameToken)getToken(startPos+2)).name; 
+        	assertTokenAtPos(new LeftParenToken(), startPos+3); 
+        	String second = ((NameToken)getToken(startPos+4)).name; 
+        	assertTokenAtPos(new RightParenToken(), startPos+5); 
+        	resultExp= new CallMethodExp(first, methodname, second);
+        	resultPos= startPos+6; 
+        } else if(current instanceof NewToken) {
+        	assertTokenAtPos(new PeriodToken(), startPos+1); 
+        	String classname=((NameToken)getToken(startPos+2)).name;
+        	assertTokenAtPos(new LeftParenToken(), startPos+3); 
+        	String variable = ((NameToken)getToken(startPos+4)).name; 
+        	assertTokenAtPos(new RightParenToken(), startPos+5); 
+        	resultExp= new NewExp(classname, variable); 
+        	resultPos= startPos+6; 
         }
         else if (current instanceof LeftParenToken) { //(EXP)
             final ParseResult<Exp> nested = parseExp(startPos + 1);
