@@ -7,18 +7,18 @@ public class MethodDefExp {
 	public final Type type;
 	public final String name;
 	public final ArrayList<VariableDecExp> parameters;
-	public final ArrayList<Exp> block;
+	public final ArrayList<Statement> block;
 	
 	public MethodDefExp(final Modifier mod,
 						final Type type,
 						final String name,
 						final ArrayList<VariableDecExp> parameters,
-						final ArrayList<Exp> block) {
+						final ArrayList<Statement> block) {
 		this.mod=mod;
 		this.type=type;
 		this.name=name;
 		this.parameters = new ArrayList<VariableDecExp>(parameters);
-		this.block = new ArrayList<Exp>(block);
+		this.block = new ArrayList<Statement>(block);
 	}
 	public int hashCode() {
 		return (mod.hashCode()+

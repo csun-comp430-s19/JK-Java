@@ -1,6 +1,7 @@
 package JK_Lexer;
 
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Parser {
@@ -194,4 +195,134 @@ public class Parser {
         
         return new ParseResult<Exp>(resultExp, resultPos);
     } // parsePrimary
+    
+    public ClassDefExp parseProgram() throws ParserException{
+    	return parseClassDef(0);
+    }
+    
+    private ClassDefExp parseClassDef(final int startPos) throws ParserException {
+    	final Token current = getToken(startPos);
+    	ArrayList <MethodDefExp> methodlist = new ArrayList<MethodDefExp>();
+    	ArrayList <InstanceDecExp> memberlist = new ArrayList<InstanceDecExp>();
+        Exp resultExp;
+        int resultPos;
+    	
+        if ((current instanceof PublicToken) || (current instanceof PrivateToken)) { //(EXP)
+        	Modifier modifier = parseModifier(current, startPos);
+        	assertTokenAtPos(new ClassToken(), startPos+1);
+        	String classname=((NameToken)getToken(startPos+2)).name;
+        	assertTokenAtPos(new LeftCurlyToken(), startPos+3);
+        	
+        	Token currentToken = getToken(startPos+4);
+        	int currentPos = startPos+4;
+        	while(!(currentToken instanceof RightCurlyToken)) {
+        		Modifier mod = parseModifier(getToken(currentPos), currentPos);
+        		Type type = parseType(getToken(currentPos+1), currentPos+1);
+        		String name = getToken(currentPos+2).toString();
+
+        		if(getToken(currentPos+3) instanceof LeftParenToken) {
+        			//method dec
+        			int paramPos = currentPos+4;
+        			ArrayList<VariableDecExp> paramlist = new ArrayList<VariableDecExp>();
+        			while(!(getToken(paramPos) instanceof RightParenToken)) {
+        				paramlist.add(new VariableDecExp(parseType(getToken(paramPos), paramPos), new VariableExp(getToken(paramPos+1).toString())));
+        				paramPos += 2;
+        			}
+        			assertTokenAtPos(new LeftCurlyToken(),paramPos+1);
+        			int stmtPos = paramPos+2;
+        			int stmtStart = paramPos+2;
+        			ArrayList<Token> stmtlist = new ArrayList<Token>();
+        			while(!(getToken(stmtPos) instanceof RightCurlyToken)) {
+        				stmtlist.add(getToken(stmtPos));
+        				stmtPos++;
+        			}
+        			assertTokenAtPos(new RightCurlyToken(), stmtPos);
+        			ArrayList<Statement> block = parseStatements(stmtlist, stmtStart);
+        			methodlist.add(new MethodDefExp(mod, type, name, paramlist, block));
+        			
+        			currentPos = stmtPos+1;
+        			currentToken = getToken(currentPos);
+        		}
+        		else {
+        			//member var dec
+        			memberlist.add(new InstanceDecExp(mod, new VariableDecExp(type, new VariableExp(name))));
+        			assertTokenAtPos(new SemicolonToken(), currentPos+3);
+        			currentPos += 4;
+        			currentToken = getToken(currentPos);
+        		}
+        			
+        	}
+
+        	return new ClassDefExp(modifier, classname, memberlist, methodlist);
+        	
+        }  else { //ERROR
+            throw new ParserException("Expected Class Declaration at " + startPos);
+        }
+    }
+    
+    private Modifier parseModifier(Token m, int startPos) throws ParserException{
+    	//returns null if the token is not a modifier
+    	if(m instanceof PublicToken) {
+    		return new PublicModifier();
+    	}
+    	else if(m instanceof PrivateToken) {
+    		return new PrivateModifier();
+    	}
+    	else {
+    		throw new ParserException("Expected Modifier at " + startPos);
+    	}
+    }
+    
+    private Type parseType(Token m, int startPos) throws ParserException{
+    	//returns null if the token is not a modifier
+    	if(m instanceof IntToken) {
+    		return new IntType();
+    	}
+    	else if(m instanceof StringToken) {
+    		return new StringType();
+    	}
+    	else {
+    		throw new ParserException("Expected Type at " + startPos);
+    	}
+    }
+
+    private ArrayList<Statement> parseStatements(ArrayList<Token> tokenlist, int startPos) throws ParserException{
+    	ArrayList<Statement> block = new ArrayList<Statement>();
+    	for(int i = 0; i < tokenlist.size(); i++) {
+    		int pos = startPos + i;
+    		ArrayList<Token> statement = new ArrayList<Token>();
+    		while(!(tokenlist.get(i) instanceof SemicolonToken)) {
+    			statement.add(tokenlist.get(i));
+    			i++;
+    		}
+    		i++;
+    		if(statement.get(0) instanceof ReturnToken) {
+     			if(statement.size()>1)
+     				block.add(new ReturnStmt((Exp) parseExp(pos+1).result));
+     			else {
+     				block.add(new ReturnStmt());
+     			}
+    		 }
+    		else if((parseType(statement.get(0), startPos) instanceof Type) && (statement.get(1) instanceof NameToken)) {
+				block.add(new VariableDecExp(parseType(statement.get(0),i), new VariableExp(statement.get(1).toString())));
+    		}
+    		else if((statement.get(0) instanceof NameToken) && (statement.get(1) instanceof AssignmentToken)) {
+    			block.add(new AssignmentStmt(new VariableExp(statement.get(0).toString()), (Exp) parseExp(pos).result));
+    		}
+    		
+    	}
+    	return block;
+    }
+    
+    private VariableDecExp parseVariableDecExp(ArrayList<Token> tokenlist, int startPos) throws ParserException{
+    	Type t = parseType(tokenlist.get(0), startPos);
+    	if(!(tokenlist.get(1) instanceof NameToken)) {
+    		throw new ParserException("Expected Variable Name at " + startPos+1);
+    	}
+    	else {
+    		return new VariableDecExp(t, new VariableExp(tokenlist.get(1).toString()));
+    	}
+    }
+    
+    
 } // Parser

@@ -1,5 +1,6 @@
 package JK_Lexer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertTrue;
@@ -23,7 +24,18 @@ public class ParserTest {
                        expected == null);
         }
     } // assertParses
-
+    
+    public void assertParsesClassDef(final Token[] tokens, final ClassDefExp expected) {
+    	final Parser parser = new Parser(tokens);
+    	try {
+    		final ClassDefExp received = parser.parseProgram();
+    		assertTrue("Expected parse failure; got: " + received, expected != null);
+    		assertEquals(expected, received);
+    	} catch (final ParserException e) {
+    		assertTrue(("Unexpected parse failure for " + Arrays.toString(tokens) + ": " + e.getMessage()), expected == null);
+    	}
+}
+    
     @Test
     public void testParsesInteger() {
         assertParses(new Token[]{ new NumberToken(123) },
@@ -182,5 +194,36 @@ public class ParserTest {
     							 new RightParenToken() };
     	final Exp expected = new NewExp("Student", "grade");
     	assertParses(tokens, expected); 
+    }
+    
+    @Test
+    public void testClassDec() {
+    	final Token[] tokens = { new PublicToken(), 
+    							 new ClassToken(), 
+    							 new NameToken("Student"),
+    							 new LeftCurlyToken(),
+    							 new PrivateToken(),
+    							 new IntToken(),
+    							 new NameToken("age"),
+    							 new SemicolonToken(),
+    							 new PublicToken(),
+    							 new IntToken(),
+    							 new NameToken("getAge"),
+    							 new LeftParenToken(),
+    							 new RightParenToken(),
+    							 new LeftCurlyToken(),
+    							 new ReturnToken(),
+    							 new NameToken("age"),
+    							 new SemicolonToken(),
+    							 new RightCurlyToken(),
+    							 new RightCurlyToken() };
+    	ArrayList<InstanceDecExp> memberVarList = new ArrayList<InstanceDecExp>();
+    	memberVarList.add(new InstanceDecExp(new PrivateModifier(), new VariableDecExp(new IntType(), new VariableExp("age"))));
+    	ArrayList<MethodDefExp> methodList = new ArrayList<MethodDefExp>();
+    	ArrayList<Statement> block = new ArrayList<Statement>();
+    	block.add(new ReturnStmt(new VariableExp("age")));
+    	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
+    	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", memberVarList, methodList);
+    	assertParsesClassDef(tokens, expected); 
     }
 }
