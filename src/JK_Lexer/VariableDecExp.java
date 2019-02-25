@@ -1,6 +1,6 @@
 package JK_Lexer;
 
-public class VariableDecExp {
+public class VariableDecExp implements Statement{
 	public final Type type;
 	public final VariableExp var; 
 	
