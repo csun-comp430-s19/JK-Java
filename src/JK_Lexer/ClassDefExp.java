@@ -35,4 +35,12 @@ public class ClassDefExp {
 			return false; 
 		}
 	}
+	
+	public String toString() {
+		String s = "Modifier: " + mod.toString() + "\n"+
+				   "Name: " + name +"\n" +
+				   "Members: " + members.toString()+ "\n"+
+				   "Methods: " + methods.toString();
+		return s;
+	}
 }

@@ -281,6 +281,9 @@ public class Parser {
     	else if(m instanceof StringToken) {
     		return new StringType();
     	}
+    	else if(m instanceof VoidToken) {
+    		return new VoidType();
+    	}
     	else {
     		throw new ParserException("Expected Type at " + startPos);
     	}
@@ -303,11 +306,11 @@ public class Parser {
      				block.add(new ReturnStmt());
      			}
     		 }
+    		else if((statement.get(0) instanceof NameToken) && (statement.get(1) instanceof AssignmentToken)) {
+    			block.add(new AssignmentStmt(new VariableExp(statement.get(0).toString()), (Exp) parseExp(pos+2).result));
+    		}
     		else if((parseType(statement.get(0), startPos) instanceof Type) && (statement.get(1) instanceof NameToken)) {
 				block.add(new VariableDecExp(parseType(statement.get(0),i), new VariableExp(statement.get(1).toString())));
-    		}
-    		else if((statement.get(0) instanceof NameToken) && (statement.get(1) instanceof AssignmentToken)) {
-    			block.add(new AssignmentStmt(new VariableExp(statement.get(0).toString()), (Exp) parseExp(pos).result));
     		}
     		
     	}

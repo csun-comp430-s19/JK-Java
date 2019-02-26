@@ -24,4 +24,10 @@ public class AssignmentStmt implements Statement{
 			return false; 
 		}
 	}
+	
+	public String toString() {
+		String s = "Variable: " + v.toString() + "\n"+
+				   "Assign to: " + e.toString();
+		return s;
+	}
 }
