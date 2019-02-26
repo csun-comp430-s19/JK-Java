@@ -10,17 +10,17 @@ type::= INT | VOID | 				Built in types
             classname<type> 			Generic type represented by <>
 op::= + | - | * | / 				Arithmetic operation
 exp::= VAR | STRING | INT | <type> |		Variables, strings, integers, generics are expressions
-	this |				My instance				
-	println(exp) |			Print statement
+	this.VAR |				My instance				
+	println(VAR) |			Print statement
 	exp op exp |			Arithmetic operation
-	exp.METHODNAME(exp*) |		Calls method	
-	new.CLASSNAME(exp*) 		Creates new instance of class
-new.CLASSNAME<type>(exp*)			Creates new instance of a generic class
-vardec::=type VAR |				Declares variable
-statement::=vardec; |				Declares variable
-	         var=exp; |			Assignment			
-	         return exp; |			return an expression
-	         return; 			return Void
+	VAR.METHODNAME(VAR) |		Calls method	
+	new.CLASSNAME(VAR)    |		Creates new instance of class
+	new.CLASSNAME<type>(VAR)		Creates new instance of a generic class
+vardec::=type VAR; 				Declares variable
+stmt::=vardec; 	|			Declares variable
+	VAR=exp; |			Assignment			
+	return exp; |			return an expression
+	return; 				return Void
 accessModifier::= public | private			Access modifiers
 methoddef::=accessModifier type METHODNAME(vardec*) stmt		Creates method
 instancedec::= accessModifier vardec;				Declares instance of variable
@@ -31,4 +31,6 @@ classdef::= class CLASSNAME{ |					Normal class declaration
 		constructor(vardec*) stmt
 		methoddef*
 	      }
-program::= classdef* exp 			exp is entry point
+program::= classdef* 
+
+
