@@ -216,13 +216,31 @@ public class ParserTest {
     							 new NameToken("age"),
     							 new SemicolonToken(),
     							 new RightCurlyToken(),
+    							 new PublicToken(),
+    							 new VoidToken(),
+    							 new NameToken("setAge"),
+    							 new LeftParenToken(),
+    							 new IntToken(),
+    							 new NameToken("n"),
+    							 new RightParenToken(),
+    							 new LeftCurlyToken(),
+    							 new NameToken("age"),
+    							 new AssignmentToken(),
+    							 new NameToken("n"),
+    							 new SemicolonToken(),
+    							 new RightCurlyToken(),
     							 new RightCurlyToken() };
     	ArrayList<InstanceDecExp> memberVarList = new ArrayList<InstanceDecExp>();
     	memberVarList.add(new InstanceDecExp(new PrivateModifier(), new VariableDecExp(new IntType(), new VariableExp("age"))));
     	ArrayList<MethodDefExp> methodList = new ArrayList<MethodDefExp>();
     	ArrayList<Statement> block = new ArrayList<Statement>();
+    	ArrayList<Statement> setblock = new ArrayList<Statement>();
+    	ArrayList<VariableDecExp> setparam = new ArrayList<VariableDecExp>();
+    	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
     	block.add(new ReturnStmt(new VariableExp("age")));
+    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
     	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
+    	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
     	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", memberVarList, methodList);
     	assertParsesClassDef(tokens, expected); 
     }

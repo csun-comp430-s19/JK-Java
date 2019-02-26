@@ -40,4 +40,11 @@ public class MethodDefExp {
 			return false; 
 		}
 	}
+	public String toString() {
+		String s = "Modifier: " + mod.toString() + "\n"+
+				   "Name: " + name +"\n" +
+				   "Parameters: " + parameters.toString()+ "\n"+
+				   "Block: " + block.toString();
+		return s;
+	}
 }

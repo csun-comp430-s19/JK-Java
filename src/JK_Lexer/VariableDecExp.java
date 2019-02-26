@@ -23,4 +23,9 @@ public class VariableDecExp implements Statement{
 			return false; 
 		}
 	}
+	public String toString() {
+		String s = "Type: " + type.toString() + "\n"+
+				   "Variable: " + var.toString();
+		return s;
+	}
 }

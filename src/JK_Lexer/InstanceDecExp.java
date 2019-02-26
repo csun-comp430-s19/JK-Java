@@ -23,4 +23,9 @@ public class InstanceDecExp {
 			return false; 
 		}
 	}
+	public String toString() {
+		String s = "Modifier: " + mod.toString() + "\n"+
+				   "Variable :" + var.toString();
+		return s;
+	}
 }

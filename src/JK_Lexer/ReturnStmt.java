@@ -23,4 +23,9 @@ public class ReturnStmt implements Statement{
 			return false; 
 		}
 	}
+	
+	public String toString() {
+		String s = "Returning: " + e.toString();
+		return s;
+	}
 }
