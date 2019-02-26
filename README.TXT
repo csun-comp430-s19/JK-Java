@@ -1,8 +1,5 @@
 Jason Dang, Kodi Winterer
 
-CHECK Parser_Dirty IF MASTER DOES NOT HAVE PARSE CLASSES/FUNCTIONS RIGHT NOW
-
-
 VAR is variable
 INT is an int
 STRING is a string
