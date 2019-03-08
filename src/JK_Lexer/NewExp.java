@@ -1,11 +1,11 @@
 package JK_Lexer;
 //EXP that Creates new instance of a class
 public class NewExp implements Exp{
-	public final String classname; 
-	public final String variable; 
+	public final Exp classname; 
+	public final Exp variable; 
 	
-	public NewExp(final String classname,
-				  final String variable) {
+	public NewExp(final Exp classname,
+				  final Exp variable) {
 		this.classname=classname;
 		this.variable=variable;
 	}

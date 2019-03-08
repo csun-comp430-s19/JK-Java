@@ -1,9 +1,9 @@
 package JK_Lexer;
 
 public class PrintExp implements Exp{
-	public final String expression; 
+	public final Exp expression; 
 	
-	public PrintExp(final String expression) {
+	public PrintExp(final Exp expression) {
 		this.expression=expression;
 	}
 	public int hashCode() {

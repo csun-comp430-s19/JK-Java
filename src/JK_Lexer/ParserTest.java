@@ -160,17 +160,17 @@ public class ParserTest {
     	final Token[] tokens = { new ThisToken(), 
     							 new PeriodToken(), 
     							 new NameToken("boo") }; 
-    	final Exp expected = new ThisExp("boo"); 
+    	final Exp expected = new ThisExp(new VariableExp("boo")); 
     	assertParses(tokens, expected); 
     }
     @Test
     public void testPrint() {
     	final Token [] tokens = { new PrintToken(), 
     							  new LeftParenToken(), 
-    							  new NameToken("Hello World"), 
+    							  new NameToken("String1"), 
     							  new RightParenToken(),
     							  new SemicolonToken()  }; 
-    	final Exp expected = new PrintExp("Hello World");
+    	final Exp expected = new PrintExp(new VariableExp("String1"));
     	assertParses(tokens, expected); 
     }
     @Test 
@@ -181,7 +181,9 @@ public class ParserTest {
     							 new LeftParenToken(), 
     							 new NameToken("foo2"),
     							 new RightParenToken() }; 
-    	final Exp expected = new CallMethodExp("foo","add","foo2");
+    	final Exp expected = new CallMethodExp(new VariableExp("foo"),
+    										   new VariableExp("add"),
+    										   new VariableExp("foo2"));
     	assertParses(tokens,expected); 
     }
     @Test
@@ -192,7 +194,8 @@ public class ParserTest {
     							 new LeftParenToken(),
     							 new NameToken("grade"),
     							 new RightParenToken() };
-    	final Exp expected = new NewExp("Student", "grade");
+    	final Exp expected = new NewExp(new VariableExp("Student"),
+    									new VariableExp("grade"));
     	assertParses(tokens, expected); 
     }
     

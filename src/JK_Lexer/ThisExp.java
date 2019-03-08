@@ -1,9 +1,9 @@
 package JK_Lexer;
 
 public class ThisExp implements Exp{
-	public final String variable; 
+	public final Exp variable; 
 	
-	public ThisExp(final String variable) {
+	public ThisExp(final Exp variable) {
 		this.variable=variable;
 	}
 	public int hashCode() {

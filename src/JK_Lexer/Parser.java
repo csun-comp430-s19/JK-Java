@@ -1,6 +1,9 @@
 package JK_Lexer;
 
 import java.util.Map;
+
+import JK_Lexer.Parser.ParseResult;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,7 +38,7 @@ public class Parser {
         }
     }
     
-    private class ParseResult<A> {
+    public class ParseResult<A> {
         public final A result;
         public final int tokenPos;
         public ParseResult(final A result,
@@ -156,32 +159,31 @@ public class Parser {
         	resultPos = startPos+3; 
         } else if(current instanceof ThisToken) {    //this.var
         	assertTokenAtPos(new PeriodToken(), startPos+1); 
-        	Token next=getToken(startPos+2); 
-        	resultExp = new ThisExp(((NameToken)next).name);
-        	resultPos = startPos+3; 
+        	final ParseResult<Exp> variable = parseExp(startPos+2); 
+        	resultExp = new ThisExp(variable.result);
+        	resultPos= startPos+3;
         } else if(current instanceof PrintToken) {    // println(var);
         	assertTokenAtPos(new LeftParenToken(), startPos+1); 
-        	Token next = getToken(startPos+2); 
+        	final ParseResult<Exp> expression = parseExp(startPos+2); 
         	assertTokenAtPos(new RightParenToken(), startPos+3); 
         	assertTokenAtPos(new SemicolonToken(), startPos+4); 
-        	resultExp = new PrintExp(((NameToken)next).name);
-        	resultPos = startPos+5; 
+        	resultExp = new PrintExp(expression.result);
+        	resultPos = startPos+5;
         } else if(current instanceof NameToken && getToken(startPos+1) instanceof PeriodToken) {    //call method
-        	String first = ((NameToken)current).name; 
         	assertTokenAtPos(new PeriodToken(), startPos+1); 
-        	String methodname = ((NameToken)getToken(startPos+2)).name; 
+        	final ParseResult<Exp> methodname = parseExp(startPos+2); 
         	assertTokenAtPos(new LeftParenToken(), startPos+3); 
-        	String second = ((NameToken)getToken(startPos+4)).name; 
+        	final ParseResult<Exp> parameter = parseExp(startPos+4); 
         	assertTokenAtPos(new RightParenToken(), startPos+5); 
-        	resultExp= new CallMethodExp(first, methodname, second);
+        	resultExp= new CallMethodExp(new VariableExp(((NameToken)current).name), methodname.result, parameter.result);
         	resultPos= startPos+6; 
         } else if(current instanceof NewToken) {
         	assertTokenAtPos(new PeriodToken(), startPos+1); 
-        	String classname=((NameToken)getToken(startPos+2)).name;
+        	final ParseResult<Exp> classname = parseExp(startPos+2); 
         	assertTokenAtPos(new LeftParenToken(), startPos+3); 
-        	String variable = ((NameToken)getToken(startPos+4)).name; 
+        	final ParseResult<Exp> variable = parseExp(startPos+4); 
         	assertTokenAtPos(new RightParenToken(), startPos+5); 
-        	resultExp= new NewExp(classname, variable); 
+        	resultExp= new NewExp(classname.result, variable.result); 
         	resultPos= startPos+6; 
         }
         else if (current instanceof LeftParenToken) { //(EXP)
