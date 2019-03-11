@@ -28,13 +28,26 @@ public class ParserTest {
     public void assertParsesClassDef(final Token[] tokens, final ClassDefExp expected) {
     	final Parser parser = new Parser(tokens);
     	try {
-    		final ClassDefExp received = parser.parseProgram();
+    		final ClassDefExp received = parser.parseClassDef();
     		assertTrue("Expected parse failure; got: " + received, expected != null);
     		assertEquals(expected, received);
     	} catch (final ParserException e) {
     		assertTrue(("Unexpected parse failure for " + Arrays.toString(tokens) + ": " + e.getMessage()), expected == null);
     	}
 }
+    
+    
+    public void assertParsesProgram(final Token[] tokens, final Program expected) {
+    	final Parser parser = new Parser(tokens);
+    	try {
+    		final Program received = parser.parseProgram();
+    		assertTrue("Expected parse failure; got: " + received, expected != null);
+    		assertEquals(expected, received);
+    	} catch (final ParserException e) {
+    		assertTrue(("Unexpected parse failure for " + Arrays.toString(tokens) + ": " + e.getMessage()), expected == null);
+    	}
+}
+    
     
     @Test
     public void testParsesInteger() {
@@ -247,4 +260,68 @@ public class ParserTest {
     	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", memberVarList, methodList);
     	assertParsesClassDef(tokens, expected); 
     }
+    
+    
+    @Test
+    public void testProgram() {
+    	final Token[] tokens = { new PublicToken(), 
+    							 new ClassToken(), 
+    							 new NameToken("Student"),
+    							 new LeftCurlyToken(),
+    							 new PrivateToken(),
+    							 new IntToken(),
+    							 new NameToken("age"),
+    							 new SemicolonToken(),
+    							 new PublicToken(),
+    							 new IntToken(),
+    							 new NameToken("getAge"),
+    							 new LeftParenToken(),
+    							 new RightParenToken(),
+    							 new LeftCurlyToken(),
+    							 new ReturnToken(),
+    							 new NameToken("age"),
+    							 new SemicolonToken(),
+    							 new RightCurlyToken(),
+    							 new PublicToken(),
+    							 new VoidToken(),
+    							 new NameToken("setAge"),
+    							 new LeftParenToken(),
+    							 new IntToken(),
+    							 new NameToken("n"),
+    							 new RightParenToken(),
+    							 new LeftCurlyToken(),
+    							 new NameToken("age"),
+    							 new AssignmentToken(),
+    							 new NameToken("n"),
+    							 new SemicolonToken(),
+    							 new RightCurlyToken(),
+    							 new RightCurlyToken(),
+    							 new IntToken(),
+    							 new NameToken("age"),
+    							 new SemicolonToken(),
+    							 new NameToken("age"),
+    							 new AssignmentToken(),
+    							 new NumberToken(21),
+    							 new SemicolonToken()};
+    	ArrayList<InstanceDecExp> memberVarList = new ArrayList<InstanceDecExp>();
+    	memberVarList.add(new InstanceDecExp(new PrivateModifier(), new VariableDecExp(new IntType(), new VariableExp("age"))));
+    	ArrayList<MethodDefExp> methodList = new ArrayList<MethodDefExp>();
+    	ArrayList<Statement> block = new ArrayList<Statement>();
+    	ArrayList<Statement> setblock = new ArrayList<Statement>();
+    	ArrayList<VariableDecExp> setparam = new ArrayList<VariableDecExp>();
+    	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
+    	block.add(new ReturnStmt(new VariableExp("age")));
+    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
+    	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
+    	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
+    	ClassDefExp classStudent = new ClassDefExp(new PublicModifier(), "Student", memberVarList, methodList);
+    	ArrayList<ClassDefExp> classDefList = new ArrayList<ClassDefExp>();
+    	ArrayList<Statement> statementList = new ArrayList<Statement>();
+    	classDefList.add(classStudent);
+    	statementList.add(new VariableDecExp(new IntType(), new VariableExp("age")));
+    	statementList.add(new AssignmentStmt(new VariableExp("age"), new NumberExp(21)));
+    	Program expected = new Program(statementList, classDefList);
+    	assertParsesProgram(tokens, expected); 
+    }
+    
 }
