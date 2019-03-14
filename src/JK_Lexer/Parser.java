@@ -341,7 +341,9 @@ public class Parser {
 			return new ParseResult<Type>(new StringType(), startPos + 1);
 		} else if (m instanceof VoidToken) {
 			return new ParseResult<Type>(new VoidType(), startPos + 1);
-		} else {
+		} else if(m instanceof NameToken){
+			return new ParseResult<Type>(new ObjectType(((NameToken)m).name), startPos + 1);
+		}else {
 			throw new ParserException("Expected Type at " + startPos);
 		}
 	}
@@ -374,6 +376,9 @@ public class Parser {
 				result = new ParseResult<Statement>(assignmentResult.result, assignmentResult.tokenPos);
 			} else if ((getToken(pos) instanceof IntToken || getToken(pos) instanceof StringToken)
 					&& (getToken(pos + 1) instanceof NameToken)) {
+				ParseResult<VariableDecExp> variableDecExpResult = parseVariableDecExp(pos);
+				result = new ParseResult<Statement>(variableDecExpResult.result, variableDecExpResult.tokenPos);
+			} else if((getToken(pos) instanceof NameToken) && (getToken(pos +1) instanceof NameToken) && (getToken(pos+2) instanceof SemicolonToken)) {
 				ParseResult<VariableDecExp> variableDecExpResult = parseVariableDecExp(pos);
 				result = new ParseResult<Statement>(variableDecExpResult.result, variableDecExpResult.tokenPos);
 			}

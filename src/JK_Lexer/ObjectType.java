@@ -1,11 +1,15 @@
 package JK_Lexer;
 
 public class ObjectType implements Type{
-	public int hashcode() { return 3; }
+	String className;
+	public ObjectType(String className) {
+		this.className = className;
+	}
+	public int hashcode() { return className.hashCode(); }
 	public boolean equals(final Object other) {
-		return other instanceof ObjectType; 
+		return (other instanceof ObjectType && ((ObjectType)other).className.equals(className)); 
 	}
 	public String toString() {
-		return "Object";
+		return className;
 	}
 }
