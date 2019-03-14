@@ -302,6 +302,18 @@ public class ParserTest {
     							 new NameToken("age"),
     							 new AssignmentToken(),
     							 new NumberToken(21),
+    							 new SemicolonToken(),
+    							 new NameToken("Student"),
+    							 new NameToken("student"),
+    							 new SemicolonToken(),
+    							 new NameToken("student"),
+    							 new AssignmentToken(),
+    							 new NewToken(),
+    							 new PeriodToken(),
+    							 new NameToken("Student"),
+    							 new LeftParenToken(),
+    							 new NameToken("age"),
+       							 new RightParenToken(),
     							 new SemicolonToken()};
     	ArrayList<InstanceDecExp> memberVarList = new ArrayList<InstanceDecExp>();
     	memberVarList.add(new InstanceDecExp(new PrivateModifier(), new VariableDecExp(new IntType(), new VariableExp("age"))));
@@ -320,6 +332,9 @@ public class ParserTest {
     	classDefList.add(classStudent);
     	statementList.add(new VariableDecExp(new IntType(), new VariableExp("age")));
     	statementList.add(new AssignmentStmt(new VariableExp("age"), new NumberExp(21)));
+    	statementList.add(new VariableDecExp(new ObjectType("Student"), new VariableExp("student")));
+    	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),new VariableExp("age"))));
+    	
     	Program expected = new Program(statementList, classDefList);
     	assertParsesProgram(tokens, expected); 
     }

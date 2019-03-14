@@ -254,6 +254,50 @@ public class Parser {
 			throw new ParserException("Expected Modifier for Class Declaration at: " + startPos);
 		}
 	}
+	
+	private ParseResult<ConstructorDef> parseConstructorDef(int startPos, String className) throws ParserException{
+		int pos = startPos;
+		ParseResult<Modifier> mod = parseModifier(pos);
+		pos = mod.tokenPos;
+		if (!(getToken(pos) instanceof NameToken)) {
+			throw new ParserException("Expected Constructor Name at: " + pos);
+		}
+		String name = ((NameToken) getToken(pos)).name;
+		if(!name.equals(className)) {
+			throw new ParserException("Constructor needs to match class name: " + pos);
+		}
+		pos++;
+		assertTokenAtPos(new LeftParenToken(), pos);
+		pos++;
+		ArrayList<VariableDecExp> paramlist = new ArrayList<VariableDecExp>();
+		while (!(getToken(pos) instanceof RightParenToken)) {
+			Token currentToken = getToken(pos);
+			ParseResult<Type> paramType = parseType(pos);
+			pos = paramType.tokenPos;
+			currentToken = getToken(pos);
+			if (!(currentToken instanceof NameToken)) {
+				throw new ParserException("Expected Parameter Name at: " + pos);
+			}
+			VariableExp paramName = new VariableExp(currentToken.toString());
+			pos++;
+			paramlist.add(new VariableDecExp(paramType.result, paramName));
+			if ((!(getToken(pos) instanceof RightParenToken))) {
+				if ((!(getToken(pos) instanceof CommaToken))) {
+					throw new ParserException("Expected comma at: " + pos);
+				}
+			}
+			if (getToken(pos) instanceof CommaToken) {
+				pos++;
+			}
+		}
+		assertTokenAtPos(new LeftCurlyToken(), pos + 1);
+		pos += 2;
+		ParseResult<ArrayList<Statement>> block = parseConstructorStatements(pos);
+		pos = block.tokenPos;
+		assertTokenAtPos(new RightCurlyToken(), pos);
+		ConstructorDef method = new ConstructorDef(mod.result, name, paramlist, block.result);
+		return new ParseResult<ConstructorDef>(method, pos + 1);
+	}
 
 	private ParseResult<MethodDefExp> parseMethodDefExp(int startPos) throws ParserException {
 		int pos = startPos;
@@ -358,6 +402,17 @@ public class Parser {
 		}
 		return new ParseResult<ArrayList<Statement>>(block, i);
 	}
+	
+	private ParseResult<ArrayList<Statement>> parseConstructorStatements(int startPos) throws ParserException {
+		ArrayList<Statement> block = new ArrayList<Statement>();
+		int i = startPos;
+		while (!(getToken(i) instanceof RightCurlyToken)) {
+			ParseResult<Statement> statementResult = parseSingleConstructorStatement(i);
+			block.add(statementResult.result);
+			i = statementResult.tokenPos;
+		}
+		return new ParseResult<ArrayList<Statement>>(block, i);
+	}
 
 	private ParseResult<Statement> parseSingleStatement(int startPos) throws ParserException {
 		int pos = startPos;
@@ -372,6 +427,34 @@ public class Parser {
 							expResult.tokenPos);
 				}
 			} else if ((getToken(pos) instanceof NameToken) && (getToken(pos + 1) instanceof AssignmentToken)) {
+				ParseResult<AssignmentStmt> assignmentResult = parseAssignment(pos);
+				result = new ParseResult<Statement>(assignmentResult.result, assignmentResult.tokenPos);
+			} else if ((getToken(pos) instanceof IntToken || getToken(pos) instanceof StringToken)
+					&& (getToken(pos + 1) instanceof NameToken)) {
+				ParseResult<VariableDecExp> variableDecExpResult = parseVariableDecExp(pos);
+				result = new ParseResult<Statement>(variableDecExpResult.result, variableDecExpResult.tokenPos);
+			} else if((getToken(pos) instanceof NameToken) && (getToken(pos +1) instanceof NameToken) && (getToken(pos+2) instanceof SemicolonToken)) {
+				ParseResult<VariableDecExp> variableDecExpResult = parseVariableDecExp(pos);
+				result = new ParseResult<Statement>(variableDecExpResult.result, variableDecExpResult.tokenPos);
+			}
+
+			if (result == null) {
+				throw new ParserException("Expcted valid statement at: " + pos);
+			} else if (!(getToken(result.tokenPos) instanceof SemicolonToken)) {
+				throw new ParserException("Expected semicolon at: " + result.tokenPos);
+			} else {
+				return new ParseResult<Statement>(result.result, result.tokenPos + 1);
+			}
+		} else {
+			throw new ParserException("Empty Statement(double semicolon) at: " + pos);
+		}
+	}
+	
+	private ParseResult<Statement> parseSingleConstructorStatement(int startPos) throws ParserException {
+		int pos = startPos;
+		ParseResult<Statement> result = null;
+		if (!(getToken(pos) instanceof SemicolonToken)) {
+			if ((getToken(pos) instanceof NameToken) && (getToken(pos + 1) instanceof AssignmentToken)) {
 				ParseResult<AssignmentStmt> assignmentResult = parseAssignment(pos);
 				result = new ParseResult<Statement>(assignmentResult.result, assignmentResult.tokenPos);
 			} else if ((getToken(pos) instanceof IntToken || getToken(pos) instanceof StringToken)
