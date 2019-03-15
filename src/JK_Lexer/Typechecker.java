@@ -8,6 +8,8 @@ public class Typechecker {
 	
 	//List of any statements outside of classes in program
 	private final ArrayList<Statement> statements;
+	//Map for Variables declared in statements outside of classes
+	private final Map<String,VariableDecExp> programVariables;
 	//Classes are mapped to their names
 	private Map<String,ClassDefExp> classes; 
 	//Instances and methods are mapped to their names and that map is mapped to the class name they are in 
@@ -21,38 +23,50 @@ public class Typechecker {
 	private String currentMethod; 
 	
 	//Constructor, takes in program and type-checks the statements (outside of classes) and the classes 
-	public Typechecker(Program prog){ 
+	public Typechecker(Program prog) throws TypeErrorException{ 
 		
 		this.statements = prog.statementList;  
 		this.classes = new HashMap<String, ClassDefExp>(); 
 		this.instances = new HashMap<String, Map<String, InstanceDecExp>>(); 
 		this.methods = new HashMap<String, Map<String, MethodDefExp>>(); 
 		this.variables = new HashMap<String, Map<String, Map<String, VariableDecExp>>>(); 
+		this.programVariables = new HashMap<String, VariableDecExp>();
 		
 		ArrayList<ClassDefExp> classList = prog.classDefList;
 		for(ClassDefExp c: classList) {
+			if(classes.containsKey(c.name)) throw new TypeErrorException("Duplicate class declared: " + c.name);
 			this.classes.put(c.name, c);
 			ArrayList<InstanceDecExp> instanceList = c.members; 
 			for(InstanceDecExp i: instanceList) {
 				Map<String, InstanceDecExp> temp = new HashMap<String,InstanceDecExp>(); 
+				if(temp.containsKey(i.var.var.name)) throw new TypeErrorException("Duplicate member declared in class " + c.name + " : " + i.var.var.name);
 				temp.put(i.var.var.name, i);
 				this.instances.put(c.name, temp);
 			}
 			ArrayList<MethodDefExp> methodList = c.methods;
 			for(MethodDefExp m: methodList) {
 				Map<String, MethodDefExp> temp = new HashMap<String, MethodDefExp>();
+				if(temp.containsKey(m.name)) throw new TypeErrorException("Duplicate method declared in class " + c.name +" : "+ m.name);
 				temp.put(m.name, m);
 				this.methods.put(c.name, temp);
 				ArrayList<VariableDecExp> variableList = m.parameters; 
+				Map<String, VariableDecExp> temp2 = new HashMap<String, VariableDecExp>(); 
 				for(VariableDecExp v: variableList) {
-					Map<String, VariableDecExp> temp2 = new HashMap<String, VariableDecExp>(); 
+					if(temp2.containsKey(v.var.name)) throw new TypeErrorException("Duplicate method declared in class " + c.name + " method " + m.name + " : " + v.var.name);
 					temp2.put(v.var.name, v);
-					Map<String, Map<String, VariableDecExp>> temp3 = new HashMap<String, Map<String, VariableDecExp>>();
-					temp3.put(m.name, temp2); 
-					this.variables.put(c.name, temp3);
 				}
+				Map<String, Map<String, VariableDecExp>> temp3 = new HashMap<String, Map<String, VariableDecExp>>();
+				temp3.put(m.name, temp2); 
+				this.variables.put(c.name, temp3);
 			}
 		}
+		for(Statement s: this.statements) {
+			if (s instanceof VariableDecExp) {
+				if(programVariables.containsKey(((VariableDecExp)s).var.name)) throw new TypeErrorException("Duplicate variable declared in statements outside of class declaratons: " +((VariableDecExp)s).var.name);
+				programVariables.put(((VariableDecExp)s).var.name, (VariableDecExp)s);
+			}
+		}
+		
 		//Typechecking all classes in Program 
 		for(ClassDefExp c: this.classes.values()) {
 			typecheckClass(c); 

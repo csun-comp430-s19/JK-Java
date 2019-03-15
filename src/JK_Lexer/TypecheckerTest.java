@@ -11,8 +11,8 @@ public class TypecheckerTest {
 	//THIS METHOD TESTS EXPRESSIONS WITH NO VARIABLES
 	public void assertExpType(final Type expected, final Exp exp) {
 		Program prog = new Program(statements, classdefs); 
-		Typechecker typecheck = new Typechecker(prog);  
 		try {
+		Typechecker typecheck = new Typechecker(prog);  
 			final Type received = typecheck.typeofExp(exp);
 			assertTrue("Expected type error; got: "+ received.toString(), expected!=null); 
 			assertEquals(expected,received); 
