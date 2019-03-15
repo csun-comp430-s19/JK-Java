@@ -6,8 +6,7 @@ import java.util.HashMap;
 public class Typechecker {
 	//begin instance variables
 	
-	//A program is taken in as the parameter for Typechecker
-	private final Program program; 
+
 	//List of any statements outside of classes in program
 	private final ArrayList<Statement> statements;
 	//Classes are mapped to their names
@@ -15,19 +14,19 @@ public class Typechecker {
 	//Instances and methods are mapped to their names and that map is mapped to the class name they are in 
 	private Map<String, Map<String, InstanceDecExp>> instances; 
 	private Map<String, Map<String, MethodDefExp>> methods; 
-		
+	//Variable declarations in methods mapped to classname, methodname, and their own names
+	private Map<String, Map<String, Map<String, VariableDecExp>>> variables;
 		
 	//TEMPORARY CONSTRUCTOR ONLY FOR TESTING EXP WITH NO VARIABLES; DISREGARD FOR NOW
 	public Typechecker(){
-		this.program = new Program(); 
 		this.statements = new ArrayList<>(); 
 		this.classes = new HashMap<>(); 
 		this.instances = new HashMap<>(); 
 		this.methods = new HashMap<>(); 
+		this.variables = new HashMap<>(); 
 	}
-	//Constructor, takes in program
-	public Typechecker(Program prog){
-		this.program = prog; 
+	//Constructor, takes in program and type-checks the statements (outside of classes) and the classes 
+	public Typechecker(Program prog){ 
 		this.statements = prog.statementList; 
 		ArrayList<ClassDefExp> classList = prog.classDefList; 
 		for(ClassDefExp c: classList) {
@@ -43,20 +42,32 @@ public class Typechecker {
 				Map<String, MethodDefExp> temp = new HashMap<String, MethodDefExp>();
 				temp.put(m.name, m);
 				this.methods.put(c.name, temp);
+				ArrayList<VariableDecExp> variableList = m.parameters; 
+				for(VariableDecExp v: variableList) {
+					Map<String, VariableDecExp> temp2 = new HashMap<String, VariableDecExp>(); 
+					temp2.put(v.var.name, v);
+					Map<String, Map<String, VariableDecExp>> temp3 = new HashMap<String, Map<String, VariableDecExp>>();
+					temp3.put(m.name, temp2); 
+					this.variables.put(c.name, temp3);
+				}
 			}
 		}
+		//function that typechecks statements outside of classes goes here 
+		
+		//function that typechecks classes goes here		
+		
 	}
 	//begin functions
-		
-	//ensures type of expected is the same as type of actual
-	public void ensureTypesSame(final Type expected, final Type actual) throws TypeErrorException{
-		if(!expected.equals(actual)) {
-			throw new TypeErrorException("Expected: " + expected.toString() +
-										 " got: " + actual.toString()); 
-		}
-	}
 	
-
+	//Final typechecking function for program, creates new typechecker with prog
+	public static void typecheckProgram(final Program prog) throws TypeErrorException{
+		new Typechecker(prog); 
+	}
+	public void typecheckClass() {
+		
+	}
+		
+	
 	
 	//typeofExp takes in map of strings (variable names) and types as well as an Exp e)
 	public Type typeofExp(final Exp e) throws TypeErrorException{
@@ -87,6 +98,14 @@ public class Typechecker {
 		
 		else {
 			throw new TypeErrorException("Not a valid exp"); 
+		}
+	}
+	
+	//ensures type of expected is the same as type of actual
+	public void ensureTypesSame(final Type expected, final Type actual) throws TypeErrorException{
+		if(!expected.equals(actual)) {
+			throw new TypeErrorException("Expected: " + expected.toString() +
+										 " got: " + actual.toString()); 
 		}
 	}
 }
