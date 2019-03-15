@@ -13,9 +13,10 @@ public class Typechecker {
 	//Instances and methods are mapped to their names and that map is mapped to the class name they are in 
 	private Map<String, Map<String, InstanceDecExp>> instances; 
 	private Map<String, Map<String, MethodDefExp>> methods; 
-	//Variable declarations in methods mapped to classname, methodname, and their own names
+	//Variable declarations in methods mapped to class name, method name, and their own names
 	private Map<String, Map<String, Map<String, VariableDecExp>>> variables;
 		
+	
 	//Constructor, takes in program and type-checks the statements (outside of classes) and the classes 
 	public Typechecker(Program prog){ 
 		this.statements = prog.statementList; 
@@ -43,22 +44,33 @@ public class Typechecker {
 				}
 			}
 		}
-		//function that typechecks statements outside of classes goes here 
-		
-		//function that typechecks classes goes here		
-		
+		//Typechecking all classes in Program 
+		for(Map.Entry<String, ClassDefExp> entry: this.classes.entrySet()) {
+			typecheckClass(entry.getValue());
+		}
+		//Typechecking all statements outside classes in Program  
+		for(Statement s: this.statements) {
+			typecheckStmt(s);
+		}
 	}
-	//begin functions
+	//begin typechecking functions
 	
-	//Final typechecking function for program, creates new typechecker with prog
+	//Final typechecking function for program, creates new typechecker with Program prog
 	public static void typecheckProgram(final Program prog) throws TypeErrorException{
 		new Typechecker(prog); 
 	}
-	public void typecheckClass() {
+	//Typechecking for classes
+	public void typecheckClass(final ClassDefExp c) {
 		
 	}
+	//Typechecking for methods
+	public void typecheckMethod(final MethodDefExp m) {
 		
-	
+	}
+	//Typechecking for statements
+	public void typecheckStmt(final Statement s) {
+		
+	}
 	
 	//typeofExp takes in map of strings (variable names) and types as well as an Exp e)
 	public Type typeofExp(final Exp e) throws TypeErrorException{
@@ -91,6 +103,8 @@ public class Typechecker {
 			throw new TypeErrorException("Not a valid exp"); 
 		}
 	}
+	
+	//begin helper functions
 	
 	//ensures type of expected is the same as type of actual
 	public void ensureTypesSame(final Type expected, final Type actual) throws TypeErrorException{
