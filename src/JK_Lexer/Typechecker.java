@@ -83,12 +83,18 @@ public class Typechecker {
 		new Typechecker(prog); 
 	}
 	//Typechecking for classes
-	public void typecheckClass(final ClassDefExp c) {
+	public void typecheckClass(final ClassDefExp c) throws TypeErrorException {
 		this.currentClass = c.name; 
+		for(MethodDefExp m : c.methods) {
+			typecheckMethod(m);
+		}
 	}
 	//Typechecking for methods
-	public void typecheckMethod(final MethodDefExp m) {
+	public void typecheckMethod(final MethodDefExp m) throws TypeErrorException {
 		this.currentMethod = m.name; 
+		for(Statement s : m.block) {
+			typecheckStmt(s);
+		}
 	}
 	//Typechecking for statements within classes
 	public void typecheckStmt(final Statement s) throws TypeErrorException {
