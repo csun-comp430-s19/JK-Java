@@ -18,12 +18,14 @@ public class Typechecker {
 	
 	//Constructor, takes in program and type-checks the statements (outside of classes) and the classes 
 	public Typechecker(Program prog){ 
-		this.statements = prog.statementList; 
-		ArrayList<ClassDefExp> classList = prog.classDefList; 
+		
+		this.statements = prog.statementList;  
 		this.classes = new HashMap<String, ClassDefExp>(); 
 		this.instances = new HashMap<String, Map<String, InstanceDecExp>>(); 
 		this.methods = new HashMap<String, Map<String, MethodDefExp>>(); 
 		this.variables = new HashMap<String, Map<String, Map<String, VariableDecExp>>>(); 
+		
+		ArrayList<ClassDefExp> classList = prog.classDefList;
 		for(ClassDefExp c: classList) {
 			this.classes.put(c.name, c);
 			ArrayList<InstanceDecExp> instanceList = c.members; 
@@ -76,7 +78,7 @@ public class Typechecker {
 	}
 	
 	//typeofExp takes in map of strings (variable names) and types as well as an Exp e)
-	public Type typeofExp(final Exp e) throws TypeErrorException{
+	public Type typeofExp(final Exp e) throws TypeErrorException{       // takes in another parameter too for in scope, but idk what yet
 		if(e instanceof NumberExp) {
 			return new IntType(); 
 		}
