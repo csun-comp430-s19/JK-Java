@@ -16,6 +16,10 @@ public class Typechecker {
 	//Variable declarations in methods mapped to class name, method name, and their own names
 	private Map<String, Map<String, Map<String, VariableDecExp>>> variables;
 	
+	//Placeholders to know where an exp is 
+	private String currentClass;
+	private String currentMethod; 
+	
 	//Constructor, takes in program and type-checks the statements (outside of classes) and the classes 
 	public Typechecker(Program prog){ 
 		
@@ -66,13 +70,13 @@ public class Typechecker {
 	}
 	//Typechecking for classes
 	public void typecheckClass(final ClassDefExp c) {
-		
+		this.currentClass = c.name; 
 	}
 	//Typechecking for methods
 	public void typecheckMethod(final MethodDefExp m) {
-		
+		this.currentMethod = m.name; 
 	}
-	//Typechecking for statements
+	//Typechecking for statements within classes
 	public void typecheckStmt(final Statement s) {
 		
 	}
@@ -94,8 +98,10 @@ public class Typechecker {
 			ensureTypesSame(new IntType(), rightType); 
 			return new IntType();
 		}
-		//else if(e instanceof VariableExp) 
-		
+		else if(e instanceof VariableExp) {
+			String name = ((VariableExp)e).name;
+			return lookupVariable(name); 
+		}
 		//else if(e instanceof ThisExp)	
 		
 		//else if(e instanceof PrintExp) 
@@ -116,6 +122,42 @@ public class Typechecker {
 		if(!expected.equals(actual)) {
 			throw new TypeErrorException("Expected: " + expected.toString() +
 										 " got: " + actual.toString()); 
+		}
+	}
+	public Type lookupVariable(final String name) throws TypeErrorException{
+		//Checks if not in a class then checks statements outside classes for variable
+		if(this.currentClass==null) {
+			for(Statement s: this.statements){
+				if(s instanceof VariableDecExp && ((VariableDecExp) s).var.name.equals(name)){
+					return ((VariableDecExp)s).type; 
+				}
+			}
+		}
+		VariableDecExp temp = this.variables.get(this.currentClass).get(this.currentMethod).get(name);
+		MethodDefExp temp2 = this.methods.get(this.currentClass).get(this.currentMethod); 
+		InstanceDecExp temp3 = this.instances.get(this.currentClass).get(name);
+		//Variables within methods check
+		if(temp!=null) {
+			return temp.type; 
+		}
+		//Instance variables check
+		else if(temp3!=null) {
+			return temp3.var.type; 
+		}
+		//Variables within method parameters check
+		else if(temp2!=null) {
+			for(VariableDecExp v: temp2.parameters) {
+				if(v.var.name.equals(name)) {
+					return v.type; 
+				}
+				else {
+					break; 
+				}
+			}
+			throw new TypeErrorException("Referring to unassigned variable"+name); 
+		}
+		else {
+			throw new TypeErrorException("Referring to unassigned variable" + name); 
 		}
 	}
 }

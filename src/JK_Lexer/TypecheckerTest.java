@@ -89,5 +89,9 @@ public class TypecheckerTest {
                                    new DivOp(),
                                    new StringExp("oof")));
     }
-    
+    @Test 
+    public void testVariableCheckWithoutClass() {
+    	statements.add(new VariableDecExp(new IntType(), new VariableExp("oof")));
+    	assertExpType(new IntType(), new VariableExp("oof"));
+    }
 }
