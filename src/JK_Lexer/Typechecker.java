@@ -91,8 +91,22 @@ public class Typechecker {
 		this.currentMethod = m.name; 
 	}
 	//Typechecking for statements within classes
-	public void typecheckStmt(final Statement s) {
+	public void typecheckStmt(final Statement s) throws TypeErrorException {
+		if(s instanceof AssignmentStmt) {
+			typecheckAssignment((AssignmentStmt)s);
+		}else if(s instanceof ReturnStmt) {
+			Type methodType = methods.get(this.currentClass).get(currentMethod).type;
+			Type returnType = typeofExp(((ReturnStmt)s).e);
+			
+			if(!(methodType.equals(returnType))) throw new TypeErrorException("Method type of method " + this.currentMethod + " does not match type returned by: " + s.toString()); 
+		}
+	}
+	
+	public void typecheckAssignment(final AssignmentStmt as) throws TypeErrorException {
+		Type left = lookupVariable(as.v.name);
+		Type right = typeofExp(as.e);
 		
+		if(!left.equals(right)) throw new TypeErrorException("Assignment Statements must have matching sides: " + as.toString());
 	}
 	
 	//typeofExp takes in map of strings (variable names) and types as well as an Exp e)
