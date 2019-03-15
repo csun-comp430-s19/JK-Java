@@ -6,7 +6,6 @@ import java.util.HashMap;
 public class Typechecker {
 	//begin instance variables
 	
-
 	//List of any statements outside of classes in program
 	private final ArrayList<Statement> statements;
 	//Classes are mapped to their names
@@ -17,14 +16,6 @@ public class Typechecker {
 	//Variable declarations in methods mapped to classname, methodname, and their own names
 	private Map<String, Map<String, Map<String, VariableDecExp>>> variables;
 		
-	//TEMPORARY CONSTRUCTOR ONLY FOR TESTING EXP WITH NO VARIABLES; DISREGARD FOR NOW
-	public Typechecker(){
-		this.statements = new ArrayList<>(); 
-		this.classes = new HashMap<>(); 
-		this.instances = new HashMap<>(); 
-		this.methods = new HashMap<>(); 
-		this.variables = new HashMap<>(); 
-	}
 	//Constructor, takes in program and type-checks the statements (outside of classes) and the classes 
 	public Typechecker(Program prog){ 
 		this.statements = prog.statementList; 

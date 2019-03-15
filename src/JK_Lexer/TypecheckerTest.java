@@ -1,13 +1,17 @@
 package JK_Lexer;
 
+import java.util.ArrayList; 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class TypecheckerTest {
+	ArrayList<Statement> stmtList = new ArrayList<Statement>(); 
+	ArrayList<ClassDefExp> classList = new ArrayList<ClassDefExp>(); 
 	//THIS METHOD TESTS EXPRESSIONS WITH NO VARIABLES
 	public void assertExpType(final Type expected, final Exp exp) {
-		Typechecker typecheck = new Typechecker(); 
+		Program prog = new Program(stmtList, classList);
+		Typechecker typecheck = new Typechecker(prog); 
 		try {
 			final Type received = typecheck.typeofExp(exp);
 			assertTrue("Expected type error; got: "+ received.toString(), expected!=null); 
