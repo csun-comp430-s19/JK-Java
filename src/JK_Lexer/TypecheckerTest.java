@@ -94,4 +94,19 @@ public class TypecheckerTest {
     	statements.add(new VariableDecExp(new IntType(), new VariableExp("oof")));
     	assertExpType(new IntType(), new VariableExp("oof"));
     }
+    @Test(expected = java.lang.AssertionError.class)   //using java.lang.assertionerror.class since the method assertExpType throws this when finding typeerrorexception
+    public void failsTestVariableCheckWithoutClass() throws TypeErrorException{
+    	statements.add(new VariableDecExp(new IntType(), new VariableExp("foo")));
+    	assertExpType(new IntType(), new VariableExp("oof"));
+    }
+    @Test
+    public void	testPrintWithoutClass() {
+    	statements.add(new VariableDecExp(new IntType(), new VariableExp("oof")));
+    	assertExpType(new IntType(), new PrintExp(new VariableExp("oof")));
+    }
+    @Test(expected = java.lang.AssertionError.class)
+    public void failsTestPrintWithoutClass() throws TypeErrorException{
+    	statements.add(new VariableDecExp(new IntType(), new VariableExp("foo")));
+    	assertExpType(new IntType(), new PrintExp(new VariableExp("oof")));
+    }
 }

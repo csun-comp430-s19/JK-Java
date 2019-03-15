@@ -148,6 +148,7 @@ public class Typechecker {
 					return ((VariableDecExp)s).type; 
 				}
 			}
+			throw new TypeErrorException("No variable found: "+name); 
 		}
 		//If in a class, then check variables within methods, instance variables, and variables within method parameters
 		VariableDecExp temp = this.variables.get(this.currentClass).get(this.currentMethod).get(name);
