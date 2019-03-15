@@ -133,6 +133,7 @@ public class Typechecker {
 				}
 			}
 		}
+		//If in a class, then check variables within methods, instance variables, and variables within method parameters
 		VariableDecExp temp = this.variables.get(this.currentClass).get(this.currentMethod).get(name);
 		MethodDefExp temp2 = this.methods.get(this.currentClass).get(this.currentMethod); 
 		InstanceDecExp temp3 = this.instances.get(this.currentClass).get(name);
