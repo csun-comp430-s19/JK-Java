@@ -15,12 +15,15 @@ public class Typechecker {
 	private Map<String, Map<String, MethodDefExp>> methods; 
 	//Variable declarations in methods mapped to class name, method name, and their own names
 	private Map<String, Map<String, Map<String, VariableDecExp>>> variables;
-		
 	
 	//Constructor, takes in program and type-checks the statements (outside of classes) and the classes 
 	public Typechecker(Program prog){ 
 		this.statements = prog.statementList; 
 		ArrayList<ClassDefExp> classList = prog.classDefList; 
+		this.classes = new HashMap<String, ClassDefExp>(); 
+		this.instances = new HashMap<String, Map<String, InstanceDecExp>>(); 
+		this.methods = new HashMap<String, Map<String, MethodDefExp>>(); 
+		this.variables = new HashMap<String, Map<String, Map<String, VariableDecExp>>>(); 
 		for(ClassDefExp c: classList) {
 			this.classes.put(c.name, c);
 			ArrayList<InstanceDecExp> instanceList = c.members; 
@@ -45,8 +48,8 @@ public class Typechecker {
 			}
 		}
 		//Typechecking all classes in Program 
-		for(Map.Entry<String, ClassDefExp> entry: this.classes.entrySet()) {
-			typecheckClass(entry.getValue());
+		for(ClassDefExp c: this.classes.values()) {
+			typecheckClass(c); 
 		}
 		//Typechecking all statements outside classes in Program  
 		for(Statement s: this.statements) {
