@@ -102,13 +102,28 @@ public class Typechecker {
 			String name = ((VariableExp)e).name;
 			return lookupVariable(name); 
 		}
-		//else if(e instanceof ThisExp)	
-		
-		//else if(e instanceof PrintExp) 
-		
+		else if(e instanceof ThisExp) {
+			String name = ((VariableExp)((ThisExp)e).variable).name; 
+			return lookupVariable(name); 
+		}
+		else if(e instanceof PrintExp) {
+			String name = ((VariableExp)((PrintExp)e).expression).name; 
+			return lookupVariable(name); 
+		}
 		//else if(e instanceof CallMethodExp) 
+	
 		
-		//else if(e instanceof NewExp) 
+		else if(e instanceof NewExp) {
+			String classname = ((VariableExp)((NewExp)e).classname).name; 
+			String varname = ((VariableExp)((NewExp)e).variable).name; 
+			lookupVariable(varname); 
+			if(ensureClassExists(classname)) {
+				return new CustomType(classname);
+			}
+			else {
+				throw new TypeErrorException("Class does not exist: "+ classname); 
+			}
+		}
 		
 		else {
 			throw new TypeErrorException("Not a valid exp"); 
@@ -124,6 +139,7 @@ public class Typechecker {
 										 " got: " + actual.toString()); 
 		}
 	}
+	//looks up variable from the rest of the class
 	public Type lookupVariable(final String name) throws TypeErrorException{
 		//Checks if not in a class then checks statements outside classes for variable
 		if(this.currentClass==null) {
@@ -155,10 +171,17 @@ public class Typechecker {
 					break; 
 				}
 			}
-			throw new TypeErrorException("Referring to unassigned variable"+name); 
+			throw new TypeErrorException("Referring to unassigned variable "+name); 
 		}
 		else {
-			throw new TypeErrorException("Referring to unassigned variable" + name); 
+			throw new TypeErrorException("Referring to unassigned variable " + name); 
 		}
+	}
+	//looks to see if class exists by string name 
+	public boolean ensureClassExists(final String name) throws TypeErrorException{
+		if(this.classes.get(name)==null) {
+			return false;
+		}
+		return true; 
 	}
 }
