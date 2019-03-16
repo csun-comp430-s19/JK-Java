@@ -144,7 +144,12 @@ public class Typechecker {
 	// Typechecking for constructors
 	public void typecheckConstructor(final ConstructorDef cd) throws TypeErrorException {
 		inConstructor = true;
-		this.currentConstructor = constructors.get(currentClass).indexOf(cd);
+		for(int i = 0; i < constructors.get(currentClass).size(); i++) {
+			if(constructors.get(currentClass).get(i).equals(cd)) {
+				this.currentConstructor = i;
+				break;
+			}
+		}
 
 		for (Statement s : cd.block) {
 			if (s instanceof AssignmentStmt) {
@@ -200,8 +205,7 @@ public class Typechecker {
 	public void typecheckAssignment(final AssignmentStmt as) throws TypeErrorException {
 		Type left = lookupVariable(as.v.name);
 		Type right = typeofExp(as.e);
-
-		if (!left.equals(right))
+		if (!left.toString().equals(right.toString()))
 			throw new TypeErrorException("Assignment Statements must have matching sides: " + as.toString());
 	}
 
