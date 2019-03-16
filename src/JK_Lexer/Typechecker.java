@@ -39,8 +39,8 @@ public class Typechecker {
 		this.methods = new HashMap<String, Map<String, MethodDefExp>>();
 		this.variables = new HashMap<String, Map<String, Map<String, VariableDecExp>>>();
 		this.programVariables = new HashMap<String, VariableDecExp>();
-		this.constructors = new HashMap<String, ArrayList<ConstructorDef>>(); 
-		this.constructorVariableDec= new HashMap<String, ArrayList<Map<String, VariableDecExp>>>(); 
+		this.constructors = new HashMap<String, ArrayList<ConstructorDef>>();
+		this.constructorVariableDec = new HashMap<String, ArrayList<Map<String, VariableDecExp>>>();
 		inConstructor = true;
 		currentClass = null;
 		currentMethod = null;
@@ -144,8 +144,8 @@ public class Typechecker {
 	// Typechecking for constructors
 	public void typecheckConstructor(final ConstructorDef cd) throws TypeErrorException {
 		inConstructor = true;
-		for(int i = 0; i < constructors.get(currentClass).size(); i++) {
-			if(constructors.get(currentClass).get(i).equals(cd)) {
+		for (int i = 0; i < constructors.get(currentClass).size(); i++) {
+			if (constructors.get(currentClass).get(i).equals(cd)) {
 				this.currentConstructor = i;
 				break;
 			}
@@ -170,25 +170,26 @@ public class Typechecker {
 
 	// Typechecking for statements within classes
 	public void typecheckStmt(final Statement s) throws TypeErrorException {
-		if(currentClass != null) {
-		if (s instanceof AssignmentStmt) {
-			typecheckAssignment((AssignmentStmt) s);
-		} else if (s instanceof ReturnStmt) {
-			Type methodType = methods.get(this.currentClass).get(currentMethod).type;
-			Type returnType = typeofExp(((ReturnStmt) s).e);
+		if (currentClass != null) {
+			if (s instanceof AssignmentStmt) {
+				typecheckAssignment((AssignmentStmt) s);
+			} else if (s instanceof ReturnStmt) {
+				Type methodType = methods.get(this.currentClass).get(currentMethod).type;
+				Type returnType = typeofExp(((ReturnStmt) s).e);
 
-			if (!(methodType.equals(returnType)))
-				throw new TypeErrorException("Method type of method " + this.currentMethod
-						+ " does not match type returned by: " + s.toString());
-		} else if (s instanceof VariableDecExp) {
-			if (methods.get(this.currentClass).get(currentMethod).parameters.contains(s))
-				throw new TypeErrorException(
-						"Variable " + ((VariableDecExp) s).var.name + " already declared in parameters");
-			else {
-				variables.get(currentClass).get(currentMethod).put(((VariableDecExp) s).var.name, ((VariableDecExp) s));
+				if (!(methodType.equals(returnType)))
+					throw new TypeErrorException("Method type of method " + this.currentMethod
+							+ " does not match type returned by: " + s.toString());
+			} else if (s instanceof VariableDecExp) {
+				if (methods.get(this.currentClass).get(currentMethod).parameters.contains(s))
+					throw new TypeErrorException(
+							"Variable " + ((VariableDecExp) s).var.name + " already declared in parameters");
+				else {
+					variables.get(currentClass).get(currentMethod).put(((VariableDecExp) s).var.name,
+							((VariableDecExp) s));
+				}
 			}
-		}
-		}else {
+		} else {
 			if (s instanceof AssignmentStmt) {
 				typecheckAssignment((AssignmentStmt) s);
 			} else if (s instanceof VariableDecExp) {
@@ -234,23 +235,21 @@ public class Typechecker {
 		} else if (e instanceof PrintExp) {
 			String name = ((VariableExp) ((PrintExp) e).expression).name;
 			return lookupVariable(name);
-		}
-		else if(e instanceof CallMethodExp) {
-			String varName = ((VariableExp)((CallMethodExp)e).input).name;
-			String methodName = ((VariableExp)((CallMethodExp)e).methodname).name;
-			String parameterName = ((VariableExp)((CallMethodExp)e).parameter).name;
-			lookupVariable(varName); 
-			lookupVariable(parameterName); 
-			MethodDefExp temp = this.methods.get(this.currentClass).get(methodName); 
-			if(temp==null) {
-				throw new TypeErrorException("Method does not exist: "+ methodName + " in class: " +this.currentClass); 
-			}
-			else{
+		} else if (e instanceof CallMethodExp) {
+			String varName = ((VariableExp) ((CallMethodExp) e).input).name;
+			String methodName = ((VariableExp) ((CallMethodExp) e).methodname).name;
+			String parameterName = ((VariableExp) ((CallMethodExp) e).parameter).name;
+			lookupVariable(varName);
+			lookupVariable(parameterName);
+			MethodDefExp temp = this.methods.get(this.currentClass).get(methodName);
+			if (temp == null) {
+				throw new TypeErrorException(
+						"Method does not exist: " + methodName + " in class: " + this.currentClass);
+			} else {
 				ensureTypesSame(lookupVariable(parameterName), temp.parameters.get(0).type);
-				return temp.type; 
+				return temp.type;
 			}
-		}
-		else if (e instanceof NewExp) {
+		} else if (e instanceof NewExp) {
 			String classname = ((VariableExp) ((NewExp) e).classname).name;
 			String varname = ((VariableExp) ((NewExp) e).variable).name;
 			lookupVariable(varname);
@@ -293,10 +292,17 @@ public class Typechecker {
 			MethodDefExp temp2 = null;
 			InstanceDecExp temp3 = null;
 			try {
-			temp = this.variables.get(this.currentClass).get(this.currentMethod).get(name);
-			temp2 = this.methods.get(this.currentClass).get(this.currentMethod);
-			temp3 = this.instances.get(this.currentClass).get(name);
-			}catch(Exception e) {}
+				temp = this.variables.get(this.currentClass).get(this.currentMethod).get(name);
+			} catch (Exception e) {
+			}
+			try {
+				temp2 = this.methods.get(this.currentClass).get(this.currentMethod);
+			} catch (Exception e1) {
+			}
+			try {
+				temp3 = this.instances.get(this.currentClass).get(name);
+			} catch (Exception e2) {
+			}
 			// Variables within methods check
 			if (temp != null) {
 				return temp.type;
@@ -322,11 +328,19 @@ public class Typechecker {
 			VariableDecExp temp = null;
 			ConstructorDef temp2 = null;
 			InstanceDecExp temp3 = null;
+
 			try {
-			temp = this.constructorVariableDec.get(this.currentClass).get(currentConstructor).get(name);
-			temp2 = this.constructors.get(this.currentClass).get(currentConstructor);
-			temp3 = this.instances.get(this.currentClass).get(name);
-			}catch(Exception e) {}
+				temp = constructorVariableDec.get(currentClass).get(currentConstructor).get(name);
+			} catch (Exception e) {
+			}
+			try {
+				temp2 = constructors.get(currentClass).get(currentConstructor);
+			} catch (Exception e1) {
+			}
+			try {
+				temp3 = instances.get(currentClass).get(name);
+			} catch (Exception e2) {
+			}
 			if (temp != null) {
 				return temp.type;
 			}
