@@ -319,9 +319,14 @@ public class Typechecker {
 				throw new TypeErrorException("Referring to unassigned variable " + name);
 			}
 		} else {
-			VariableDecExp temp = this.constructorVariableDec.get(this.currentClass).get(currentConstructor).get(name);
-			ConstructorDef temp2 = this.constructors.get(this.currentClass).get(currentConstructor);
-			InstanceDecExp temp3 = this.instances.get(this.currentClass).get(name);
+			VariableDecExp temp = null;
+			ConstructorDef temp2 = null;
+			InstanceDecExp temp3 = null;
+			try {
+			temp = this.constructorVariableDec.get(this.currentClass).get(currentConstructor).get(name);
+			temp2 = this.constructors.get(this.currentClass).get(currentConstructor);
+			temp3 = this.instances.get(this.currentClass).get(name);
+			}catch(Exception e) {}
 			if (temp != null) {
 				return temp.type;
 			}
