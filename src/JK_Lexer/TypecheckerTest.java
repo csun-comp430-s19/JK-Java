@@ -5,6 +5,21 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
+//NOTES ON TESTS: We had a lot of trouble in fixing and adding more features to our parser,
+//as well as fixing some of the types and classes we had in the syntax. As you can see, 
+//our parser doesn't fully work for program as of right now because of these attempted fixes. 
+//As a result, it came down to the wire timewise when our tests finally worked after debugging
+//the typechecker, so our tests are fairly scarce as of the deadline. 
+
+//Since theres no submission for peer review on Canvas, 
+
+//Jason: Edited my part of the parser (exp), started the typechecker and wrote most of the constructor,
+//most of lookupVariable, and typeofExp
+
+//Kodi: 
+
+
+
 public class TypecheckerTest {
 	ArrayList<Statement> statements = new ArrayList<Statement>(0); 
 	ArrayList<ClassDefExp> classdefs = new ArrayList<ClassDefExp>(0); 
