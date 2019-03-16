@@ -1,5 +1,5 @@
 package JK_Lexer;
-
+ 
 import java.util.ArrayList; 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -8,7 +8,7 @@ import org.junit.Test;
 public class TypecheckerTest {
 	ArrayList<Statement> statements = new ArrayList<Statement>(0); 
 	ArrayList<ClassDefExp> classdefs = new ArrayList<ClassDefExp>(0); 
-	//THIS METHOD TESTS EXPRESSIONS WITH NO VARIABLES
+	//method tests some expressions
 	public void assertExpType(final Type expected, final Exp exp) {
 		Program prog = new Program(statements, classdefs); 
 		try {
