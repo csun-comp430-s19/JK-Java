@@ -40,6 +40,8 @@ public class Typechecker {
 		this.variables = new HashMap<String, Map<String, Map<String, VariableDecExp>>>();
 		this.programVariables = new HashMap<String, VariableDecExp>();
 		inConstructor = true;
+		currentClass = null;
+		currentMethod = null;
 
 		ArrayList<ClassDefExp> classList = prog.classDefList;
 		for (ClassDefExp c : classList) {
@@ -100,23 +102,14 @@ public class Typechecker {
 				this.constructorVariableDec.put(c.name, temp3);
 			}
 		}
-		for (Statement s : this.statements) {
-			if (s instanceof VariableDecExp) {
-				if (programVariables.containsKey(((VariableDecExp) s).var.name))
-					throw new TypeErrorException(
-							"Duplicate variable declared in statements outside of class declaratons: "
-									+ ((VariableDecExp) s).var.name);
-				programVariables.put(((VariableDecExp) s).var.name, (VariableDecExp) s);
-			}
-		}
 
-		// Typechecking all classes in Program
-		for (ClassDefExp c : this.classes.values()) {
-			typecheckClass(c);
-		}
 		// Typechecking all statements outside classes in Program
 		for (Statement s : this.statements) {
 			typecheckStmt(s);
+		}
+		// Typechecking all classes in Program
+		for (ClassDefExp c : this.classes.values()) {
+			typecheckClass(c);
 		}
 	}
 	// begin typechecking functions
@@ -170,6 +163,7 @@ public class Typechecker {
 
 	// Typechecking for statements within classes
 	public void typecheckStmt(final Statement s) throws TypeErrorException {
+		if(currentClass != null) {
 		if (s instanceof AssignmentStmt) {
 			typecheckAssignment((AssignmentStmt) s);
 		} else if (s instanceof ReturnStmt) {
@@ -185,6 +179,18 @@ public class Typechecker {
 						"Variable " + ((VariableDecExp) s).var.name + " already declared in parameters");
 			else {
 				variables.get(currentClass).get(currentMethod).put(((VariableDecExp) s).var.name, ((VariableDecExp) s));
+			}
+		}
+		}else {
+			if (s instanceof AssignmentStmt) {
+				typecheckAssignment((AssignmentStmt) s);
+			} else if (s instanceof VariableDecExp) {
+				if (programVariables.containsKey(((VariableDecExp) s).var.name))
+					throw new TypeErrorException(
+							"Variable " + ((VariableDecExp) s).var.name + " already declared in parameters");
+				else {
+					programVariables.put(((VariableDecExp) s).var.name, ((VariableDecExp) s));
+				}
 			}
 		}
 	}
