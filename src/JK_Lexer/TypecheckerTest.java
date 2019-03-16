@@ -16,7 +16,9 @@ import org.junit.Test;
 //Jason: Edited my part of the parser (exp), started the typechecker and wrote most of the constructor,
 //most of lookupVariable, and typeofExp
 
-//Kodi: 
+//Kodi:  Added in typechecking for everything else that is not exp
+//       Added in and changed parser as it was missing some object orientation features
+//       (parser and added oop stuff is still broken)
 
 
 
