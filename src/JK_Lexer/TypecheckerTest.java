@@ -121,7 +121,7 @@ public class TypecheckerTest {
     	ArrayList<VariableDecExp> constructorParam = new ArrayList<VariableDecExp>();
     	ArrayList<Statement> constructorblock = new ArrayList<Statement>();
     	constructorblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a")));
-    	constructorParam.add(new VariableDecExp(new IntType(), new VariableExp("age")));
+    	constructorParam.add(new VariableDecExp(new IntType(), new VariableExp("a")));
     	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
     	block.add(new ReturnStmt(new VariableExp("age")));
     	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
