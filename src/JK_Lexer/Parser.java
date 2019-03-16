@@ -227,14 +227,18 @@ public class Parser {
 			int currentPos = startPos + 4;
 			while (!(currentToken instanceof RightCurlyToken)) {
 				ParseResult<Modifier> mod = parseModifier(currentPos);
-				if (getToken(currentPos + 1) instanceof Type) {
+				if (getToken(currentPos + 1) instanceof NameToken && getToken(currentPos + 2) instanceof LeftParenToken) {// constructor
+					ParseResult<ConstructorDef> constructorDef = parseConstructorDef(currentPos, classname);
+					currentPos = constructorDef.tokenPos;
+					constructorlist.add(constructorDef.result);
+				}else if (getToken(currentPos+2) instanceof NameToken) {
 					ParseResult<Type> type = parseType(currentPos + 1);
 					if (!(getToken(currentPos + 2) instanceof NameToken)) {
 						throw new ParserException(
 								"Expected Valid Name of Member variable or method at: " + currentPos + 2);
 					}
 					String name = getToken(currentPos + 2).toString();
-
+					
 					if (getToken(currentPos + 3) instanceof LeftParenToken) {
 						// method dec
 						ParseResult<MethodDefExp> methodDefExp = parseMethodDefExp(currentPos);
@@ -247,13 +251,9 @@ public class Parser {
 								new InstanceDecExp(mod.result, new VariableDecExp(type.result, new VariableExp(name))));
 						currentPos += 4;
 					}
-				} else if (getToken(currentPos + 1) instanceof NameToken) {// constructor
-					ParseResult<ConstructorDef> constructorDef = parseConstructorDef(currentPos, classname);
-					currentPos = constructorDef.tokenPos;
-					constructorlist.add(constructorDef.result);
-				}//else {
-//					throw new ParserException("Unexpected " + getToken(currentPos + 1).toString() + " at: " + currentPos+1);
-//				}
+				} else {
+					throw new ParserException("Unexpected " + getToken(currentPos + 1).toString() + " at: " + currentPos+1);
+				}
 				currentToken = getToken(currentPos);
 			}
 
@@ -369,6 +369,7 @@ public class Parser {
 				statementList.add(statement.result);
 				pos = statement.tokenPos;
 			}
+
 		}
 		return new ParseResult<Program>(new Program(statementList, classDefList), pos + 1);
 	}
