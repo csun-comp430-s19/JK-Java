@@ -15,12 +15,15 @@ public class Typechecker {
 	//Instances and methods are mapped to their names and that map is mapped to the class name they are in 
 	private Map<String, Map<String, InstanceDecExp>> instances; 
 	private Map<String, Map<String, MethodDefExp>> methods; 
+	private Map<String, ArrayList<ConstructorDef>> constructors;
+	private Map<String,ArrayList<Map<String, VariableDecExp>>> constructorVariableDec;
 	//Variable declarations in methods mapped to class name, method name, and their own names
 	private Map<String, Map<String, Map<String, VariableDecExp>>> variables;
 	
 	//Placeholders to know where an exp is 
 	private String currentClass;
 	private String currentMethod; 
+	private int currentConstructor;
 	
 	//Constructor, takes in program and type-checks the statements (outside of classes) and the classes 
 	public Typechecker(Program prog) throws TypeErrorException{ 
@@ -44,20 +47,39 @@ public class Typechecker {
 				this.instances.put(c.name, temp);
 			}
 			ArrayList<MethodDefExp> methodList = c.methods;
+			Map<String, MethodDefExp> temp = new HashMap<String, MethodDefExp>();
 			for(MethodDefExp m: methodList) {
-				Map<String, MethodDefExp> temp = new HashMap<String, MethodDefExp>();
 				if(temp.containsKey(m.name)) throw new TypeErrorException("Duplicate method declared in class " + c.name +" : "+ m.name);
 				temp.put(m.name, m);
 				this.methods.put(c.name, temp);
 				ArrayList<VariableDecExp> variableList = m.parameters; 
 				Map<String, VariableDecExp> temp2 = new HashMap<String, VariableDecExp>(); 
 				for(VariableDecExp v: variableList) {
-					if(temp2.containsKey(v.var.name)) throw new TypeErrorException("Duplicate method declared in class " + c.name + " method " + m.name + " : " + v.var.name);
+					if(temp2.containsKey(v.var.name)) throw new TypeErrorException("Duplicate parameter declared in class " + c.name + " method " + m.name + " : " + v.var.name);
 					temp2.put(v.var.name, v);
 				}
 				Map<String, Map<String, VariableDecExp>> temp3 = new HashMap<String, Map<String, VariableDecExp>>();
 				temp3.put(m.name, temp2); 
 				this.variables.put(c.name, temp3);
+			}
+			
+			ArrayList<ConstructorDef> constructorList = c.constructors;
+			ArrayList<ConstructorDef> tempConstructor = new ArrayList<ConstructorDef>();
+			for(int i = 0; i < constructorList.size(); i++) {
+				for(int j = 0; i < tempConstructor.size() ; j ++) {
+					if(tempConstructor.get(j).parameters.equals(constructorList.get(i))) throw new TypeErrorException("Duplicate declared constructor: Name: " + constructorList.get(i).name + "Parameters: " + constructorList.get(i).parameters.toString());
+				}
+				tempConstructor.add(i, constructorList.get(i));
+				this.constructors.put(c.name, tempConstructor);
+				ArrayList<VariableDecExp> variableList = constructorList.get(i).parameters; 
+				Map<String, VariableDecExp> temp2 = new HashMap<String, VariableDecExp>(); 
+				for(VariableDecExp v: variableList) {
+					if(temp2.containsKey(v.var.name)) throw new TypeErrorException("Duplicate parameter declared in class " + c.name + " constructor: " + constructorList.get(i).name+"("+constructorList.get(i).parameters.toString()+")" + " : " + v.var.name);
+					temp2.put(v.var.name, v);
+				}
+				ArrayList<Map<String, VariableDecExp>> temp3 = new ArrayList<Map<String, VariableDecExp>>();
+				temp3.add(i, temp2); 
+				this.constructorVariableDec.put(c.name, temp3);
 			}
 		}
 		for(Statement s: this.statements) {
@@ -96,6 +118,19 @@ public class Typechecker {
 			typecheckStmt(s);
 		}
 	}
+	//Typechecking for constructors
+	public void typecheckConstructor(final ConstructorDef cd) throws TypeErrorException{
+		this.currentConstructor = constructors.get(currentClass).indexOf(cd);
+		Map<String, VariableDecExp> varMap = constructorVariableDec.get(currentClass).get(currentConstructor);
+		
+		for(Statement s : cd.block) {
+			if(s instanceof AssignmentStmt) {
+				AssignmentStmt as = (AssignmentStmt)s;
+				
+			}
+		}
+	}
+	
 	//Typechecking for statements within classes
 	public void typecheckStmt(final Statement s) throws TypeErrorException {
 		if(s instanceof AssignmentStmt) {
@@ -105,6 +140,12 @@ public class Typechecker {
 			Type returnType = typeofExp(((ReturnStmt)s).e);
 			
 			if(!(methodType.equals(returnType))) throw new TypeErrorException("Method type of method " + this.currentMethod + " does not match type returned by: " + s.toString()); 
+		}else if(s instanceof VariableDecExp) {
+			if(methods.get(this.currentClass).get(currentMethod).parameters.contains(s))
+				throw new TypeErrorException("Variable " + ((VariableDecExp)s).var.name + " already declared in parameters");
+			else {
+				variables.get(currentClass).get(currentMethod).put(((VariableDecExp)s).var.name, ((VariableDecExp)s));
+			}
 		}
 	}
 	
