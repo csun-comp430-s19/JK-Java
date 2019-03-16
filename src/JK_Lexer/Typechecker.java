@@ -289,9 +289,14 @@ public class Typechecker {
 		// If in a class, then check variables within methods, instance variables, and
 		// variables within method parameters
 		if (!inConstructor) {
-			VariableDecExp temp = this.variables.get(this.currentClass).get(this.currentMethod).get(name);
-			MethodDefExp temp2 = this.methods.get(this.currentClass).get(this.currentMethod);
-			InstanceDecExp temp3 = this.instances.get(this.currentClass).get(name);
+			VariableDecExp temp = null;
+			MethodDefExp temp2 = null;
+			InstanceDecExp temp3 = null;
+			try {
+			temp = this.variables.get(this.currentClass).get(this.currentMethod).get(name);
+			temp2 = this.methods.get(this.currentClass).get(this.currentMethod);
+			temp3 = this.instances.get(this.currentClass).get(name);
+			}catch(Exception e) {}
 			// Variables within methods check
 			if (temp != null) {
 				return temp.type;
