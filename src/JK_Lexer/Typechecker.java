@@ -223,8 +223,21 @@ public class Typechecker {
 			String name = ((VariableExp) ((PrintExp) e).expression).name;
 			return lookupVariable(name);
 		}
-		// else if(e instanceof CallMethodExp)
-
+		else if(e instanceof CallMethodExp) {
+			String varName = ((VariableExp)((CallMethodExp)e).input).name;
+			String methodName = ((VariableExp)((CallMethodExp)e).methodname).name;
+			String parameterName = ((VariableExp)((CallMethodExp)e).parameter).name;
+			lookupVariable(varName); 
+			lookupVariable(parameterName); 
+			MethodDefExp temp = this.methods.get(this.currentClass).get(methodName); 
+			if(temp==null) {
+				throw new TypeErrorException("Method does not exist: "+ methodName + " in class: " +this.currentClass); 
+			}
+			else{
+				ensureTypesSame(lookupVariable(parameterName), temp.parameters.get(0).type);
+				return temp.type; 
+			}
+		}
 		else if (e instanceof NewExp) {
 			String classname = ((VariableExp) ((NewExp) e).classname).name;
 			String varname = ((VariableExp) ((NewExp) e).variable).name;
