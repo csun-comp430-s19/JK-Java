@@ -39,6 +39,8 @@ public class Typechecker {
 		this.methods = new HashMap<String, Map<String, MethodDefExp>>();
 		this.variables = new HashMap<String, Map<String, Map<String, VariableDecExp>>>();
 		this.programVariables = new HashMap<String, VariableDecExp>();
+		this.constructors = new HashMap<String, ArrayList<ConstructorDef>>(); 
+		this.constructorVariableDec= new HashMap<String, ArrayList<Map<String, VariableDecExp>>>(); 
 		inConstructor = true;
 		currentClass = null;
 		currentMethod = null;
