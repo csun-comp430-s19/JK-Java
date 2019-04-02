@@ -199,6 +199,10 @@ public class Parser {
 		return new ParseResult<Exp>(resultExp, resultPos);
 	} // parsePrimary
 
+	public ConstructorDef parseConstructorDef(String classname) throws ParserException {
+		return parseConstructorDef(0, classname).result;
+	}
+	
 	public ClassDefExp parseClassDef() throws ParserException {
 		return parseClassDef(0).result;
 	}

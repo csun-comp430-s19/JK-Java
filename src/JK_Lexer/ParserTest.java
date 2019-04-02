@@ -25,6 +25,17 @@ public class ParserTest {
         }
     } // assertParses
     
+    public void assertParsesConstructorDef(final Token[] tokens, final ConstructorDef expected) {
+    	final Parser parser = new Parser(tokens);
+    	try {
+    		final ConstructorDef received = parser.parseConstructorDef(expected.name);
+    		assertTrue("Expected parse failure; got: " + received, expected != null);
+    		assertEquals(expected, received);
+    	} catch (final ParserException e) {
+    		assertTrue(("Unexpected parse failure for " + Arrays.toString(tokens) + ": " + e.getMessage()), expected == null);
+    	}
+}
+    
     public void assertParsesClassDef(final Token[] tokens, final ClassDefExp expected) {
     	final Parser parser = new Parser(tokens);
     	try {
@@ -212,54 +223,71 @@ public class ParserTest {
     	assertParses(tokens, expected); 
     }
     
-//    @Test
-//    public void testClassDec() {
-//    	final Token[] tokens = { new PublicToken(), 
-//    							 new ClassToken(), 
-//    							 new NameToken("Student"),
-//    							 new LeftCurlyToken(),
-//    							 new PrivateToken(),
-//    							 new IntToken(),
-//    							 new NameToken("age"),
-//    							 new SemicolonToken(),
-//    							 new PublicToken(),
-//    							 new IntToken(),
-//    							 new NameToken("getAge"),
-//    							 new LeftParenToken(),
-//    							 new RightParenToken(),
-//    							 new LeftCurlyToken(),
-//    							 new ReturnToken(),
-//    							 new NameToken("age"),
-//    							 new SemicolonToken(),
-//    							 new RightCurlyToken(),
-//    							 new PublicToken(),
-//    							 new VoidToken(),
-//    							 new NameToken("setAge"),
-//    							 new LeftParenToken(),
-//    							 new IntToken(),
-//    							 new NameToken("n"),
-//    							 new RightParenToken(),
-//    							 new LeftCurlyToken(),
-//    							 new NameToken("age"),
-//    							 new AssignmentToken(),
-//    							 new NameToken("n"),
-//    							 new SemicolonToken(),
-//    							 new RightCurlyToken(),
-//    							 new RightCurlyToken() };
-//    	ArrayList<InstanceDecExp> memberVarList = new ArrayList<InstanceDecExp>();
-//    	memberVarList.add(new InstanceDecExp(new PrivateModifier(), new VariableDecExp(new IntType(), new VariableExp("age"))));
-//    	ArrayList<MethodDefExp> methodList = new ArrayList<MethodDefExp>();
-//    	ArrayList<Statement> block = new ArrayList<Statement>();
-//    	ArrayList<Statement> setblock = new ArrayList<Statement>();
-//    	ArrayList<VariableDecExp> setparam = new ArrayList<VariableDecExp>();
-//    	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
-//    	block.add(new ReturnStmt(new VariableExp("age")));
-//    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
-//    	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
-//    	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
-//    	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", memberVarList, methodList);
-//    	assertParsesClassDef(tokens, expected); 
-//    }
+    @Test
+    public void testConstructor() {
+    	final Token[] tokens = { new PublicToken(),
+    							 new NameToken("Student"),
+    							 new LeftParenToken(),
+    							 new IntToken(),
+    							 new NameToken("foo"),
+    							 new RightParenToken(),
+    							 new LeftCurlyToken(),
+    							 new RightCurlyToken()};
+    	ArrayList<VariableDecExp> param = new ArrayList<VariableDecExp>();
+    	param.add(new VariableDecExp(new IntType(), new VariableExp("foo")));
+    	final ConstructorDef expected = new ConstructorDef(new PublicModifier(), "Student",param , new ArrayList());
+    	
+    	assertParsesConstructorDef(tokens, expected); 
+    }
+    
+    @Test
+    public void testClassDec() {
+    	final Token[] tokens = { new PublicToken(), 
+    							 new ClassToken(), 
+    							 new NameToken("Student"),
+    							 new LeftCurlyToken(),
+    							 new PrivateToken(),
+    							 new IntToken(),
+    							 new NameToken("age"),
+    							 new SemicolonToken(),
+    							 new PublicToken(),
+    							 new IntToken(),
+    							 new NameToken("getAge"),
+    							 new LeftParenToken(),
+    							 new RightParenToken(),
+    							 new LeftCurlyToken(),
+    							 new ReturnToken(),
+    							 new NameToken("age"),
+    							 new SemicolonToken(),
+    							 new RightCurlyToken(),
+    							 new PublicToken(),
+    							 new VoidToken(),
+    							 new NameToken("setAge"),
+    							 new LeftParenToken(),
+    							 new IntToken(),
+    							 new NameToken("n"),
+    							 new RightParenToken(),
+    							 new LeftCurlyToken(),
+    							 new NameToken("age"),
+    							 new AssignmentToken(),
+    							 new NameToken("n"),
+    							 new SemicolonToken(),
+    							 new RightCurlyToken(),
+    							 new RightCurlyToken() };
+    	ArrayList<InstanceDecExp> memberVarList = new ArrayList<InstanceDecExp>();
+    	memberVarList.add(new InstanceDecExp(new PrivateModifier(), new VariableDecExp(new IntType(), new VariableExp("age"))));
+    	ArrayList<MethodDefExp> methodList = new ArrayList<MethodDefExp>();
+    	ArrayList<Statement> block = new ArrayList<Statement>();
+    	ArrayList<Statement> setblock = new ArrayList<Statement>();
+    	ArrayList<VariableDecExp> setparam = new ArrayList<VariableDecExp>();
+    	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
+    	block.add(new ReturnStmt(new VariableExp("age")));
+    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
+    	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
+    	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
+    	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", new ArrayList<ConstructorDef>(), memberVarList, methodList);
+    	assertParsesClassDef(tokens, expected); 
+    }
     
     
     @Test
