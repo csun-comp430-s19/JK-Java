@@ -24,8 +24,8 @@ public class ConstructorDef {
 				block.hashCode()); 
 	}
 	public boolean equals(final Object other) {
-		if(other instanceof MethodDefExp) {
-			final MethodDefExp otherExp=(MethodDefExp)other; 
+		if(other instanceof ConstructorDef) {
+			final ConstructorDef otherExp=(ConstructorDef)other; 
 			return (otherExp.mod.equals(mod) &&
 					otherExp.name.equals(name) &&
 					otherExp.parameters.equals(parameters) &&
