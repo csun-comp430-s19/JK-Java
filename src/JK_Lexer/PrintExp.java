@@ -18,4 +18,7 @@ public class PrintExp implements Exp{
 			return false; 
 		}
 	}
+	public String toString() {
+		return expression.toString(); 
+	}
 }
