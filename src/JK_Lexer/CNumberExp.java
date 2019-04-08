@@ -15,5 +15,4 @@ public class CNumberExp implements CExp {
 	    public String toString() {
 	        return Integer.toString(number);
 	    }
-	}
-
+}
