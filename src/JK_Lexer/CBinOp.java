@@ -1,6 +1,6 @@
 package JK_Lexer;
 
-public class CBinOp implements CInstruction {
+public class CBinOp implements CExp {
 	public final CExp left;
 	public final Op op;
 	public final CExp right;
