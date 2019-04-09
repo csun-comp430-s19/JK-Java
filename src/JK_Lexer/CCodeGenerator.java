@@ -8,6 +8,12 @@ import java.io.BufferedWriter;
 import java.io.PrintWriter;
 import java.io.IOException;
 
+
+// Basic expressions covered by this deadline are: var, string, int, print, and binop. Other expressions like objects,
+// method calls, and new class object declarations are not implemented yet because we are still planning the scope of this
+// code generation class, and it would be easier to implement once we have a better understanding of that when we work on later deadlines
+
+
 public class CCodeGenerator {
 	private final List<CInstruction> instructions;
 	
