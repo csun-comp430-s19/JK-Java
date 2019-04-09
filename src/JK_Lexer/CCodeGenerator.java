@@ -1,9 +1,15 @@
 package JK_Lexer;
 
+import java.util.List;
 import java.util.ArrayList;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
 
 public class CCodeGenerator {
-	private final ArrayList<CInstruction> instructions;
+	private final List<CInstruction> instructions;
 	
 	//CCodeGenerator object will output an arraylist of c instructions
 	public CCodeGenerator() {
@@ -55,5 +61,21 @@ public class CCodeGenerator {
 		else {
 			throw new CCodeGeneratorException("Basic expression not found: "+exp.toString());
 		}
+	}
+	public void writeCompleteFile(final File file) throws IOException{
+		final PrintWriter output= new PrintWriter(new BufferedWriter(new FileWriter(file))); 
+		try {
+			for(final CInstruction i: instructions) {
+				String s = i.toString(); 
+				output.println(s);
+			}
+		}finally {
+			output.close(); 
+		}
+	}
+	public void writeExpressiontoFile(final Exp exp, final File file) throws IOException, CCodeGeneratorException{
+		final CCodeGenerator gen = new CCodeGenerator(); 
+		gen.compileExp(exp); 
+		gen.writeCompleteFile(file); 
 	}
 }

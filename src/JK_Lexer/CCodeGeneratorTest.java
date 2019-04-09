@@ -7,5 +7,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class CCodeGeneratorTest {
-
+	public void assertBasicExpGeneration(String expected, Exp e) throws IOException{
+		
+	}
 }
