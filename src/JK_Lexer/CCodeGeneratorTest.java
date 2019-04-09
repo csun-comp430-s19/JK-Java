@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Scanner; 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
-
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 
@@ -24,7 +23,7 @@ public class CCodeGeneratorTest {
 			assertTrue("Unexpected code generation error: "+exc.getMessage(), expected==null);
 		}
 	}
-	//Method for converting text from the c file created to a string
+	//Method for converting text from the c file created to a string, might have to change for later testing with more than one line/exp
 	public String convertFileToString(File file) throws IOException{
 		StringBuilder sb = new StringBuilder((int)file.length());
 		Scanner scanner = new Scanner(file);
@@ -38,7 +37,7 @@ public class CCodeGeneratorTest {
 		assertBasicExpGeneration("1", new NumberExp(1));
 	}
 	@Test(expected = ComparisonFailure.class)
-	public void failsTestNumberExp() throws IOException, CCodeGeneratorException{
+	public void failsTestNumberExp() throws IOException{
 		assertBasicExpGeneration("2", new NumberExp(1));
 	}
 	@Test 
@@ -88,5 +87,11 @@ public class CCodeGeneratorTest {
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestPrintF() throws IOException{
 		assertBasicExpGeneration("printf(var2)", new PrintExp(new VariableExp("var1")));
+	}
+	
+	//Ignore this last test, just testing if the CCodeGeneratorException is working in compileExp
+	@Test(expected = AssertionError.class)
+	public void failsCodeGen() throws IOException{
+		assertBasicExpGeneration("var", new ThisExp(new VariableExp("var")));
 	}
 }
