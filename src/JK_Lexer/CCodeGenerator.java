@@ -62,6 +62,7 @@ public class CCodeGenerator {
 			throw new CCodeGeneratorException("Basic expression not found: "+exp.toString());
 		}
 	}
+	//Iterates through list to write instructions into then closes file
 	public void writeCompleteFile(final File file) throws IOException{
 		final PrintWriter output= new PrintWriter(new BufferedWriter(new FileWriter(file))); 
 		try {
@@ -73,6 +74,7 @@ public class CCodeGenerator {
 			output.close(); 
 		}
 	}
+	//Method to write an expression to a file: compileExp to fill list of Cinstructions, then to writeCompleteFile
 	public void writeExpressiontoFile(final Exp exp, final File file) throws IOException, CCodeGeneratorException{
 		final CCodeGenerator gen = new CCodeGenerator(); 
 		gen.compileExp(exp); 
