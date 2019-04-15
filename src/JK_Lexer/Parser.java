@@ -216,6 +216,8 @@ public class Parser {
 		ArrayList<ConstructorDef> constructorlist = new ArrayList<ConstructorDef>();
 		ArrayList<MethodDefExp> methodlist = new ArrayList<MethodDefExp>();
 		ArrayList<InstanceDecExp> memberlist = new ArrayList<InstanceDecExp>();
+		boolean extending = false;
+		String extendingName = "";
 
 		if ((current instanceof PublicToken) || (current instanceof PrivateToken)) { // (EXP)
 			ParseResult<Modifier> modifierResult = parseModifier(startPos);
@@ -225,10 +227,22 @@ public class Parser {
 				throw new ParserException("Expected Valid Name of Class at: " + startPos + 2);
 			}
 			String classname = ((NameToken) getToken(startPos + 2)).name;
+			Token currentToken;
+			int currentPos;
+			if(getToken(startPos + 3) instanceof ExtendsToken) {
+				extending = true;
+				if (!(getToken(startPos + 4) instanceof NameToken)) {
+					throw new ParserException("Expected Valid Name of Class at: " + startPos + 4);
+				}
+				extendingName = ((NameToken) getToken(startPos + 4)).name;
+				assertTokenAtPos(new LeftCurlyToken(), startPos + 5);
+				currentToken = getToken(startPos + 6);
+				currentPos = startPos + 6;
+			}else {
 			assertTokenAtPos(new LeftCurlyToken(), startPos + 3);
-
-			Token currentToken = getToken(startPos + 4);
-			int currentPos = startPos + 4;
+			currentToken = getToken(startPos + 4);
+			currentPos = startPos + 4;
+			}
 			while (!(currentToken instanceof RightCurlyToken)) {
 				ParseResult<Modifier> mod = parseModifier(currentPos);
 				if (getToken(currentPos + 1) instanceof NameToken && getToken(currentPos + 2) instanceof LeftParenToken) {// constructor
@@ -262,7 +276,7 @@ public class Parser {
 			}
 
 			return new ParseResult<ClassDefExp>(
-					new ClassDefExp(modifier, classname, constructorlist, memberlist, methodlist), currentPos + 1);
+					new ClassDefExp(modifier, classname, constructorlist, memberlist, methodlist, extending, extendingName), currentPos + 1);
 
 		} else { // ERROR
 			throw new ParserException("Expected Modifier for Class Declaration at: " + startPos);

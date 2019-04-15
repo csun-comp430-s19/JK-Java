@@ -285,7 +285,7 @@ public class ParserTest {
     	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
     	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
     	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
-    	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", new ArrayList<ConstructorDef>(), memberVarList, methodList);
+    	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", new ArrayList<ConstructorDef>(), memberVarList, methodList, false, "");
     	assertParsesClassDef(tokens, expected); 
     }
     
@@ -295,6 +295,8 @@ public class ParserTest {
     	final Token[] tokens = { new PublicToken(), 
     							 new ClassToken(), 
     							 new NameToken("Student"),
+    							 new ExtendsToken(),
+    							 new NameToken("Person"),
     							 new LeftCurlyToken(),
     							 new PrivateToken(),
     							 new IntToken(),
@@ -372,7 +374,7 @@ public class ParserTest {
     	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
     	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
     	constructorList.add(new ConstructorDef(new PublicModifier(), "Student", constructorParam, constructorblock));
-    	ClassDefExp classStudent = new ClassDefExp(new PublicModifier(), "Student", constructorList, memberVarList, methodList);
+    	ClassDefExp classStudent = new ClassDefExp(new PublicModifier(), "Student", constructorList, memberVarList, methodList, true, "Person");
     	ArrayList<ClassDefExp> classDefList = new ArrayList<ClassDefExp>();
     	ArrayList<Statement> statementList = new ArrayList<Statement>();
     	classDefList.add(classStudent);
