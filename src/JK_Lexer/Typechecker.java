@@ -124,6 +124,7 @@ public class Typechecker {
 
 	// Typechecking for classes
 	public void typecheckClass(final ClassDefExp c) throws TypeErrorException {
+		// check if class extends another class and check to see if that extending class exists
 		if(c.extending==true) {
 			if(!ensureClassExists(c.extendingClass)) {
 				throw new TypeErrorException("Extending class does not exist: "+c.extendingClass);
@@ -211,6 +212,13 @@ public class Typechecker {
 	public void typecheckAssignment(final AssignmentStmt as) throws TypeErrorException {
 		Type left = lookupVariable(as.v.name);
 		Type right = typeofExp(as.e);
+		if(right instanceof CustomType && classes.get(left.toString())!=null){
+			String s1 = classes.get(left.toString()).extendingClass;
+			String s2 = classes.get(right.toString()).name; 
+			if(s1.equals(s2)){
+				return; 
+			}
+		}
 		if (!left.toString().equals(right.toString()))
 			throw new TypeErrorException("Assignment Statements must have matching sides: " + as.toString());
 	}

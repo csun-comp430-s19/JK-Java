@@ -307,6 +307,7 @@ public class TypecheckerTest {
     }
     @Test
     public void testExtends() throws TypeErrorException, TokenizerException, ParserException{
+    	//Testing extends keyword (inheritance)
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -335,6 +336,7 @@ public class TypecheckerTest {
     }
     @Test(expected = TypeErrorException.class)
     public void failsTestExtends() throws TypeErrorException, TokenizerException, ParserException{
+    	// testing extends failing when class extending does not exist (Person)
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -353,6 +355,92 @@ public class TypecheckerTest {
     				  + "age = 21;"
     			  	  + "Student student;"
     				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void testNewClassVariableObjectThatDoesntExist() throws TypeErrorException, TokenizerException, ParserException{
+    	// testing Person student = new Student() when Person does not exist
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "public class Junior extends Student{"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Person student;"
+    				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test
+    public void testNewClassInheritance() throws TypeErrorException, TokenizerException, ParserException{
+    	// Testing new class object declaration with inheritance
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "public class Junior extends Student{"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Junior junior;"
+    				  + "junior = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestNewClassInheritance() throws TypeErrorException, TokenizerException, ParserException{
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "public class Junior extends Student{"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Junior(age);";
     	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
     	final List<Token> tokenList = tokenizer.tokenize(); 
     	Token[] tokenArray = new Token[tokenList.size()];
