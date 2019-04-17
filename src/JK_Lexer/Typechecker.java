@@ -125,7 +125,9 @@ public class Typechecker {
 	// Typechecking for classes
 	public void typecheckClass(final ClassDefExp c) throws TypeErrorException {
 		if(c.extending==true) {
-			checkExtends(c); 
+			if(!ensureClassExists(c.extendingClass)) {
+				throw new TypeErrorException("Extending class does not exist: "+c.extendingClass);
+			}
 		}
 		this.currentClass = c.name;
 		for (ConstructorDef cd : c.constructors) {
@@ -373,17 +375,5 @@ public class Typechecker {
 			return false;
 		}
 		return true;
-	}
-	//checks to see if extending class exists
-	public void checkExtends(final ClassDefExp c) throws TypeErrorException {
-		boolean b=false; 
-		for(String s: classes.keySet()) {
-			if(s.equals(c.extendingClass)) {
-				b = true; 
-			}
-		}
-		if(b==false) {
-			throw new TypeErrorException("Extending class: "+c.extendingClass + " does not exist. ");
-		}
 	}
 }
