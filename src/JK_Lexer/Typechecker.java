@@ -162,6 +162,11 @@ public class Typechecker {
 				AssignmentStmt as = (AssignmentStmt) s;
 				typecheckAssignment(as);
 			} else if (s instanceof VariableDecExp) {
+				if(((VariableDecExp) s).type instanceof CustomType){
+					if(!ensureClassExists(((VariableDecExp) s).type.toString())) {
+						throw new TypeErrorException("Class type not found: "+((VariableDecExp)s).type.toString());
+					}
+				}
 				if (constructors.get(this.currentClass).get(currentConstructor).parameters.contains(s))
 					throw new TypeErrorException(
 							"Variable " + ((VariableDecExp) s).var.name + " already declared in parameters");
