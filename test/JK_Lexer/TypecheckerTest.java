@@ -305,4 +305,60 @@ public class TypecheckerTest {
     	final Program prog = parser.parseProgram(); 
     	Typechecker.typecheckProgram(prog); 
     }
+    @Test
+    public void testExtends() throws TypeErrorException, TokenizerException, ParserException{
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "public class Junior extends Student{"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestExtends() throws TypeErrorException, TokenizerException, ParserException{
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "public class Junior extends Person{"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
 }
