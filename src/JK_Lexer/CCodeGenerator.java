@@ -20,16 +20,16 @@ public class CCodeGenerator {
 		instructions.add(i);
 	}
 	//Compile NumberExp function
-	public CNumberExp compileNumberExp(final NumberExp exp) {
-		return new CNumberExp(exp.number);
+	public void compileNumberExp(final NumberExp exp) {
+		add(new CNumberExp(exp.number));
 	}
 	//Compile StringExp function
-	public CStringExp compileStringExp(final StringExp exp) {
-		return new CStringExp(exp.fullstring);
+	public void compileStringExp(final StringExp exp) {
+		add(new CStringExp(exp.fullstring));
 	}
 	//Compile VariableExp function
-	public CVariableExp compileVariableExp(final VariableExp exp) {
-		return new CVariableExp(exp.name);
+	public void compileVariableExp(final VariableExp exp) {
+		add(new CVariableExp(exp.name));
 	}
 	//Compile BinopExp function
 	public void compileBinopExp(final BinopExp exp) throws CCodeGeneratorException {
@@ -114,19 +114,19 @@ public class CCodeGenerator {
 	}
 	
 	//Compile Call Method Exp
-	public CFunctionCall compileCallMethod(CallMethodExp exp) throws CCodeGeneratorException{
+	public CFunctionCall convertCallMethod(CallMethodExp exp) throws CCodeGeneratorException{
 		VariableExp objname = exp.input;
 		VariableExp methodname = exp.methodname;
 		ArrayList<VariableExp> parameters = exp.parameter;
 		ArrayList<CVariableExp> cparams = new ArrayList<CVariableExp>();
 		
 		for(VariableExp p: parameters) {
-			cparams.add(compileVariableExp(p));
+			cparams.add((CVariableExp)convertExp(p));
 		}
 		
 		CFunctionCall result = new CFunctionCall(methodname.name, cparams);
-		return result;
 		
+		return result;
 	}
 	
 	//Compile assignment statement
