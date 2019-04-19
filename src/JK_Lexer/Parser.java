@@ -189,7 +189,7 @@ public class Parser {
 			assertTokenAtPos(new RightParenToken(), startPos + i);
 			resultExp = new CallMethodExp(new VariableExp(((NameToken) current).name), (VariableExp)methodname.result,
 					params);
-			resultPos = startPos + i;
+			resultPos = startPos + i + 1;
 		} else if (current instanceof NewToken) {
 			assertTokenAtPos(new PeriodToken(), startPos + 1);
 			final ParseResult<Exp> classname = parseExp(startPos + 2);
