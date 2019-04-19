@@ -256,15 +256,20 @@ public class Typechecker {
 		} else if (e instanceof CallMethodExp) {
 			String varName = ((VariableExp) ((CallMethodExp) e).input).name;
 			String methodName = ((VariableExp) ((CallMethodExp) e).methodname).name;
-			String parameterName = ((VariableExp) ((CallMethodExp) e).parameter).name;
+			ArrayList<VariableExp> params = new ArrayList<VariableExp>(((CallMethodExp) e).parameter);
+			//String parameterName = ((VariableExp) ((CallMethodExp) e).parameter).name;
 			lookupVariable(varName);
-			lookupVariable(parameterName);
+			for(VariableExp v : params) lookupVariable(v.name);
 			MethodDefExp temp = this.methods.get(this.currentClass).get(methodName);
 			if (temp == null) {
 				throw new TypeErrorException(
 						"Method does not exist: " + methodName + " in class: " + this.currentClass);
 			} else {
-				ensureTypesSame(lookupVariable(parameterName), temp.parameters.get(0).type);
+				int i = 0;
+				for(VariableExp v : params) {
+					ensureTypesSame(lookupVariable(v.name), temp.parameters.get(i).type);
+					i++;
+				}
 				return temp.type;
 			}
 		} else if (e instanceof NewExp) {
