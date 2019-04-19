@@ -115,12 +115,20 @@ public class CCodeGeneratorTest {
 		assertBasicExpGeneration("printf(var2)", new PrintExp(new VariableExp("var1")));
 	}
 	@Test
-	public void testVariableDeclaration() throws IOException{
+	public void testVariableDeclarationInt() throws IOException{
 		assertStatementGeneration("int foo1;", new VariableDecExp(new IntType(), new VariableExp("foo1")));
 	}
 	@Test(expected = ComparisonFailure.class) 
-	public void failsTestVariableDeclaration() throws IOException{
+	public void failsTestVariableDeclarationInt() throws IOException{
 		assertStatementGeneration("int foo2;", new VariableDecExp(new IntType(), new VariableExp("foo1")));
+	}
+	@Test
+	public void testVariableDeclarationCharArray() throws IOException{
+		assertStatementGeneration("char foo1[];", new VariableDecExp(new StringType(), new VariableExp("foo1")));
+	}
+	@Test(expected = ComparisonFailure.class) 
+	public void failsTestVariableDeclarationCharArray() throws IOException{
+		assertStatementGeneration("char foo1;", new VariableDecExp(new StringType(), new VariableExp("foo1")));
 	}
 	@Test
 	public void testReturnInteger() throws IOException{
