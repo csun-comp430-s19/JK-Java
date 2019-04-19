@@ -2,9 +2,9 @@ package JK_Lexer;
 
 public class CReturn implements CStatement{
 	
-	public final Exp e;
+	public final CExp e;
 	
-	public CReturn(final Exp e) {
+	public CReturn(final CExp e) {
 		this.e=e;
 	}
 	
@@ -26,6 +26,11 @@ public class CReturn implements CStatement{
 	}
 	
 	public String toString() {
-		return "return " + e.toString() +";";
+		if(e instanceof CStringExp) {
+			return "return " + "\""+e.toString()+"\"" +";";
+		}
+		else {
+			return "return " + e.toString()+ ";";
+		}
 	}
 }

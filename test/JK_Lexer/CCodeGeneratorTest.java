@@ -23,6 +23,19 @@ public class CCodeGeneratorTest {
 			assertTrue("Unexpected code generation error: "+exc.getMessage(), expected==null);
 		}
 	}
+	public void assertStatementGeneration(String expected, Statement s) throws IOException{
+		try {
+			CCodeGenerator cg = new CCodeGenerator(); 
+			final File file = File.createTempFile("testfile",".c");
+			cg.writeStatementToFile(s, file);
+			final String received = convertFileToString(file); 
+			assertTrue("Expected code generation error: "+received, expected!=null); 
+			assertEquals(expected,received); 
+			file.delete(); 
+		}catch(final CCodeGeneratorException exc) {
+			assertTrue("Unexpected code generation error: "+exc.getMessage(), expected==null);
+		}
+	}
 	//Method for converting text from the c file created to a string, might have to change for later testing with more than one line/exp
 	public String convertFileToString(File file) throws IOException{
 		StringBuilder sb = new StringBuilder((int)file.length());
@@ -88,10 +101,60 @@ public class CCodeGeneratorTest {
 	public void failsTestPrintF() throws IOException{
 		assertBasicExpGeneration("printf(var2)", new PrintExp(new VariableExp("var1")));
 	}
-	
-	//Ignore this last test, just testing if the CCodeGeneratorException is working in compileExp
-	@Test(expected = AssertionError.class)
-	public void failsCodeGen() throws IOException{
-		assertBasicExpGeneration("var", new ThisExp(new VariableExp("var")));
+	@Test
+	public void testVariableDeclaration() throws IOException{
+		assertStatementGeneration("int foo1;", new VariableDecExp(new IntType(), new VariableExp("foo1")));
+	}
+	@Test(expected = ComparisonFailure.class) 
+	public void failsTestVariableDeclaration() throws IOException{
+		assertStatementGeneration("int foo2;", new VariableDecExp(new IntType(), new VariableExp("foo1")));
+	}
+	@Test
+	public void testReturnInteger() throws IOException{
+		assertStatementGeneration("return 0;", new ReturnStmt(new NumberExp(0)));
+	}
+	@Test(expected = ComparisonFailure.class) 
+	public void failsTestReturnInteger() throws IOException{
+		assertStatementGeneration("return 1;", new ReturnStmt(new NumberExp(0)));
+	}
+	@Test
+	public void testReturnVariable() throws IOException{
+		assertStatementGeneration("return foo1;", new ReturnStmt(new VariableExp("foo1")));
+	}
+	@Test(expected = ComparisonFailure.class)
+	public void failTestReturnVariable() throws IOException{
+		assertStatementGeneration("return foo2;", new ReturnStmt(new VariableExp("foo1")));
+	}
+	@Test
+	public void testReturnString() throws IOException{
+		assertStatementGeneration("return \"hello world\";", new ReturnStmt(new StringExp("hello world")));
+	}
+	@Test(expected = ComparisonFailure.class)
+	public void failsTestReturnString() throws IOException{
+		assertStatementGeneration("return \"goodbye world\";", new ReturnStmt(new StringExp("hello world")));
+	}
+	@Test 
+	public void testAssignmentInt() throws IOException{
+		assertStatementGeneration("foo1 = 1;", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1)));
+	}
+	@Test(expected = ComparisonFailure.class)
+	public void failsTestAssignmentInt() throws IOException{
+		assertStatementGeneration("foo1 = 2;", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1)));
+	}
+	@Test 
+	public void testAssignmentString() throws IOException{
+		assertStatementGeneration("foo1 = \"hello\";", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello")));
+	}
+	@Test(expected = ComparisonFailure.class)
+	public void failsTestAssignmentString() throws IOException{
+		assertStatementGeneration("foo1 = \"goodbye\";", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello")));
+	}
+	@Test 
+	public void testAssignmentVarToVar() throws IOException{
+		assertStatementGeneration("foo1 = foo2;", new AssignmentStmt(new VariableExp("foo1"), new VariableExp("foo2")));
+	}
+	@Test(expected = ComparisonFailure.class)
+	public void failsTestAssignmentVarToVar() throws IOException{
+		assertStatementGeneration("foo1 = foo3;", new AssignmentStmt(new VariableExp("foo1"), new VariableExp("foo2")));
 	}
 }

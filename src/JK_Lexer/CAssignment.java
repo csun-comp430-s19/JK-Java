@@ -24,7 +24,11 @@ public class CAssignment implements CStatement{
 	}
 	
 	public String toString() {
-		String s = v.toString() + " = " + e.toString() +";";
-		return s;
+		if(e instanceof CStringExp) {
+			return v.toString()+ " = "+ "\""+e.toString()+"\""+";";
+		}
+		else {
+			return v.toString() + " = " + e.toString() +";";
+		}
 	}
 }

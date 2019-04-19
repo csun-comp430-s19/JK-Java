@@ -102,10 +102,10 @@ public class CCodeGenerator {
 		if(v.type instanceof IntType) {
 			add(new CVariableDec(new Cint(),new CVariableExp(v.var.name)));
 		}
-		if(v.type instanceof StringType) {
+		else if(v.type instanceof StringType) {
 			add(new CVariableDec(new CChar(),new CVariableExp(v.var.name)));
 		}
-		if(v.type instanceof VoidType) {
+		else if(v.type instanceof VoidType) {
 			add(new CVariableDec(new CVoid(), new CVariableExp(v.var.name)));
 		}
 		
@@ -122,18 +122,19 @@ public class CCodeGenerator {
 		add(new CAssignment(left, right));
 	}
 	//Compile return statement
-	public void compileReturn(ReturnStmt r) {
-		add(new CReturn(r.e));
+	public void compileReturn(ReturnStmt r) throws CCodeGeneratorException {
+		CExp c = convertExp(r.e);
+		add(new CReturn(c));
 	}
 	//Compile statement function
 	public void compileStatement(final Statement s) throws CCodeGeneratorException{
 		if(s instanceof VariableDecExp) {
 			compileVariableDec((VariableDecExp)s);
 		}
-		if(s instanceof AssignmentStmt) {
+		else if(s instanceof AssignmentStmt) {
 			compileAssignment((AssignmentStmt)s);
 		}
-		if(s instanceof ReturnStmt) {
+		else if(s instanceof ReturnStmt) {
 			compileReturn((ReturnStmt)s);
 		}
 		else {
