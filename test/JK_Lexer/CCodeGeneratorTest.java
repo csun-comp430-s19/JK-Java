@@ -36,6 +36,19 @@ public class CCodeGeneratorTest {
 			assertTrue("Unexpected code generation error: "+exc.getMessage(), expected==null);
 		}
 	}
+	public void assertMainMethodGeneration(String expected, Statement[] sArray) throws IOException{
+		try {
+			CCodeGenerator cg = new CCodeGenerator(); 
+			final File file = File.createTempFile("testfile",".c");
+			cg.writeMainToFile(sArray, file);
+			final String received = convertFileToString(file); 
+			assertTrue("Expected code generation error: "+received, expected!=null); 
+			assertEquals(expected,received); 
+			file.delete(); 
+		}catch(final CCodeGeneratorException exc) {
+			assertTrue("Unexpected code generation error: "+exc.getMessage(), expected==null);
+		}
+	}
 	//Method for converting text from the c file created to a string, might have to change for later testing with more than one line/exp
 	public String convertFileToString(File file) throws IOException{
 		StringBuilder sb = new StringBuilder((int)file.length());
@@ -142,6 +155,14 @@ public class CCodeGeneratorTest {
 		assertStatementGeneration("foo1 = 2;", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1)));
 	}
 	@Test 
+	public void testAssignmentBinop() throws IOException{
+		assertStatementGeneration("foo1 = (1 + 2);", new AssignmentStmt(new VariableExp("foo1"), new BinopExp(new NumberExp(1), new PlusOp(),new NumberExp(2))));
+	}
+	@Test(expected = ComparisonFailure.class)
+	public void failsTestAssignmentBinop() throws IOException{
+		assertStatementGeneration("foo1 = (1 + 7);", new AssignmentStmt(new VariableExp("foo1"), new BinopExp(new NumberExp(1), new PlusOp(),new NumberExp(2))));
+	}
+	@Test 
 	public void testAssignmentString() throws IOException{
 		assertStatementGeneration("foo1 = \"hello\";", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello")));
 	}
@@ -156,5 +177,29 @@ public class CCodeGeneratorTest {
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestAssignmentVarToVar() throws IOException{
 		assertStatementGeneration("foo1 = foo3;", new AssignmentStmt(new VariableExp("foo1"), new VariableExp("foo2")));
+	}
+	@Test
+	public void testMainMethod() throws IOException{
+		Statement[] sArray = new Statement[] { new VariableDecExp(new IntType(), new VariableExp("foo")),
+											   new AssignmentStmt(new VariableExp("foo"), new NumberExp(100)),
+											   new ReturnStmt(new NumberExp(0))};
+		
+		assertMainMethodGeneration("int main(){"
+				                 + "int foo;"
+				                 + "foo = 100;"
+				                 + "return 0;"
+				                 + "}", sArray);
+	}
+	@Test(expected = ComparisonFailure.class)
+	public void failsTestMainMethod() throws IOException{
+		Statement[] sArray = new Statement[] { new VariableDecExp(new IntType(), new VariableExp("foo")),
+											   new AssignmentStmt(new VariableExp("foo"), new NumberExp(100)),
+											   new ReturnStmt(new NumberExp(0))};
+		
+		assertMainMethodGeneration("int main(){"
+				                 + "String foo;"
+				                 + "foo = 500;"
+				                 + "return 0;"
+				                 + "}", sArray);
 	}
 }

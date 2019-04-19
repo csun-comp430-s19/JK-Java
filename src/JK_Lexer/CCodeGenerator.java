@@ -8,12 +8,6 @@ import java.io.BufferedWriter;
 import java.io.PrintWriter;
 import java.io.IOException;
 
-
-// Basic expressions covered by this deadline are: var, string, int, print, and binop. Other expressions like objects,
-// method calls, and new class object declarations are not implemented yet because we are still planning the scope of this
-// code generation class, and it would be easier to implement once we have a better understanding of that when we work on later deadlines
-
-
 public class CCodeGenerator {
 	private final List<CInstruction> instructions;
 	
@@ -141,8 +135,8 @@ public class CCodeGenerator {
 			throw new CCodeGeneratorException("Statement not found: "+s.toString());
 		}
 	}
-	//Iterates through list to write instructions into then closes file
-	public void writeCompleteFile(final File file) throws IOException{
+	//Writes individual instructions to file, for testing exp and statement 
+	public void writeIndividualLinesToFile(final File file) throws IOException{
 		final PrintWriter output= new PrintWriter(new BufferedWriter(new FileWriter(file))); 
 		try {
 			for(final CInstruction i: instructions) {
@@ -153,16 +147,38 @@ public class CCodeGenerator {
 			output.close(); 
 		}
 	}
+	//Writes int main() to file with list of statements to file, for method testing since we havent implemented structs yet  
+	public void writeMainToFile(final File file) throws IOException{
+		final PrintWriter output= new PrintWriter(new BufferedWriter(new FileWriter(file))); 
+		try {
+			output.println("int main(){");
+			for(final CInstruction i: instructions) {
+				String s = i.toString(); 
+				output.println(s);
+			}
+			output.println("}");
+		}finally {
+			output.close(); 
+		}
+	}
 	//Method to write an expression to a file: compileExp to fill list of Cinstructions, then to writeCompleteFile (FOR TESTING EXPS)
 	public void writeExpressiontoFile(final Exp exp, final File file) throws IOException, CCodeGeneratorException{
 		final CCodeGenerator gen = new CCodeGenerator(); 
 		gen.compileExp(exp); 
-		gen.writeCompleteFile(file); 
+		gen.writeIndividualLinesToFile(file); 
 	}
 	//Method to test statements
 	public void writeStatementToFile(final Statement s, final File file) throws IOException, CCodeGeneratorException{
 		final CCodeGenerator gen = new CCodeGenerator(); 
 		gen.compileStatement(s);
-		gen.writeCompleteFile(file);
+		gen.writeIndividualLinesToFile(file);
+	}
+	//Method to test int main() 
+	public void writeMainToFile(final Statement[] sArray, final File file) throws IOException, CCodeGeneratorException{
+		final CCodeGenerator gen = new CCodeGenerator(); 
+		for(Statement s: sArray) {
+			gen.compileStatement(s); 
+		}
+		gen.writeMainToFile(file); 
 	}
 }
