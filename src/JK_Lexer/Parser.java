@@ -174,11 +174,22 @@ public class Parser {
 			assertTokenAtPos(new PeriodToken(), startPos + 1);
 			final ParseResult<Exp> methodname = parseExp(startPos + 2);
 			assertTokenAtPos(new LeftParenToken(), startPos + 3);
-			final ParseResult<Exp> parameter = parseExp(startPos + 4);
-			assertTokenAtPos(new RightParenToken(), startPos + 5);
-			resultExp = new CallMethodExp(new VariableExp(((NameToken) current).name), methodname.result,
-					parameter.result);
-			resultPos = startPos + 6;
+			ArrayList<VariableExp> params = new ArrayList<VariableExp>();
+			int i = 4;
+			while(getToken(startPos + i) instanceof NameToken) {
+				params.add((VariableExp)parseExp(startPos + i).result);
+				if(getToken(startPos + i + 1) instanceof RightParenToken) {
+					i+= 1;
+					break;
+				}else {
+					assertTokenAtPos(new CommaToken(), startPos + i + 1);
+					i += 2;
+				}
+			}
+			assertTokenAtPos(new RightParenToken(), startPos + i);
+			resultExp = new CallMethodExp(new VariableExp(((NameToken) current).name), (VariableExp)methodname.result,
+					params);
+			resultPos = startPos + i;
 		} else if (current instanceof NewToken) {
 			assertTokenAtPos(new PeriodToken(), startPos + 1);
 			final ParseResult<Exp> classname = parseExp(startPos + 2);

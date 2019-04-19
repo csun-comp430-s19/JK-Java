@@ -1,16 +1,18 @@
 package JK_Lexer;
 
+import java.util.ArrayList;
+
 public class CallMethodExp implements Exp{
-	public final Exp input; 
-	public final Exp methodname; 
-	public final Exp parameter; 
+	public final VariableExp input; 
+	public final VariableExp methodname; 
+	public final ArrayList<VariableExp> parameter; 
 	
-	public CallMethodExp(final Exp input,
-						 final Exp methodname,
-						 final Exp parameter) {
+	public CallMethodExp(final VariableExp input,
+						 final VariableExp methodname,
+						 final ArrayList<VariableExp> parameter) {
 		this.input=input;
 		this.methodname=methodname;
-		this.parameter=parameter; 
+		this.parameter= new ArrayList<VariableExp>(parameter); 
 	}
 	public int hashCode() {
 		return (input.hashCode()+

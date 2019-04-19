@@ -58,6 +58,9 @@ public class CCodeGenerator {
 		else if(exp instanceof PrintExp) {
 			compilePrintExp((PrintExp)exp); 
 		}
+		else if(exp instanceof CallMethodExp) {
+			
+		}
 		
 		//Add this, method call, and new class when planned out
 		
@@ -109,6 +112,12 @@ public class CCodeGenerator {
 			throw new CCodeGeneratorException("Invalid type:"+v.type.toString());
 		}
 	}
+	
+	//Compile Call Method Exp
+	public void compileCallMethod(CallMethodExp exp) throws CCodeGeneratorException{
+		
+	}
+	
 	//Compile assignment statement
 	public void compileAssignment(AssignmentStmt a) throws CCodeGeneratorException {
 		CVariableExp left = new CVariableExp(a.v.name);
@@ -117,8 +126,12 @@ public class CCodeGenerator {
 	}
 	//Compile return statement
 	public void compileReturn(ReturnStmt r) throws CCodeGeneratorException {
-		CExp c = convertExp(r.e);
-		add(new CReturn(c));
+		if(r.e == null) {
+			add(new CReturn());
+		}else {
+			CExp c = convertExp(r.e);
+			add(new CReturn(c));
+		}
 	}
 	//Compile statement function
 	public void compileStatement(final Statement s) throws CCodeGeneratorException{

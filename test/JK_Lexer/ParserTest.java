@@ -205,9 +205,10 @@ public class ParserTest {
     							 new LeftParenToken(), 
     							 new NameToken("foo2"),
     							 new RightParenToken() }; 
+    	ArrayList<VariableExp> params = new ArrayList<VariableExp>();
+    	params.add(new VariableExp("foo2"));
     	final Exp expected = new CallMethodExp(new VariableExp("foo"),
-    										   new VariableExp("add"),
-    										   new VariableExp("foo2"));
+    										   new VariableExp("add"), params);
     	assertParses(tokens,expected); 
     }
     @Test
