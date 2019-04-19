@@ -25,7 +25,6 @@ public class ReturnStmt implements Statement{
 	}
 	
 	public String toString() {
-		String s = "Returning: " + e.toString();
-		return s;
+		return "return" + e.toString();
 	}
 }

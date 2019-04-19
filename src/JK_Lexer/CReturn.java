@@ -1,7 +1,8 @@
 package JK_Lexer;
 
 public class CReturn implements CStatement{
-public final Exp e;
+	
+	public final Exp e;
 	
 	public CReturn(final Exp e) {
 		this.e=e;
@@ -25,7 +26,6 @@ public final Exp e;
 	}
 	
 	public String toString() {
-		String s = "return " + e.toString() +";";
-		return s;
+		return "return " + e.toString() +";";
 	}
 }

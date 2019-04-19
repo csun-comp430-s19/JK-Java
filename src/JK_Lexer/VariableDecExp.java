@@ -24,8 +24,11 @@ public class VariableDecExp implements Statement{
 		}
 	}
 	public String toString() {
-		String s = "Type: " + type.toString() + "\n"+
-				   "Variable: " + var.toString();
-		return s;
+		if(type instanceof CChar) {
+			return type.toString()+var.toString()+"[]";
+		}
+		else {
+			return type.toString()+var.toString(); 
+		}
 	}
 }

@@ -64,8 +64,80 @@ public class CCodeGenerator {
 		else if(exp instanceof PrintExp) {
 			compilePrintExp((PrintExp)exp); 
 		}
+		
+		//Add this, method call, and new class when planned out
+		
 		else {
 			throw new CCodeGeneratorException("Basic expression not found: "+exp.toString());
+		}
+	}
+	//Convert Exp to CExp
+	public CExp convertExp(final Exp exp) throws CCodeGeneratorException {
+		if(exp instanceof NumberExp){
+			return new CNumberExp(((NumberExp)exp).number);
+		}
+		else if(exp instanceof StringExp) {
+			return new CStringExp(((StringExp)exp).fullstring);
+		}
+		else if(exp instanceof VariableExp) {
+			return new CVariableExp(((VariableExp)exp).name);
+		}
+		else if(exp instanceof BinopExp) {
+			CExp left = convertExp(((BinopExp)exp).left);
+			CExp right = convertExp(((BinopExp)exp).right);
+			return new CBinOp(left, ((BinopExp)exp).op, right);
+		}
+		else if(exp instanceof PrintExp) {
+			return new CPrintExp(((PrintExp)exp).expression.toString());
+		}
+		
+		//Add this, method call, and new class when planned out
+		
+		else {
+			throw new CCodeGeneratorException("Basic expression not found: "+exp.toString());
+		}
+	}
+	//Compile variable declaration
+	public void compileVariableDec(VariableDecExp v) throws CCodeGeneratorException {
+		if(v.type instanceof IntType) {
+			add(new CVariableDec(new Cint(),new CVariableExp(v.var.name)));
+		}
+		if(v.type instanceof StringType) {
+			add(new CVariableDec(new CChar(),new CVariableExp(v.var.name)));
+		}
+		if(v.type instanceof VoidType) {
+			add(new CVariableDec(new CVoid(), new CVariableExp(v.var.name)));
+		}
+		
+		//ADD NEW CLASS OBJECT HERE, INCOMPLETE
+		
+		else {
+			throw new CCodeGeneratorException("Invalid type:"+v.type.toString());
+		}
+	}
+	//Compile assignment statement
+	public void compileAssignment(AssignmentStmt a) throws CCodeGeneratorException {
+		CVariableExp left = new CVariableExp(a.v.name);
+		CExp right = convertExp(a.e); 
+		add(new CAssignment(left, right));
+	}
+	//Compile return statement
+	public void compileReturn(ReturnStmt r) {
+		add(new CReturn(r.e));
+	}
+	//Compile statement function
+	public void compileStatement(final Statement s) throws CCodeGeneratorException{
+		if(s instanceof VariableDecExp) {
+			compileVariableDec((VariableDecExp)s);
+		}
+		if(s instanceof AssignmentStmt) {
+			compileAssignment((AssignmentStmt)s);
+		}
+		if(s instanceof ReturnStmt) {
+			compileReturn((ReturnStmt)s);
+		}
+		else {
+			throw new CCodeGeneratorException("Statement not found: "+s.toString());
 		}
 	}
 	//Iterates through list to write instructions into then closes file
@@ -80,10 +152,16 @@ public class CCodeGenerator {
 			output.close(); 
 		}
 	}
-	//Method to write an expression to a file: compileExp to fill list of Cinstructions, then to writeCompleteFile
+	//Method to write an expression to a file: compileExp to fill list of Cinstructions, then to writeCompleteFile (FOR TESTING EXPS)
 	public void writeExpressiontoFile(final Exp exp, final File file) throws IOException, CCodeGeneratorException{
 		final CCodeGenerator gen = new CCodeGenerator(); 
 		gen.compileExp(exp); 
 		gen.writeCompleteFile(file); 
+	}
+	//Method to test statements
+	public void writeStatementToFile(final Statement s, final File file) throws IOException, CCodeGeneratorException{
+		final CCodeGenerator gen = new CCodeGenerator(); 
+		gen.compileStatement(s);
+		gen.writeCompleteFile(file);
 	}
 }

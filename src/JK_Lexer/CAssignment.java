@@ -1,6 +1,6 @@
 package JK_Lexer;
 
-public class CAssignment {
+public class CAssignment implements CStatement{
 	public final CVariableExp v;
 	public final CExp e;
 	
