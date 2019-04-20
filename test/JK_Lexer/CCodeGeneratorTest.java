@@ -2,6 +2,7 @@ package JK_Lexer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner; 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -210,4 +211,29 @@ public class CCodeGeneratorTest {
 				                 + "return 0;"
 				                 + "}", sArray);
 	}
+	
+	@Test
+	public void testCallMethod() throws IOException{
+		VariableExp obj = new VariableExp("foo");
+		VariableExp method = new VariableExp("bar");
+		VariableExp param = new VariableExp("foobar");
+		ArrayList<VariableExp> params = new ArrayList<VariableExp>();
+		params.add(param);
+		CallMethodExp exp = new CallMethodExp(obj,method,params);
+		
+		assertBasicExpGeneration("bar(foo, foobar);", exp);	
+	}
+	
+	@Test(expected = ComparisonFailure.class)
+	public void failsTestCallMethod() throws IOException{
+		VariableExp obj = new VariableExp("bar");
+		VariableExp method = new VariableExp("foo");
+		VariableExp param = new VariableExp("foobar");
+		ArrayList<VariableExp> params = new ArrayList<VariableExp>();
+		params.add(param);
+		CallMethodExp exp = new CallMethodExp(obj,method,params);
+		
+		assertBasicExpGeneration("bar(foo, foobar);", exp);	
+	}
+	
 }

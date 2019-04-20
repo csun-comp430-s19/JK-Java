@@ -41,6 +41,11 @@ public class CCodeGenerator {
 	public void compilePrintExp(final PrintExp exp) {
 		add(new CPrintExp(exp.expression.toString())); 
 	}
+	//Compile CallMethod Function
+	public void compileCallMethodExp(final CallMethodExp exp) throws CCodeGeneratorException {
+		add(convertCallMethod(exp));
+	}
+	
 	//Compile exp function
 	public void compileExp(final Exp exp) throws CCodeGeneratorException {
 		if(exp instanceof NumberExp){
@@ -59,7 +64,7 @@ public class CCodeGenerator {
 			compilePrintExp((PrintExp)exp); 
 		}
 		else if(exp instanceof CallMethodExp) {
-			
+			compileCallMethodExp((CallMethodExp) exp);
 		}
 		
 		//Add this, method call, and new class when planned out
@@ -86,6 +91,9 @@ public class CCodeGenerator {
 		}
 		else if(exp instanceof PrintExp) {
 			return new CPrintExp(((PrintExp)exp).expression.toString());
+		}
+		else if(exp instanceof CallMethodExp) {
+			return convertCallMethod((CallMethodExp)exp);
 		}
 		
 		//Add this, method call, and new class when planned out
@@ -119,7 +127,7 @@ public class CCodeGenerator {
 		VariableExp methodname = exp.methodname;
 		ArrayList<VariableExp> parameters = exp.parameter;
 		ArrayList<CVariableExp> cparams = new ArrayList<CVariableExp>();
-		
+		cparams.add((CVariableExp)convertExp(objname));
 		for(VariableExp p: parameters) {
 			cparams.add((CVariableExp)convertExp(p));
 		}
