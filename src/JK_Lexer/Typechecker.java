@@ -179,7 +179,7 @@ public class Typechecker {
 		inConstructor = false;
 	}
 
-	// Typechecking for statements within classes
+	// Typechecking for statements
 	public void typecheckStmt(final Statement s) throws TypeErrorException {
 		if (currentClass != null) {
 			if (s instanceof AssignmentStmt) {
@@ -257,19 +257,22 @@ public class Typechecker {
 			String varName = ((VariableExp) ((CallMethodExp) e).input).name;
 			String methodName = ((VariableExp) ((CallMethodExp) e).methodname).name;
 			ArrayList<VariableExp> params = new ArrayList<VariableExp>(((CallMethodExp) e).parameter);
+			//Check if method is private, then check if it is being called in a different class
+			ensureAccessModifier(methodName); 
 			//String parameterName = ((VariableExp) ((CallMethodExp) e).parameter).name;
 			lookupVariable(varName);
 			for(VariableExp v : params) lookupVariable(v.name);
+			if(currentClass==null) {
+				MethodDefExp m = retrieveMethod(methodName); 
+				ensureParametersSame(m, params);
+				return m.type; 
+			}
 			MethodDefExp temp = this.methods.get(this.currentClass).get(methodName);
 			if (temp == null) {
 				throw new TypeErrorException(
 						"Method does not exist: " + methodName + " in class: " + this.currentClass);
 			} else {
-				int i = 0;
-				for(VariableExp v : params) {
-					ensureTypesSame(lookupVariable(v.name), temp.parameters.get(i).type);
-					i++;
-				}
+				ensureParametersSame(temp,params); 
 				return temp.type;
 			}
 		} else if (e instanceof NewExp) {
@@ -386,12 +389,48 @@ public class Typechecker {
 			}
 		}
 	}
-
 	// looks to see if class exists by string name
 	public boolean ensureClassExists(final String name) throws TypeErrorException {
 		if (this.classes.get(name) == null) {
 			return false;
 		}
 		return true;
+	}
+	//Sees if method is private or not, throw exception if private and outside class defined in 
+	public void ensureAccessModifier(String methodname) throws TypeErrorException{
+		for(ClassDefExp c: classes.values()) {
+			for(MethodDefExp m: c.methods) {
+				if(m.name.equals(methodname)) {
+					checkPrivate(m,c); 
+				}
+			}
+		}
+	}
+	public void checkPrivate(MethodDefExp m, ClassDefExp c) throws TypeErrorException {
+		if(m.mod instanceof PrivateModifier) {
+			if(currentClass==null|| !(currentClass.equals(c))) {
+				throw new TypeErrorException("Private method used: "+ m.name);
+			}
+		}
+	}
+	public MethodDefExp retrieveMethod(String m) throws TypeErrorException {
+		for(ClassDefExp c: classes.values()) {
+			for(MethodDefExp me: c.methods) {
+				if(me.name.contentEquals(m)) {
+					return me; 
+				}
+			}
+		}
+		throw new TypeErrorException("Method not found: " +m);
+	}
+	public void ensureParametersSame(MethodDefExp m, ArrayList<VariableExp> params) throws TypeErrorException {
+		int i=0; 
+		if(params.size()!=m.parameters.size()) {
+			throw new TypeErrorException("Invalid number of parameters for method: "+ m.name);
+		}
+		for(VariableExp v: params) {
+			ensureTypesSame(lookupVariable(v.name), m.parameters.get(i).type);
+			i++; 
+		}
 	}
 }

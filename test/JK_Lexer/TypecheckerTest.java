@@ -449,4 +449,98 @@ public class TypecheckerTest {
     	final Program prog = parser.parseProgram(); 
     	Typechecker.typecheckProgram(prog); 
     }
+    @Test(expected = TypeErrorException.class)
+    public void testPrivateMethodAccess() throws TypeErrorException, TokenizerException, ParserException{
+    	//Standard class declaration with variety of statements outside
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"private int getAge() {"
+    							+"return age; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    			  	  + "Student student;"
+    				  + "age = student.getAge();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test
+    public void testFunctionCallOutsideClass() throws TypeErrorException, TokenizerException, ParserException{
+    	//Standard class declaration with variety of statements outside
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    			  	  + "Student student;"
+    				  + "age = student.getAge();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestFunctionCallOutsideClassWrongParameters() throws TypeErrorException, TokenizerException, ParserException{
+    	//Standard class declaration with variety of statements outside
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "int n; "
+    			  	  + "Student student;"
+    				  + "age = student.getAge(n);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestFunctionCallOutsideClassWrongTypeParameters() throws TypeErrorException, TokenizerException, ParserException{
+    	//Standard class declaration with variety of statements outside
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge(int n) {"
+    							+"return age; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "String n; "
+    			  	  + "Student student;"
+    				  + "age = student.getAge(n);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
 }
