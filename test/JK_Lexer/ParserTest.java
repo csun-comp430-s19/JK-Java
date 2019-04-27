@@ -25,6 +25,17 @@ public class ParserTest {
         }
     } // assertParses
     
+    public void assertParsesSingleStatement(final Token[] tokens, final Statement expected) {
+    	final Parser parser = new Parser(tokens);
+    	try {
+    		final Statement received = parser.parseSingleStatement();
+    		assertTrue("Expected parse failure; got: " + received, expected != null);
+    		assertEquals(expected, received);
+    	} catch (final ParserException e) {
+    		assertTrue(("Unexpected parse failure for " + Arrays.toString(tokens) + ": " + e.getMessage()), expected == null);
+    	}
+    }
+    
     public void assertParsesConstructorDef(final Token[] tokens, final ConstructorDef expected) {
     	final Parser parser = new Parser(tokens);
     	try {
@@ -239,6 +250,24 @@ public class ParserTest {
     	final ConstructorDef expected = new ConstructorDef(new PublicModifier(), "Student",param , new ArrayList());
     	
     	assertParsesConstructorDef(tokens, expected); 
+    }
+    
+    @Test
+    public void testIndependentMethodCall() {
+    	final Token[] tokens = { new NameToken("foo"),
+    							  new PeriodToken(),
+    							  new NameToken("fooFunc"),
+    							  new LeftParenToken(),
+    							  new NameToken("foobar"),
+    							  new RightParenToken(),
+    							  new SemicolonToken()};
+    	ArrayList<VariableExp> params = new ArrayList<VariableExp>();
+    	params.add(new VariableExp("foobar"));
+    	VariableExp input = new VariableExp("foo");
+    	VariableExp methodname = new VariableExp("fooFunc");
+    	final IndependentMethodCallStmt expected = new IndependentMethodCallStmt(new CallMethodExp(input, methodname, params));
+    	
+    	assertParsesSingleStatement(tokens, expected);
     }
     
     @Test

@@ -210,6 +210,10 @@ public class Parser {
 		return new ParseResult<Exp>(resultExp, resultPos);
 	} // parsePrimary
 
+	public Statement parseSingleStatement() throws ParserException {
+		return parseSingleStatement(0).result;
+	}
+	
 	public ConstructorDef parseConstructorDef(String classname) throws ParserException {
 		return parseConstructorDef(0, classname).result;
 	}
@@ -477,6 +481,10 @@ public class Parser {
 					&& (getToken(pos + 2) instanceof SemicolonToken)) {
 				ParseResult<VariableDecExp> variableDecExpResult = parseVariableDecExp(pos);
 				result = new ParseResult<Statement>(variableDecExpResult.result, variableDecExpResult.tokenPos);
+			} else if((getToken(pos) instanceof NameToken) && (getToken(pos +1) instanceof PeriodToken) 
+						&& (getToken(pos+2) instanceof NameToken) && (getToken(pos+3) instanceof LeftParenToken)) {
+				ParseResult<IndependentMethodCallStmt> independentMethodCallStmtResult = parseIndependentMethodCallStmt(pos);
+				result = new ParseResult<Statement>(independentMethodCallStmtResult.result, independentMethodCallStmtResult.tokenPos);
 			}
 
 			if (result == null) {
@@ -518,6 +526,37 @@ public class Parser {
 		} else {
 			throw new ParserException("Empty Statement(double semicolon) at: " + pos);
 		}
+	}
+	
+	private ParseResult<IndependentMethodCallStmt> parseIndependentMethodCallStmt(int startPos) throws ParserException{
+		int pos = startPos;
+		
+		if((getToken(pos) instanceof NameToken) && (getToken(pos +1) instanceof PeriodToken) 
+				&& (getToken(pos+2) instanceof NameToken) && (getToken(pos+3) instanceof LeftParenToken)) {
+			VariableExp input = new VariableExp(((NameToken)getToken(pos)).name);
+			VariableExp methodname = new VariableExp(((NameToken)getToken(pos+2)).name);
+			pos = pos + 4;
+			ArrayList<VariableExp> params = new ArrayList<VariableExp>();
+			while(!(getToken(pos) instanceof RightParenToken)){
+				if(!(getToken(pos) instanceof NameToken)){
+					throw new ParserException("Expected Parameter Name at: " + pos);
+				}
+				params.add(new VariableExp(((NameToken) getToken(pos)).name));
+				if(!(getToken(pos+1) instanceof RightParenToken)) {
+					assertTokenAtPos(new CommaToken(), pos+1);
+					pos += 2;
+				}else {
+					pos += 1;
+				}
+			}
+			assertTokenAtPos(new RightParenToken(), pos);
+			IndependentMethodCallStmt result = new IndependentMethodCallStmt(new CallMethodExp(input, methodname, params));
+			return new ParseResult<IndependentMethodCallStmt>(result, pos+1);
+			
+		}else {
+			throw new ParserException("Expected Method Name at: " + pos);
+		}
+			
 	}
 
 	private ParseResult<AssignmentStmt> parseAssignment(int startPos) throws ParserException {
