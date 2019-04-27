@@ -543,4 +543,138 @@ public class TypecheckerTest {
     	final Program prog = parser.parseProgram(); 
     	Typechecker.typecheckProgram(prog); 
     }
+    @Test
+    public void testIndependentMethodCall() throws TypeErrorException, TokenizerException, ParserException{
+    	//Standard class declaration with variety of statements outside
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student.setAge(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected=TypeErrorException.class)
+    public void failsTestIndependentMethodCallPrivate() throws TypeErrorException, TokenizerException, ParserException{
+    	//Standard class declaration with variety of statements outside
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"private void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student.setAge(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected=TypeErrorException.class)
+    public void failsTestIndependentMethodCallWrongMethodName() throws TypeErrorException, TokenizerException, ParserException{
+    	//Standard class declaration with variety of statements outside
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student.setAge1(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected=TypeErrorException.class)
+    public void failsTestIndependentMethodCallWrongParameterNumber() throws TypeErrorException, TokenizerException, ParserException{
+    	//Standard class declaration with variety of statements outside
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student.setAge();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected=TypeErrorException.class)
+    public void failsTestIndependentMethodCallWrongParameterType() throws TypeErrorException, TokenizerException, ParserException{
+    	//Standard class declaration with variety of statements outside
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "String age; "
+    			  	  + "Student student;"
+    				  + "student.setAge(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
 }

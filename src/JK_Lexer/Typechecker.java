@@ -199,6 +199,8 @@ public class Typechecker {
 					variables.get(currentClass).get(currentMethod).put(((VariableDecExp) s).var.name,
 							((VariableDecExp) s));
 				}
+			} else if(s instanceof IndependentMethodCallStmt) {
+				typeofExp(((IndependentMethodCallStmt)s).methodcall);
 			}
 		} else {
 			if (s instanceof AssignmentStmt) {
@@ -210,6 +212,8 @@ public class Typechecker {
 				else {
 					programVariables.put(((VariableDecExp) s).var.name, ((VariableDecExp) s));
 				}
+			} else if(s instanceof IndependentMethodCallStmt) {
+				typeofExp(((IndependentMethodCallStmt)s).methodcall); 
 			}
 		}
 	}
@@ -230,8 +234,8 @@ public class Typechecker {
 
 	// typeofExp takes in map of strings (variable names) and types as well as an
 	// Exp e)
-	public Type typeofExp(final Exp e) throws TypeErrorException { // takes in another parameter too for in scope, but
-																	// idk what yet
+	public Type typeofExp(final Exp e) throws TypeErrorException { 
+																	
 		if (e instanceof NumberExp) {
 			return new IntType();
 		} else if (e instanceof StringExp) {
