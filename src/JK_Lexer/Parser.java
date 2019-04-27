@@ -514,6 +514,10 @@ public class Parser {
 					&& (getToken(pos + 2) instanceof SemicolonToken)) {
 				ParseResult<VariableDecExp> variableDecExpResult = parseVariableDecExp(pos);
 				result = new ParseResult<Statement>(variableDecExpResult.result, variableDecExpResult.tokenPos);
+			} else if((getToken(pos) instanceof NameToken) && (getToken(pos +1) instanceof PeriodToken) 
+					&& (getToken(pos+2) instanceof NameToken) && (getToken(pos+3) instanceof LeftParenToken)) {
+			ParseResult<IndependentMethodCallStmt> independentMethodCallStmtResult = parseIndependentMethodCallStmt(pos);
+			result = new ParseResult<Statement>(independentMethodCallStmtResult.result, independentMethodCallStmtResult.tokenPos);
 			}
 
 			if (result == null) {
