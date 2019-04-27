@@ -423,6 +423,7 @@ public class TypecheckerTest {
     }
     @Test(expected = TypeErrorException.class)
     public void failsTestNewClassInheritance() throws TypeErrorException, TokenizerException, ParserException{
+    	//Testing new clas inheritance failing when going backwards in inheritance
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -451,7 +452,7 @@ public class TypecheckerTest {
     }
     @Test(expected = TypeErrorException.class)
     public void testPrivateMethodAccess() throws TypeErrorException, TokenizerException, ParserException{
-    	//Standard class declaration with variety of statements outside
+    	//Testing fails when accessing private methods
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -474,7 +475,7 @@ public class TypecheckerTest {
     }
     @Test
     public void testFunctionCallOutsideClass() throws TypeErrorException, TokenizerException, ParserException{
-    	//Standard class declaration with variety of statements outside
+    	//Testing function calls outside class
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -497,7 +498,7 @@ public class TypecheckerTest {
     }
     @Test(expected = TypeErrorException.class)
     public void failsTestFunctionCallOutsideClassWrongParameters() throws TypeErrorException, TokenizerException, ParserException{
-    	//Standard class declaration with variety of statements outside
+    	//testing wrong parameters on function call 
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -521,7 +522,7 @@ public class TypecheckerTest {
     }
     @Test(expected = TypeErrorException.class)
     public void failsTestFunctionCallOutsideClassWrongTypeParameters() throws TypeErrorException, TokenizerException, ParserException{
-    	//Standard class declaration with variety of statements outside
+    	// testing wrong type of parameters on function call 
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -545,7 +546,7 @@ public class TypecheckerTest {
     }
     @Test
     public void testIndependentMethodCall() throws TypeErrorException, TokenizerException, ParserException{
-    	//Standard class declaration with variety of statements outside
+    	//testing independent method call 
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -572,7 +573,7 @@ public class TypecheckerTest {
     }
     @Test(expected=TypeErrorException.class)
     public void failsTestIndependentMethodCallPrivate() throws TypeErrorException, TokenizerException, ParserException{
-    	//Standard class declaration with variety of statements outside
+    	//testing fail when calling private method with independent method call
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -599,7 +600,7 @@ public class TypecheckerTest {
     }
     @Test(expected=TypeErrorException.class)
     public void failsTestIndependentMethodCallWrongMethodName() throws TypeErrorException, TokenizerException, ParserException{
-    	//Standard class declaration with variety of statements outside
+    	//testing fail when calling invalid method name for independent method call
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -626,7 +627,7 @@ public class TypecheckerTest {
     }
     @Test(expected=TypeErrorException.class)
     public void failsTestIndependentMethodCallWrongParameterNumber() throws TypeErrorException, TokenizerException, ParserException{
-    	//Standard class declaration with variety of statements outside
+    	//testing fail when wrong number of parameters in independent method call
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
@@ -653,7 +654,7 @@ public class TypecheckerTest {
     }
     @Test(expected=TypeErrorException.class)
     public void failsTestIndependentMethodCallWrongParameterType() throws TypeErrorException, TokenizerException, ParserException{
-    	//Standard class declaration with variety of statements outside
+    	//testing fail when wrong parameter type in independent method call
     	final String input = "public class Student{"
     						+"private int age; "
     						+"public Student(int a) {"
