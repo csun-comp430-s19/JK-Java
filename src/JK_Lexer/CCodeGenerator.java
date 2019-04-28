@@ -252,6 +252,8 @@ public class CCodeGenerator {
 		
 		CType c_type = convertType(jk_type);
 		
+		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("struct")));
+		
 		for(VariableDecExp p: params) {
 			cparams.add(convertVariableDec(p));
 		}
@@ -261,6 +263,64 @@ public class CCodeGenerator {
 		}
 		
 		CFunctionDec result = new CFunctionDec(c_type, parentClass + "_" + methodname, cparams, cblock);
+		return result;
+	}
+	
+	public CFunctionDec convertConstructorDef(ConstructorDef c, String parentClass, int constructornumber) throws CCodeGeneratorException {
+		String constructorname = parentClass + "_constructor"+constructornumber;
+		
+		ArrayList<VariableDecExp> params = c.parameters;
+		ArrayList<Statement> block = c.block;
+		
+		ArrayList<CVariableDec> cparams = new ArrayList<CVariableDec>();
+		ArrayList<CStatement> cblock = new ArrayList<CStatement>();
+		
+		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("struct")));
+		
+		for(VariableDecExp p: params) {
+			cparams.add(convertVariableDec(p));
+		}
+		
+		for(Statement s : block) {
+			cblock.add(convertStatement(s));
+		}
+		
+		CFunctionDec result = new CFunctionDec(new CVoid(), constructorname, cparams, cblock);
+		
+		return result;
+		
+	}
+	
+	public CClassStructandFuncs convertClassDef(ClassDefExp c) throws CCodeGeneratorException{
+		String classname = c.name;
+		ArrayList<ConstructorDef> constructorlist = c.constructors;
+		ArrayList<MethodDefExp> methods = c.methods;
+		ArrayList<InstanceDecExp> varmembers = c.members;
+		
+		ArrayList<CVariableDec> structmembers = new ArrayList<CVariableDec>();
+		if(c.extending) {
+			CVariableDec basestruct = new CVariableDec(new CStructType(c.extendingClass), new CVariableExp("parent"));
+			structmembers.add(basestruct);
+		}
+		for(InstanceDecExp i : varmembers) {
+			structmembers.add(convertInstanceDec(i));
+		}
+		
+		CStructDec cstruct = new CStructDec(c.name, structmembers);
+		
+		ArrayList<CFunctionDec> functions = new ArrayList<CFunctionDec>();
+		ArrayList<ConstructorDef> constructorindexlist = constructors.get(c.name);
+		for(ConstructorDef constructor : constructorlist) {
+			int num = constructorindexlist.indexOf(constructor);
+			functions.add(convertConstructorDef(constructor, c.name,num));
+			num++;
+		}		
+		for(MethodDefExp m : methods) {
+			functions.add(convertMethodDefExp(m, c.name));
+		}
+		
+		CClassStructandFuncs result = new CClassStructandFuncs(cstruct, functions);
+		
 		return result;
 	}
 	
@@ -280,6 +340,10 @@ public class CCodeGenerator {
 		else {
 			throw new CCodeGeneratorException("Invalid type:"+t.toString());
 		}
+	}
+	
+	public CVariableDec convertInstanceDec(InstanceDecExp i) throws CCodeGeneratorException{
+		return new CVariableDec(convertType(i.var.type), new CVariableExp(i.var.var.name));
 	}
 	
 	public CStatement convertStatement(Statement s) throws CCodeGeneratorException{
