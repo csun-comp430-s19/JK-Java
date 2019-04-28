@@ -13,29 +13,98 @@ import java.util.HashMap;
 public class CCodeGenerator {
 	private final List<CInstruction> instructions;
 	
-	//Maps to use for tracking naming conventions of methods (e.g. getAge in Student will be named student_getAge)
-	private Map<String, ClassDefExp> classes;
-	private Map<String, Map<String, MethodDefExp>> methods;
-	
+
+	// List of any statements outside of classes in program
+		private final ArrayList<Statement> statements;
+		// Map for Variables declared in statements outside of classes
+		private final Map<String, VariableDecExp> programVariables;
+		// Classes are mapped to their names
+		private Map<String, ClassDefExp> classes;
+		// Instances and methods are mapped to their names and that map is mapped to the
+		// class name they are in
+		private Map<String, Map<String, InstanceDecExp>> instances;
+		private Map<String, Map<String, MethodDefExp>> methods;
+		private Map<String, ArrayList<ConstructorDef>> constructors;
+		private Map<String, ArrayList<Map<String, VariableDecExp>>> constructorVariableDec;
+		// Variable declarations in methods mapped to class name, method name, and their
+		// own names
+		private Map<String, Map<String, Map<String, VariableDecExp>>> variables;
+
+		// Placeholders to know where an exp is
+		private String currentClass;
+		private String currentMethod;
+		private int currentConstructor;
+		private boolean inConstructor;
+		
+		
 	//CCodeGenerator object will output an arraylist of c instructions
 	public CCodeGenerator() {
-		this.instructions = new ArrayList<CInstruction>();
+		this.instructions = new ArrayList<CInstruction>(); 
+		this.statements = new ArrayList<Statement>();
+		this.classes = new HashMap<String, ClassDefExp>();
+		this.instances = new HashMap<String, Map<String, InstanceDecExp>>();
+		this.methods = new HashMap<String, Map<String, MethodDefExp>>();
+		this.variables = new HashMap<String, Map<String, Map<String, VariableDecExp>>>();
+		this.programVariables = new HashMap<String, VariableDecExp>();
+		this.constructors = new HashMap<String, ArrayList<ConstructorDef>>();
+		this.constructorVariableDec = new HashMap<String, ArrayList<Map<String, VariableDecExp>>>();
+		inConstructor = true;
+		currentClass = null;
+		currentMethod = null;
 	}
 	
 	//For codegen with full programs, incomplete
 	public CCodeGenerator(Program prog) {
 		this.instructions = new ArrayList<CInstruction>(); 
+		this.statements = prog.statementList;
 		this.classes = new HashMap<String, ClassDefExp>();
+		this.instances = new HashMap<String, Map<String, InstanceDecExp>>();
 		this.methods = new HashMap<String, Map<String, MethodDefExp>>();
-		
+		this.variables = new HashMap<String, Map<String, Map<String, VariableDecExp>>>();
+		this.programVariables = new HashMap<String, VariableDecExp>();
+		this.constructors = new HashMap<String, ArrayList<ConstructorDef>>();
+		this.constructorVariableDec = new HashMap<String, ArrayList<Map<String, VariableDecExp>>>();
+		inConstructor = true;
+		currentClass = null;
+		currentMethod = null;
+
 		ArrayList<ClassDefExp> classList = prog.classDefList;
-		for(ClassDefExp c: classList) {
-			this.classes.put(c.name, c); 
+		for (ClassDefExp c : classList) {
+			this.classes.put(c.name, c);
+			ArrayList<InstanceDecExp> instanceList = c.members;
+			for (InstanceDecExp i : instanceList) {
+				Map<String, InstanceDecExp> temp = new HashMap<String, InstanceDecExp>();
+				temp.put(i.var.var.name, i);
+				this.instances.put(c.name, temp);
+			}
 			ArrayList<MethodDefExp> methodList = c.methods;
 			Map<String, MethodDefExp> temp = new HashMap<String, MethodDefExp>();
-			for(MethodDefExp m: methodList) {
-				temp.put(m.name, m); 
-				this.methods.put(c.name,temp); 
+			for (MethodDefExp m : methodList) {
+				temp.put(m.name, m);
+				this.methods.put(c.name, temp);
+				ArrayList<VariableDecExp> variableList = m.parameters;
+				Map<String, VariableDecExp> temp2 = new HashMap<String, VariableDecExp>();
+				for (VariableDecExp v : variableList) {
+					temp2.put(v.var.name, v);
+				}
+				Map<String, Map<String, VariableDecExp>> temp3 = new HashMap<String, Map<String, VariableDecExp>>();
+				temp3.put(m.name, temp2);
+				this.variables.put(c.name, temp3);
+			}
+
+			ArrayList<ConstructorDef> constructorList = c.constructors;
+			ArrayList<ConstructorDef> tempConstructor = new ArrayList<ConstructorDef>();
+			for (int i = 0; i < constructorList.size(); i++) {
+				tempConstructor.add(i, constructorList.get(i));
+				this.constructors.put(c.name, tempConstructor);
+				ArrayList<VariableDecExp> variableList = constructorList.get(i).parameters;
+				Map<String, VariableDecExp> temp2 = new HashMap<String, VariableDecExp>();
+				for (VariableDecExp v : variableList) {
+					temp2.put(v.var.name, v);
+				}
+				ArrayList<Map<String, VariableDecExp>> temp3 = new ArrayList<Map<String, VariableDecExp>>();
+				temp3.add(i, temp2);
+				this.constructorVariableDec.put(c.name, temp3);
 			}
 		}
 	}
@@ -157,6 +226,7 @@ public class CCodeGenerator {
 	//Compile Call Method Exp
 	public CFunctionCall convertCallMethod(CallMethodExp exp) throws CCodeGeneratorException{
 		VariableExp objname = exp.input;
+		String classname = ((ObjectType) lookupVariable(objname.name)).className;
 		VariableExp methodname = exp.methodname;
 		ArrayList<VariableExp> parameters = exp.parameter;
 		ArrayList<CVariableExp> cparams = new ArrayList<CVariableExp>();
@@ -165,7 +235,7 @@ public class CCodeGenerator {
 			cparams.add((CVariableExp)convertExp(p));
 		}
 		
-		CFunctionCall result = new CFunctionCall(methodname.name, cparams);
+		CFunctionCall result = new CFunctionCall(classname, methodname.name, cparams);
 		
 		return result;
 	}
@@ -253,4 +323,95 @@ public class CCodeGenerator {
 		}
 		gen.writeMainToFile(file); 
 	}
+	
+	
+	// looks up variable from the rest of the class
+		public Type lookupVariable(final String name) throws CCodeGeneratorException{
+			// Checks if not in a class then checks statements outside classes for variable
+			if (this.currentClass == null) {
+				for (Statement s : this.statements) {
+					if (s instanceof VariableDecExp && ((VariableDecExp) s).var.name.equals(name)) {
+						return ((VariableDecExp) s).type;
+					}
+				}
+				throw new CCodeGeneratorException("No variable found: " + name);
+			}
+			// If in a class, then check variables within methods, instance variables, and
+			// variables within method parameters
+			if (!inConstructor) {
+				VariableDecExp temp = null;
+				MethodDefExp temp2 = null;
+				InstanceDecExp temp3 = null;
+				try {
+					temp = this.variables.get(this.currentClass).get(this.currentMethod).get(name);
+				} catch (Exception e) {
+				}
+				try {
+					temp2 = this.methods.get(this.currentClass).get(this.currentMethod);
+				} catch (Exception e1) {
+				}
+				try {
+					temp3 = this.instances.get(this.currentClass).get(name);
+				} catch (Exception e2) {
+				}
+				// Variables within methods check
+				if (temp != null) {
+					return temp.type;
+				}
+				// Instance variables check
+				else if (temp3 != null) {
+					return temp3.var.type;
+				}
+				// Variables within method parameters check
+				else if (temp2 != null) {
+					for (VariableDecExp v : temp2.parameters) {
+						if (v.var.name.equals(name)) {
+							return v.type;
+						} else {
+							break;
+						}
+					}
+					throw new CCodeGeneratorException("Referring to unassigned variable " + name);
+				} else {
+					throw new CCodeGeneratorException("Referring to unassigned variable " + name);
+				}
+			} else {
+				VariableDecExp temp = null;
+				ConstructorDef temp2 = null;
+				InstanceDecExp temp3 = null;
+
+				try {
+					temp = constructorVariableDec.get(currentClass).get(currentConstructor).get(name);
+				} catch (Exception e) {
+				}
+				try {
+					temp2 = constructors.get(currentClass).get(currentConstructor);
+				} catch (Exception e1) {
+				}
+				try {
+					temp3 = instances.get(currentClass).get(name);
+				} catch (Exception e2) {
+				}
+				if (temp != null) {
+					return temp.type;
+				}
+				// Instance variables check
+				else if (temp3 != null) {
+					return temp3.var.type;
+				}
+				// Variables within constructor parameters check
+				else if (temp2 != null) {
+					for (VariableDecExp v : temp2.parameters) {
+						if (v.var.name.equals(name)) {
+							return v.type;
+						} else {
+							break;
+						}
+					}
+					throw new CCodeGeneratorException("Referring to unassigned variable " + name);
+				} else {
+					throw new CCodeGeneratorException("Referring to unassigned variable " + name);
+				}
+			}
+		}
 }
