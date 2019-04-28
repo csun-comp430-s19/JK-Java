@@ -240,6 +240,47 @@ public class CCodeGenerator {
 		return result;
 	}
 	
+	public CFunctionDec convertMethodDefExp(MethodDefExp exp) throws CCodeGeneratorException{
+		Type jk_type = exp.type;
+		String methodname = exp.name;
+		ArrayList<VariableDecExp> params = exp.parameters;
+		ArrayList<Statement> block = exp.block;
+		
+		ArrayList<CVariableDec> cparams = new ArrayList<CVariableDec>();
+		ArrayList<CStatement> cblock = new ArrayList<CStatement>();
+		
+		for(VariableDecExp p: params) {
+			cparams.add(convertVariableDec(p));
+		}
+		
+		for(Statement s : block) {
+			
+		}
+		
+	}
+	
+	public CStatement convertStatement(Statement s) throws CCodeGeneratorException{
+		
+	}
+	
+	public CVariableDec convertVariableDec(VariableDecExp v) throws CCodeGeneratorException{
+		if(v.type instanceof IntType) {
+			return new CVariableDec(new Cint(),new CVariableExp(v.var.name));
+		}
+		else if(v.type instanceof StringType) {
+			return new CVariableDec(new CChar(),new CVariableExp(v.var.name));
+		}
+		else if(v.type instanceof VoidType) {
+			return new CVariableDec(new CVoid(), new CVariableExp(v.var.name));
+		}
+		else if(v.type instanceof ObjectType) {
+			return new CVariableDec(new CStructType(((ObjectType)v.type).className), new CVariableExp(v.var.name));
+		}
+		else {
+			throw new CCodeGeneratorException("Invalid type:"+v.type.toString());
+		}
+	}
+	
 	//Compile assignment statement
 	public void compileAssignment(AssignmentStmt a) throws CCodeGeneratorException {
 		CVariableExp left = new CVariableExp(a.v.name);
