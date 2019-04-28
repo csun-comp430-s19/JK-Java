@@ -240,27 +240,64 @@ public class CCodeGenerator {
 		return result;
 	}
 	
-	public CFunctionDec convertMethodDefExp(MethodDefExp exp) throws CCodeGeneratorException{
+	public CFunctionDec convertMethodDefExp(MethodDefExp exp, String parentClass) throws CCodeGeneratorException{
 		Type jk_type = exp.type;
 		String methodname = exp.name;
+		
 		ArrayList<VariableDecExp> params = exp.parameters;
 		ArrayList<Statement> block = exp.block;
 		
 		ArrayList<CVariableDec> cparams = new ArrayList<CVariableDec>();
 		ArrayList<CStatement> cblock = new ArrayList<CStatement>();
 		
+		CType c_type = convertType(jk_type);
+		
 		for(VariableDecExp p: params) {
 			cparams.add(convertVariableDec(p));
 		}
 		
 		for(Statement s : block) {
-			
+			cblock.add(convertStatement(s));
 		}
 		
+		CFunctionDec result = new CFunctionDec(c_type, parentClass + "_" + methodname, cparams, cblock);
+		return result;
+	}
+	
+	public CType convertType(Type t) throws CCodeGeneratorException{
+		if(t instanceof IntType) {
+			return new Cint();
+		}
+		else if(t instanceof StringType) {
+			return new CChar();
+		}
+		else if(t instanceof VoidType) {
+			return new CVoid();
+		}
+		else if(t instanceof ObjectType) {
+			return new CStructType(((ObjectType)t).className);
+		}
+		else {
+			throw new CCodeGeneratorException("Invalid type:"+t.toString());
+		}
 	}
 	
 	public CStatement convertStatement(Statement s) throws CCodeGeneratorException{
-		
+		if(s instanceof VariableDecExp) {
+			return convertVariableDec((VariableDecExp)s);
+		}
+		else if(s instanceof AssignmentStmt) {
+			return convertAssignment((AssignmentStmt)s);
+		}
+		else if(s instanceof ReturnStmt) {
+			return convertReturn((ReturnStmt)s);
+		}
+		else if(s instanceof IndependentMethodCallStmt) {
+			return convertIndependentMethodCall((IndependentMethodCallStmt) s);
+		}
+		else {
+			throw new CCodeGeneratorException("Statement not found: "+s.toString());
+		}
 	}
 	
 	public CVariableDec convertVariableDec(VariableDecExp v) throws CCodeGeneratorException{
@@ -279,6 +316,27 @@ public class CCodeGenerator {
 		else {
 			throw new CCodeGeneratorException("Invalid type:"+v.type.toString());
 		}
+	}
+	
+	public CAssignment convertAssignment(AssignmentStmt a) throws CCodeGeneratorException{
+		CVariableExp left = new CVariableExp(a.v.name);
+		CExp right = convertExp(a.e); 
+		return new CAssignment(left, right);
+	}
+	
+	public CReturn convertReturn(ReturnStmt r) throws CCodeGeneratorException{
+		if(r.e == null) {
+			return new CReturn();
+		}else {
+			CExp c = convertExp(r.e);
+			return new CReturn(c);
+		}
+	}
+	
+	public CIndependentFunctionCall convertIndependentMethodCall(IndependentMethodCallStmt m) throws CCodeGeneratorException {
+		CallMethodExp method = m.methodcall;
+		CFunctionCall func = convertCallMethod(method);
+		return new CIndependentFunctionCall(func);
 	}
 	
 	//Compile assignment statement
