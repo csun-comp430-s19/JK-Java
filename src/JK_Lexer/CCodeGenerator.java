@@ -340,7 +340,7 @@ public class CCodeGenerator {
 		int i = 0;
 		for(i = 0; i < constructorl.size(); i++) {
 			ConstructorDef temp = constructorl.get(i);
-			if(temp.parameters.size() != 1 && temp.parameters.get(0).type.equals(vartype)) {
+			if(temp.parameters.size() != 1 && temp.parameters.get(0).type.equals(vartype)) {//Check for size 1 since newexp only hold 1 param
 				c = temp;
 				break;
 			}
@@ -348,6 +348,8 @@ public class CCodeGenerator {
 		if(c == null) throw new CCodeGeneratorException("Constructor not found: " + exp.toString());
 		
 		//Get Indexed CConstructor
+		
+		
 		
 	}
 	
