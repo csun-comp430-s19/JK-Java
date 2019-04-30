@@ -324,6 +324,33 @@ public class CCodeGenerator {
 		return result;
 	}
 	
+	public CNewStruct convertNew(NewExp exp) throws CCodeGeneratorException{
+		String classname = ((VariableExp)(exp.classname)).name;
+		
+		Exp var = exp.variable;
+		
+		CExp cvar = convertExp(var);
+		Type vartype = typeofExp(exp);
+		ArrayList<Type> tl = new ArrayList<Type>();
+		
+		ClassDefExp classdef = classes.get(classname);
+		
+		ArrayList<ConstructorDef> constructorl = constructors.get(classdef.name);
+		ConstructorDef c = null;
+		int i = 0;
+		for(i = 0; i < constructorl.size(); i++) {
+			ConstructorDef temp = constructorl.get(i);
+			if(temp.parameters.size() != 1 && temp.parameters.get(0).type.equals(vartype)) {
+				c = temp;
+				break;
+			}
+		}
+		if(c == null) throw new CCodeGeneratorException("Constructor not found: " + exp.toString());
+		
+		//Get Indexed CConstructor
+		
+	}
+	
 	public CType convertType(Type t) throws CCodeGeneratorException{
 		if(t instanceof IntType) {
 			return new Cint();
@@ -576,5 +603,56 @@ public class CCodeGenerator {
 					throw new CCodeGeneratorException("Referring to unassigned variable " + name);
 				}
 			}
+		}
+		
+		// typeofExp takes in map of strings (variable names) and types as well as an
+		// Exp e)
+		public Type typeofExp(final Exp e) throws CCodeGeneratorException{ 
+																		
+			if (e instanceof NumberExp) {
+				return new IntType();
+			} else if (e instanceof StringExp) {
+				return new StringType();
+			} else if (e instanceof BinopExp) {
+				return new IntType();
+			} else if (e instanceof VariableExp) {
+				String name = ((VariableExp) e).name;
+				return lookupVariable(name);
+			} else if (e instanceof ThisExp) {
+				String name = ((VariableExp) ((ThisExp) e).variable).name;
+				return lookupVariable(name);
+			} else if (e instanceof PrintExp) {
+				String name = ((VariableExp) ((PrintExp) e).expression).name;
+				return lookupVariable(name);
+			} else if (e instanceof CallMethodExp) {
+				String varName = ((VariableExp) ((CallMethodExp) e).input).name;
+				String methodName = ((VariableExp) ((CallMethodExp) e).methodname).name;
+				ArrayList<VariableExp> params = new ArrayList<VariableExp>(((CallMethodExp) e).parameter);
+				//Check if method is private, then check if it is being called in a different class
+				//String parameterName = ((VariableExp) ((CallMethodExp) e).parameter).name;
+				if(currentClass==null) {
+					MethodDefExp m = retrieveMethod(methodName);
+					return m.type; 
+				}
+				MethodDefExp temp = this.methods.get(this.currentClass).get(methodName);
+					return temp.type;
+			} else if (e instanceof NewExp) {
+				String classname = ((VariableExp) ((NewExp) e).classname).name;
+					return new CustomType(classname);
+			}else {
+				throw new CCodeGeneratorException("Type not found: " + e.toString());
+			}
+		}
+		
+		public MethodDefExp retrieveMethod(String m) throws CCodeGeneratorException{
+			for(ClassDefExp c: classes.values()) {
+				for(MethodDefExp me: c.methods) {
+					if(me.name.contentEquals(m)) {
+						return me; 
+					}
+				}
+			}
+			throw new CCodeGeneratorException("Method not found: " +m);
+			
 		}
 }

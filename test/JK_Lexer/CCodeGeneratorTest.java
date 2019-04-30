@@ -213,7 +213,7 @@ public class CCodeGeneratorTest {
 	}
 	
 	@Test
-	public void testCallMethod() throws IOException{
+	public void testCallMethod() throws IOException{//FAILING DUE TO UNFINISHED CODEGEN
 		VariableExp obj = new VariableExp("foo");
 		VariableExp method = new VariableExp("bar");
 		VariableExp param = new VariableExp("foobar");
@@ -224,7 +224,7 @@ public class CCodeGeneratorTest {
 		assertBasicExpGeneration("bar(foo, foobar);", exp);	
 	}
 	
-	@Test(expected = ComparisonFailure.class)
+	@Test(expected = ComparisonFailure.class)//FAILING DUE TO UNFINISHED CODEGEN
 	public void failsTestCallMethod() throws IOException{
 		VariableExp obj = new VariableExp("bar");
 		VariableExp method = new VariableExp("foo");

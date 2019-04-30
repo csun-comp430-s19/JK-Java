@@ -26,7 +26,7 @@ public class CFunctionCall implements CExp{
 	}
 	
 	public String toString() {
-		String s = classname + "_" + name + "(&";
+		String s = classname + "_" + name + "(";
 		for(int i = 0 ; i < parameters.size(); i++) {
 			if(i == parameters.size()-1) {
 				s+= parameters.get(i).toString();
