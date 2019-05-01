@@ -331,8 +331,8 @@ public class CCodeGenerator {
 		
 		CExp cvar = convertExp(var);
 		Type vartype = typeofExp(exp);
-		ArrayList<Type> tl = new ArrayList<Type>();
-		
+		ArrayList<CExp> tl = new ArrayList<CExp>();
+		tl.add(cvar);
 		ClassDefExp classdef = classes.get(classname);
 		
 		ArrayList<ConstructorDef> constructorl = constructors.get(classdef.name);
@@ -348,8 +348,10 @@ public class CCodeGenerator {
 		if(c == null) throw new CCodeGeneratorException("Constructor not found: " + exp.toString());
 		
 		//Get Indexed CConstructor
+		String cConstructorCall = classname + "_constructor" + i;
 		
-		
+		CNewStruct cstruct = new CNewStruct(classdef, cConstructorCall, tl);
+		return cstruct;
 		
 	}
 	
