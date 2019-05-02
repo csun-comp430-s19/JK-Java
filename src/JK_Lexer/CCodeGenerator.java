@@ -204,6 +204,26 @@ public class CCodeGenerator {
 		}
 	}
 	
+	public CProgram compileProgram(Program p) throws CCodeGeneratorException {
+		ArrayList<ClassDefExp> classdef = p.classDefList;
+		ArrayList<Statement> statements = p.statementList;
+		
+		ArrayList<CClassStructandFuncs> structandfuncs = new ArrayList<CClassStructandFuncs>();
+		ArrayList<CStatement> mainstmt = new ArrayList<CStatement>();
+		
+		for(ClassDefExp c : classdef) {
+			structandfuncs.add(convertClassDef(c));
+		}
+		for(Statement s : statements) {
+			mainstmt.add(convertStatement(s));
+		}
+		
+		String[] includes = {"include <stdio.h>", "include <stdlib.h>"};
+		
+		CProgram program = new CProgram(includes, structandfuncs, mainstmt);
+		return program;
+	}
+	
 	//Compile variable declaration
 	public void compileVariableDec(VariableDecExp v) throws CCodeGeneratorException {
 		if(v.type instanceof IntType) {
@@ -252,7 +272,7 @@ public class CCodeGenerator {
 		
 		CType c_type = convertType(jk_type);
 		
-		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("struct")));
+		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("structptr")));
 		
 		for(VariableDecExp p: params) {
 			cparams.add(convertVariableDec(p));
@@ -275,7 +295,7 @@ public class CCodeGenerator {
 		ArrayList<CVariableDec> cparams = new ArrayList<CVariableDec>();
 		ArrayList<CStatement> cblock = new ArrayList<CStatement>();
 		
-		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("struct")));
+		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("structptr")));
 		
 		for(VariableDecExp p: params) {
 			cparams.add(convertVariableDec(p));
