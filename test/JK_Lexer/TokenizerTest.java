@@ -7,7 +7,11 @@ import static org.junit.Assert.assertArrayEquals;
 import org.junit.Test;
 
 public class TokenizerTest {
+	
+	 // REMINDER TO REMOVE ObjectToken, ColonToken, and maybe QuoteToken since we have QuotedStringToken now 
+	
     // specify null for expected if it's not supposed to tokenize
+	
     public void assertTokenizes(final String input,
                                 final Token[] expected) {
         final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
@@ -311,4 +315,40 @@ public class TokenizerTest {
         assertTokenizes("\"123\"",
                         new Token[]{ new QuotedStringToken("123") });
     }
+    @Test
+    public void testVoidToken() {
+        assertTokenizes("return void;",
+                        new Token[]{ new ReturnToken(), new VoidToken(), new SemicolonToken() });
+    }
+    @Test
+    public void testArrows() {
+        assertTokenizes("<>",
+                        new Token[]{ new LessThanToken(), new GreaterThanToken() });
+    }
+    @Test
+    public void testPrint() {
+        assertTokenizes("println();",
+                        new Token[]{ new PrintToken(), new LeftParenToken(), new RightParenToken(), new SemicolonToken() });
+    }
+    
+    //Couple tests to check failing tokenization
+    
+    @Test(expected = AssertionError.class)
+    public void failsTokenizer1() {
+        assertTokenizes("public class Student",
+                        new Token[]{ new PrivateToken(), new ClassToken(), new NameToken("Student") });
+    }
+    
+    @Test(expected = AssertionError.class)
+    public void failsTokenizer2() {
+        assertTokenizes("1+1",
+                        new Token[]{ new NumberToken(2), new PlusToken(), new NumberToken(1) });
+    }
+    @Test(expected = AssertionError.class)
+    public void failsTokenizer3() {
+        assertTokenizes("int foo1",
+                        new Token[]{ new IntToken(), new NameToken("foo") });
+    }
+    
+   
 }
