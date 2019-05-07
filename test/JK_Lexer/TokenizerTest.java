@@ -82,6 +82,7 @@ public class TokenizerTest {
                         new Token[]{ new IfToken() });
     }
 
+
     @Test
     public void testTokenizeSingleChars() {
         assertTokenizes("+-*/(){}",
@@ -172,7 +173,13 @@ public class TokenizerTest {
     							      new NameToken("bar"),
     								  new SemicolonToken()});
     }
-    
+    @Test
+    public void testObjectDeclaration() {
+    	assertTokenizes("Object foo;", 
+    					new Token[] { new ObjectToken(),
+    								  new NameToken("foo"), 
+    								  new SemicolonToken()});
+    }
     @Test
     public void testTokenizeNewClass() {
     	assertTokenizes("new Foo();",
@@ -309,7 +316,6 @@ public class TokenizerTest {
     								  new RightCurlyToken(),
     								  new RightCurlyToken()});
     }
-    
     @Test
     public void testTokenizeQuotedString() {
         assertTokenizes("\"123\"",
@@ -331,8 +337,6 @@ public class TokenizerTest {
                         new Token[]{ new PrintToken(), new LeftParenToken(), new RightParenToken(), new SemicolonToken() });
     }
     
-    //Couple tests to check failing tokenization
-    
     @Test(expected = AssertionError.class)
     public void failsTokenizer1() {
         assertTokenizes("public class Student",
@@ -349,6 +353,15 @@ public class TokenizerTest {
         assertTokenizes("int foo1",
                         new Token[]{ new IntToken(), new NameToken("foo") });
     }
-    
-   
+    @Test(expected = AssertionError.class)
+    public void failsTokenizer4() {
+        assertTokenizes("[",
+                        new Token[]{ new IntToken(), new NameToken("foo") });
+    }
+    @Test
+    public void testUnclosedQuotedStringToken() {
+        assertTokenizes("\"wow",
+                        new Token[]{ new QuoteToken(), new NameToken("wow") });
+    }
+
 }

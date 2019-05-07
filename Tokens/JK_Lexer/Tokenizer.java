@@ -19,7 +19,6 @@ public class Tokenizer {
             put("if", new IfToken());
             put("else", new ElseToken());
             put("class", new ClassToken());
-            put(";", new ColonToken());
             put("extends", new ExtendsToken());
             put("new", new NewToken()); 
             put("Object", new ObjectToken());
@@ -112,9 +111,6 @@ public class Tokenizer {
     		inputPos++;
     		int strStart = inputPos;
     		while(input[inputPos] != '"') {
-    			if(input[inputPos] == '\\') {
-    				inputPos++;
-    			}
     			inputPos++;
     			//if end of program is hit and quote is never closed
     			//then resets inputPos and returns null
