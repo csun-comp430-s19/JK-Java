@@ -263,6 +263,7 @@ public class CCodeGenerator {
 	public CFunctionDec convertMethodDefExp(MethodDefExp exp, String parentClass) throws CCodeGeneratorException{
 		Type jk_type = exp.type;
 		String methodname = exp.name;
+		currentMethod = methodname;
 		
 		ArrayList<VariableDecExp> params = exp.parameters;
 		ArrayList<Statement> block = exp.block;
@@ -287,6 +288,8 @@ public class CCodeGenerator {
 	}
 	
 	public CFunctionDec convertConstructorDef(ConstructorDef c, String parentClass, int constructornumber) throws CCodeGeneratorException {
+		currentConstructor = constructornumber;
+		inConstructor = true;
 		String constructorname = parentClass + "_constructor"+constructornumber;
 		
 		ArrayList<VariableDecExp> params = c.parameters;
@@ -312,6 +315,7 @@ public class CCodeGenerator {
 	}
 	
 	public CClassStructandFuncs convertClassDef(ClassDefExp c) throws CCodeGeneratorException{
+		currentClass = c.name;
 		String classname = c.name;
 		ArrayList<ConstructorDef> constructorlist = c.constructors;
 		ArrayList<MethodDefExp> methods = c.methods;
@@ -333,6 +337,7 @@ public class CCodeGenerator {
 		for(ConstructorDef constructor : constructorlist) {
 			int num = constructorindexlist.indexOf(constructor);
 			functions.add(convertConstructorDef(constructor, c.name,num));
+			inConstructor = false;
 			num++;
 		}		
 		for(MethodDefExp m : methods) {
