@@ -2,6 +2,7 @@ package JK_Lexer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -45,8 +46,8 @@ public class ParserTest {
     	} catch (final ParserException e) {
     		assertTrue(("Unexpected parse failure for " + Arrays.toString(tokens) + ": " + e.getMessage()), expected == null);
     	}
-}
-    
+    }
+
     public void assertParsesClassDef(final Token[] tokens, final ClassDefExp expected) {
     	final Parser parser = new Parser(tokens);
     	try {
@@ -415,5 +416,223 @@ public class ParserTest {
     	Program expected = new Program(statementList, classDefList);
     	assertParsesProgram(tokens, expected); 
     }
-    
+    @Test
+    public void testThisExpAssignment() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "this.age=18;";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	assertParsesSingleStatement(tokenArray, new AssignmentStmt(new VariableExp("age"), new NumberExp(18)));
+    }
+    @Test
+    public void testReturnVoid() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "return;";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	assertParsesSingleStatement(tokenArray, new ReturnStmt());
+    }
+    @Test(expected=AssertionError.class)
+    public void failsTestReturnVoid() throws TypeErrorException, TokenizerException, ParserException{
+   
+    	final String input = "return;";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	assertParsesSingleStatement(tokenArray, new ReturnStmt(new VariableExp("foo")));
+    }
+    @Test
+    public void TestConstructorWithCoverage() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "public Student(int a) {"
+    							+"int b;"
+    							+"Student s;"
+    							+"b.add(a);"
+    							+"this.age=a;"
+    							+"}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	ArrayList<VariableDecExp> varA = new ArrayList<VariableDecExp>(); 
+    	varA.add(new VariableDecExp(new IntType(), new VariableExp("a")));
+    	ArrayList<Statement> stmtA = new ArrayList<Statement>(); 
+    	stmtA.add(new VariableDecExp(new IntType(), new VariableExp("b")));
+    	stmtA.add(new VariableDecExp(new ObjectType("Student"), new VariableExp("s")));
+    	ArrayList<VariableExp> vareA = new ArrayList<VariableExp>(); 
+    	vareA.add(new VariableExp("a"));
+    	stmtA.add(new IndependentMethodCallStmt(new CallMethodExp(new VariableExp("b"), new VariableExp("add"), vareA )));
+    	stmtA.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a")));
+    	assertParsesConstructorDef(tokenArray, new ConstructorDef(new PublicModifier(), "Student", varA, stmtA));
+    }
+    @Test(expected=AssertionError.class)
+    public void failsTestIndependentCall() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "s.add(1);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	//fails before comparison, so expected statement here is arbitrary placeholder
+    	assertParsesSingleStatement(tokenArray, new ReturnStmt());
+    }
+    @Test
+    public void testIndependentCallMultipleParameters() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "s.add(foo,foo1);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	ArrayList<VariableExp> varA = new ArrayList<VariableExp>(); 
+    	varA.add(new VariableExp("foo"));
+    	varA.add(new VariableExp("foo1"));
+    	assertParsesSingleStatement(tokenArray, new IndependentMethodCallStmt(new CallMethodExp(new VariableExp("s"), new VariableExp("add"), varA)));
+    }
+    @Test(expected = AssertionError.class)
+    public void failTestAssignment() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "1=2;";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	
+    	//fails before comparison, expected statement is arbitrary
+    	assertParsesSingleStatement(tokenArray, new AssignmentStmt(new VariableExp("1"), new NumberExp(2)));
+    }
+    @Test(expected = AssertionError.class)
+    public void failVariableDec() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "int 1;";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	
+    	//fails before comparison, expected statement is arbitrary
+    	assertParsesSingleStatement(tokenArray, new VariableDecExp(new IntType(), new VariableExp("1")));
+    }
+    @Test
+    public void testStringDec() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "String s;";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	assertParsesSingleStatement(tokenArray, new VariableDecExp(new StringType(), new VariableExp("s")));
+    }
+    @Test
+    public void testAssignmentWithMethodCall() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "age=s.add(foo,foo1);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	ArrayList<VariableExp> varA = new ArrayList<VariableExp>(); 
+    	varA.add(new VariableExp("foo"));
+    	varA.add(new VariableExp("foo1"));
+    	assertParsesSingleStatement(tokenArray, new AssignmentStmt(new VariableExp("age"),new CallMethodExp(new VariableExp("s"), new VariableExp("add"), varA)));
+    }
+    @Test(expected=AssertionError.class)
+    public void failsTestConstructorNoComma() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "public Student(int a int b) {"
+    							+"this.age=a+b;"
+    							+"}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	//Expected constructordef is arbitrary, fails before comparison
+    	assertParsesConstructorDef(tokenArray, new ConstructorDef(new PublicModifier(), "Student", new ArrayList<VariableDecExp>(), new ArrayList<Statement>()));
+    }
+    @Test
+    public void testConstructorMultipleParameters() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "public Student(int a, int b) {"
+    							+"this.age=a+b;"
+    							+"}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	ArrayList<VariableDecExp> varA=new ArrayList<VariableDecExp>(); 
+    	varA.add(new VariableDecExp(new IntType(), new VariableExp("a")));
+    	varA.add(new VariableDecExp(new IntType(), new VariableExp("b")));
+    	ArrayList<Statement> stmtA=new ArrayList<Statement>(); 
+    	stmtA.add(new AssignmentStmt(new VariableExp("age"), new BinopExp(new VariableExp("a"), new PlusOp(), new VariableExp("b"))));
+    	assertParsesConstructorDef(tokenArray, new ConstructorDef(new PublicModifier(), "Student", varA, stmtA));
+    }
+    @Test(expected=AssertionError.class)
+    public void failsTestMethodNoComma() throws TypeErrorException, TokenizerException, ParserException{
+    	final String input = "public class Student{"
+    							+"private int age;"
+    							+"public Student(int a){"
+    							+ 	"age = a;"
+    							+"}"
+    							+"public void setAge(int a int b){"
+    							+ 	"age=a+b;"
+    							+"}"
+    						+"}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	//Expected Classdefexp is arbitrary, fails before comparison
+    	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", new ArrayList<ConstructorDef>(), new ArrayList<InstanceDecExp>(), new ArrayList<MethodDefExp>(), false, "");
+    	assertParsesClassDef(tokenArray, expected); 
+    }
+    @Test
+    public void testMethodMultipleParameters() throws TypeErrorException, TokenizerException, ParserException{
+    	final String input = "public class Student{"
+    							+"private int age;"
+    							+"public int getAge(){"
+    							+	"return age;"
+    							+"}"
+    							+"public void setAge(int n, int a){"
+    							+ 	"age=n;"
+    							+"}"
+    						+"}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	ArrayList<InstanceDecExp> memberVarList = new ArrayList<InstanceDecExp>();
+    	memberVarList.add(new InstanceDecExp(new PrivateModifier(), new VariableDecExp(new IntType(), new VariableExp("age"))));
+    	ArrayList<MethodDefExp> methodList = new ArrayList<MethodDefExp>();
+    	ArrayList<Statement> block = new ArrayList<Statement>();
+    	ArrayList<Statement> setblock = new ArrayList<Statement>();
+    	ArrayList<VariableDecExp> setparam = new ArrayList<VariableDecExp>();
+    	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
+    	setparam.add(new VariableDecExp(new IntType(), new VariableExp("a")));
+    	block.add(new ReturnStmt(new VariableExp("age")));
+    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
+    	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
+    	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
+    	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", new ArrayList<ConstructorDef>(), memberVarList, methodList, false, "");
+    	assertParsesClassDef(tokenArray, expected); 
+    }
+    @Test(expected=AssertionError.class)
+    public void failsTestNoSemicolonBetween() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "s.add(foo,foo1) 1";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	
+    	//Expected statement is arbitrary, fails before comparison, gets error where no semicolon token after one statement
+    	ArrayList<VariableExp> varA = new ArrayList<VariableExp>(); 
+    	varA.add(new VariableExp("foo"));
+    	varA.add(new VariableExp("foo1"));
+    	assertParsesSingleStatement(tokenArray, new IndependentMethodCallStmt(new CallMethodExp(new VariableExp("s"), new VariableExp("add"), varA)));
+    }
 }

@@ -126,15 +126,6 @@ public class Parser {
 		return new ParseMultiplicative().parse(startPos);
 	}
 
-	private ParseResult<Exp> parseNumber(final int startPos) throws ParserException {
-		final Token current = getToken(startPos);
-		if (current instanceof NumberToken) {
-			return new ParseResult<Exp>(new NumberExp(((NumberToken) current).number), startPos + 1);
-		} else {
-			return null;
-		}
-	}
-
 	private void assertTokenAtPos(final Token token, final int pos) throws ParserException {
 		if (!getToken(pos).equals(token)) {
 			throw new ParserException("Expected " + token.toString() + " at pos " + pos);
@@ -464,7 +455,7 @@ public class Parser {
 		if (!(getToken(pos) instanceof SemicolonToken)) {
 			if (getToken(pos) instanceof ReturnToken) {
 				if (getToken(pos + 1) instanceof SemicolonToken)
-					result = new ParseResult<Statement>(new ReturnStmt(), pos + 2);
+					result = new ParseResult<Statement>(new ReturnStmt(), pos + 1);
 				else {
 					ParseResult<Exp> expResult = parseExp(pos + 1);
 					result = new ParseResult<Statement>(new ReturnStmt((Exp) parseExp(pos + 1).result),

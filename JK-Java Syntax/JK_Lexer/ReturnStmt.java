@@ -1,7 +1,7 @@
 package JK_Lexer;
 
 public class ReturnStmt implements Statement{
-	public final Exp e;
+	public Exp e;
 	
 	public ReturnStmt(final Exp e) {
 		this.e=e;
@@ -16,7 +16,15 @@ public class ReturnStmt implements Statement{
 	}
 	public boolean equals(final Object other) {
 		if(other instanceof ReturnStmt) {
+			if(e==null) {
+				final ReturnStmt otherExp=(ReturnStmt)other; 
+				if(otherExp.e==null)
+					return true;
+				return false; 
+			}	
 			final ReturnStmt otherExp=(ReturnStmt)other; 
+			if(otherExp.e==null)
+				return false; 
 			return (otherExp.e.equals(e));
 		}
 		else {
@@ -25,6 +33,9 @@ public class ReturnStmt implements Statement{
 	}
 	
 	public String toString() {
-		return "return" + e.toString();
+		if(e==null)
+			return "return";
+		else
+			return "return"+e.toString(); 
 	}
 }
