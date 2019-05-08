@@ -234,7 +234,6 @@ public class ParserTest {
     									new VariableExp("grade"));
     	assertParses(tokens, expected); 
     }
-    
     @Test
     public void testConstructor() {
     	final Token[] tokens = { new PublicToken(),

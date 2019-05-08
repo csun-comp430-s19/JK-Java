@@ -341,7 +341,7 @@ public class Parser {
 		ConstructorDef method = new ConstructorDef(mod.result, name, paramlist, block.result);
 		return new ParseResult<ConstructorDef>(method, pos + 1);
 	}
-
+	
 	private ParseResult<MethodDefExp> parseMethodDefExp(int startPos) throws ParserException {
 		int pos = startPos;
 		ParseResult<Modifier> mod = parseModifier(pos);
@@ -473,7 +473,11 @@ public class Parser {
 			} else if ((getToken(pos) instanceof NameToken) && (getToken(pos + 1) instanceof AssignmentToken)) {
 				ParseResult<AssignmentStmt> assignmentResult = parseAssignment(pos);
 				result = new ParseResult<Statement>(assignmentResult.result, assignmentResult.tokenPos);
-			} else if ((getToken(pos) instanceof IntToken || getToken(pos) instanceof StringToken)
+			} else if((getToken(pos) instanceof ThisToken)&& (getToken(pos+1) instanceof PeriodToken)&&
+					   (getToken(pos+2) instanceof NameToken)&&(getToken(pos+3) instanceof AssignmentToken)) {
+				ParseResult<AssignmentStmt> assignmentResult = parseAssignment(pos); 
+				result = result = new ParseResult<Statement>(assignmentResult.result, assignmentResult.tokenPos);
+			}else if ((getToken(pos) instanceof IntToken || getToken(pos) instanceof StringToken)
 					&& (getToken(pos + 1) instanceof NameToken)) {
 				ParseResult<VariableDecExp> variableDecExpResult = parseVariableDecExp(pos);
 				result = new ParseResult<Statement>(variableDecExpResult.result, variableDecExpResult.tokenPos);
@@ -499,6 +503,7 @@ public class Parser {
 		}
 	}
 
+
 	private ParseResult<Statement> parseSingleConstructorStatement(int startPos) throws ParserException {
 		int pos = startPos;
 		ParseResult<Statement> result = null;
@@ -506,7 +511,11 @@ public class Parser {
 			if ((getToken(pos) instanceof NameToken) && (getToken(pos + 1) instanceof AssignmentToken)) {
 				ParseResult<AssignmentStmt> assignmentResult = parseAssignment(pos);
 				result = new ParseResult<Statement>(assignmentResult.result, assignmentResult.tokenPos);
-			} else if ((getToken(pos) instanceof IntToken || getToken(pos) instanceof StringToken)
+			} else if((getToken(pos) instanceof ThisToken)&& (getToken(pos+1) instanceof PeriodToken)&&
+					   (getToken(pos+2) instanceof NameToken)&&(getToken(pos+3) instanceof AssignmentToken)) {
+				ParseResult<AssignmentStmt> assignmentResult = parseAssignment(pos); 
+				result = result = new ParseResult<Statement>(assignmentResult.result, assignmentResult.tokenPos);
+			}else if ((getToken(pos) instanceof IntToken || getToken(pos) instanceof StringToken)
 					&& (getToken(pos + 1) instanceof NameToken)) {
 				ParseResult<VariableDecExp> variableDecExpResult = parseVariableDecExp(pos);
 				result = new ParseResult<Statement>(variableDecExpResult.result, variableDecExpResult.tokenPos);
@@ -570,7 +579,12 @@ public class Parser {
 			return new ParseResult<AssignmentStmt>(
 					new AssignmentStmt(new VariableExp(getToken(pos).toString()), expResult.result),
 					expResult.tokenPos);
-		} else {
+		}else if((getToken(pos) instanceof ThisToken)){
+			ParseResult<Exp> expResult = parseExp(pos+4); 
+			return new ParseResult<AssignmentStmt>(
+					new AssignmentStmt(new VariableExp(getToken(pos+2).toString()), expResult.result),
+					expResult.tokenPos);
+		}else {
 			throw new ParserException("Expected variable and assignment at: " + pos);
 		}
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+
 public class Typechecker {
 	// begin instance variables
 
@@ -51,13 +52,13 @@ public class Typechecker {
 				throw new TypeErrorException("Duplicate class declared: " + c.name);
 			this.classes.put(c.name, c);
 			ArrayList<InstanceDecExp> instanceList = c.members;
+			Map<String, InstanceDecExp> tempp = new HashMap<String, InstanceDecExp>();
 			for (InstanceDecExp i : instanceList) {
-				Map<String, InstanceDecExp> temp = new HashMap<String, InstanceDecExp>();
-				if (temp.containsKey(i.var.var.name))
-					throw new TypeErrorException(
-							"Duplicate member declared in class " + c.name + " : " + i.var.var.name);
-				temp.put(i.var.var.name, i);
-				this.instances.put(c.name, temp);
+				
+				if (tempp.containsKey(i.var.var.name)) 
+					throw new TypeErrorException("Duplicate member declared in class " + c.name + " : " + i.var.var.name);
+				tempp.put(i.var.var.name, i);
+				this.instances.put(c.name, tempp);
 			}
 			ArrayList<MethodDefExp> methodList = c.methods;
 			Map<String, MethodDefExp> temp = new HashMap<String, MethodDefExp>();
@@ -83,7 +84,7 @@ public class Typechecker {
 			ArrayList<ConstructorDef> tempConstructor = new ArrayList<ConstructorDef>();
 			for (int i = 0; i < constructorList.size(); i++) {
 				for (int j = 0; i < tempConstructor.size(); j++) {
-					if (tempConstructor.get(j).parameters.equals(constructorList.get(i)))
+					if (tempConstructor.get(j).parameters.equals(constructorList.get(i).parameters))
 						throw new TypeErrorException(
 								"Duplicate declared constructor: Name: " + constructorList.get(i).name + "Parameters: "
 										+ constructorList.get(i).parameters.toString());
@@ -289,7 +290,8 @@ public class Typechecker {
 				throw new TypeErrorException("Class does not exist: " + classname);
 			}
 		}
-
+		
+		//Code should never get here
 		else {
 			throw new TypeErrorException("Not a valid exp");
 		}

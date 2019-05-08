@@ -678,4 +678,276 @@ public class TypecheckerTest {
     	final Program prog = parser.parseProgram(); 
     	Typechecker.typecheckProgram(prog); 
     }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestMultipleSameParameterInConstructor() throws TypeErrorException, TokenizerException, ParserException{
+    	// Multiple parameters with same name in constructor
+    	final String input = "public class Student{"
+    						+"private int age;"
+    						+"public Student(int a, int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestMultipleSameParameterInMethod() throws TypeErrorException, TokenizerException, ParserException{
+    	// Multiple parameters with same name in method
+    	final String input = "public class Student{"
+    						+"private int age;"
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n, int n) {"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestEntireClassWithStatementsOutsideMoreCoverage() throws TypeErrorException, TokenizerException, ParserException{
+    	//Failing class declaration with variety of statements outside (more coverage, some code is redundant/useless but is present solely for testing coverage)
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"int s;"
+    							+"int n;"
+    							+"s=2;"
+    							+"age=n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test
+    public void testEntireClassWithStatementsOutsideMoreCoverage() throws TypeErrorException, TokenizerException, ParserException{
+    	//Failing class declaration with variety of statements outside (more coverage, some code is redundant/useless but is present solely for testing coverage)
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	this.age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return this.age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"this.age = n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestMultipleVariablesOutsideClass() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails because multiple variables same name outside class
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	this.age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return this.age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"this.age = n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestNewClassDoesntExist() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails because person doesnt exist
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	this.age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return this.age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"this.age = n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Person(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestCallMethodThatDoesntExist() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails because add doesnt exist for ints
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	this.age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return this.age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"this.age = n; "
+    							+"n=n.add(n);"
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test
+    public void testCallMethodWithinClass() throws TypeErrorException, TokenizerException, ParserException{
+    	//testing call method in a class method
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	this.age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return this.age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"this.age = n; "
+    							+"Student s;"
+    							+"n=s.getAge();"
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestMultipleSameInstance() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails because same instance variable
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"	this.age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return this.age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"this.age = n; "
+    						+"}"
+    				  + "}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsDeclaredAlreadyInConstructor() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails because a already declared in constructor
+    	final String input = "public class Student{"
+    						+"private int age; "
+    						+"public Student(int a) {"
+    						+"  int a; "
+    						+"	this.age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return this.age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"this.age = n; "
+    						+"}"
+    				  + "}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
 }
