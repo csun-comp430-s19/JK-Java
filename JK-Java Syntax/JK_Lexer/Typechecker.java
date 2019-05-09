@@ -84,7 +84,7 @@ public class Typechecker {
 			ArrayList<ConstructorDef> tempConstructor = new ArrayList<ConstructorDef>();
 			for (int i = 0; i < constructorList.size(); i++) {
 				for (int j = 0; i < tempConstructor.size(); j++) {
-					if (tempConstructor.get(j).parameters.equals(constructorList.get(i).parameters))
+					if ((tempConstructor.get(j).parameters.equals(constructorList.get(i).parameters)))
 						throw new TypeErrorException(
 								"Duplicate declared constructor: Name: " + constructorList.get(i).name + "Parameters: "
 										+ constructorList.get(i).parameters.toString());
@@ -101,7 +101,7 @@ public class Typechecker {
 					temp2.put(v.var.name, v);
 				}
 				ArrayList<Map<String, VariableDecExp>> temp3 = new ArrayList<Map<String, VariableDecExp>>();
-				temp3.add(i, temp2);
+				temp3.add(temp2);
 				this.constructorVariableDec.put(c.name, temp3);
 			}
 		}
