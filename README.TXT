@@ -5,9 +5,9 @@ INT is an int
 STRING is a string
 CLASSNAME is the name of a class
 METHODNAME is the name of a method
-type::= INT | VOID | 				Built in types
+type::= INT | VOID | 	T			Built in types, with generic type T 
             classname |				Class type including Object and String
-            classname<type> 			Generic type represented by <>
+            classname<type> 			Generic typing in class object represented by <>
 op::= + | - | * | / 				Arithmetic operation
 exp::= VAR | STRING | INT | <type> |		Variables, strings, integers, generics are expressions
 	this.VAR |				My instance				
