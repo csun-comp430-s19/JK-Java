@@ -635,4 +635,17 @@ public class ParserTest {
     	varA.add(new VariableExp("foo1"));
     	assertParsesSingleStatement(tokenArray, new IndependentMethodCallStmt(new CallMethodExp(new VariableExp("s"), new VariableExp("add"), varA)));
     }
+    @Test
+    public void testGenericObjectTypeVarDec() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "Student<int, String> s;";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	ArrayList<Type> typeList = new ArrayList<Type>(); 
+    	typeList.add(new IntType()); 
+    	typeList.add(new StringType());
+    	assertParsesSingleStatement(tokenArray, new VariableDecExp(new GenericObjectType("Student", typeList), new VariableExp("s")));
+    }
 }

@@ -420,6 +420,20 @@ public class Parser {
 			return new ParseResult<Type>(new StringType(), startPos + 1);
 		} else if (m instanceof VoidToken) {
 			return new ParseResult<Type>(new VoidType(), startPos + 1);
+		} else if(m instanceof NameToken && getToken(startPos+1) instanceof LessThanToken){
+			ArrayList<Type> typeList = new ArrayList<Type>(); 
+			int newPos= startPos+2; 
+			while(!(getToken(newPos) instanceof GreaterThanToken)) {
+				if(getToken(newPos) instanceof IntToken || getToken(newPos) instanceof StringToken ||getToken(newPos) instanceof VoidToken|| getToken(newPos) instanceof NameToken) {
+					typeList.add(parseType(newPos).result);
+					newPos++; 
+				} else if(getToken(newPos) instanceof CommaToken) {
+					newPos++; 
+				} else {
+					throw new ParserException("Invalid Token, expected NameToken or CommaToken at pos: " + newPos);
+				}
+			}
+			return new ParseResult<Type>(new GenericObjectType(((NameToken)m).name, typeList), newPos+1);
 		} else if (m instanceof NameToken) {
 			return new ParseResult<Type>(new ObjectType(((NameToken) m).name), startPos + 1);
 		} else {
@@ -480,10 +494,13 @@ public class Parser {
 						&& (getToken(pos+2) instanceof NameToken) && (getToken(pos+3) instanceof LeftParenToken)) {
 				ParseResult<IndependentMethodCallStmt> independentMethodCallStmtResult = parseIndependentMethodCallStmt(pos);
 				result = new ParseResult<Statement>(independentMethodCallStmtResult.result, independentMethodCallStmtResult.tokenPos);
+			} else if((getToken(pos) instanceof NameToken)&&(getToken(pos+1) instanceof LessThanToken)) {
+				ParseResult<VariableDecExp> variableDecExpResult = parseVariableDecExp(pos);
+				result = new ParseResult<Statement>(variableDecExpResult.result, variableDecExpResult.tokenPos);
 			}
 
 			if (result == null) {
-				throw new ParserException("Expcted valid statement at: " + pos);
+				throw new ParserException("Expected valid statement at: " + pos);
 			} else if (!(getToken(result.tokenPos) instanceof SemicolonToken)) {
 				throw new ParserException("Expected semicolon at: " + result.tokenPos);
 			} else {
