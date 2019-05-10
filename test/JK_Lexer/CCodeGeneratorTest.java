@@ -37,6 +37,21 @@ public class CCodeGeneratorTest {
 			assertTrue("Unexpected code generation error: "+exc.getMessage(), expected==null);
 		}
 	}
+	
+	public void assertProgramGeneration(String expected, Program p) throws IOException{
+		try {
+			CCodeGenerator cg = new CCodeGenerator(p); 
+			final File file = File.createTempFile("testfile",".c");
+			cg.generate(file);
+			final String received = convertFileToString(file); 
+			assertTrue("Expected code generation error: "+received, expected!=null); 
+			assertEquals(expected,received); 
+			file.delete(); 
+		}catch(final CCodeGeneratorException exc) {
+			assertTrue("Unexpected code generation error: "+exc.getMessage(), expected==null);
+		}
+	}
+	
 	public void assertMainMethodGeneration(String expected, Statement[] sArray) throws IOException{
 		try {
 			CCodeGenerator cg = new CCodeGenerator(); 
@@ -234,6 +249,17 @@ public class CCodeGeneratorTest {
 		CallMethodExp exp = new CallMethodExp(obj,method,params);
 		
 		assertBasicExpGeneration("bar(foo, foobar);", exp);	
+	}
+	
+	@Test
+	public void testBasicProgramSingleStatement() throws IOException{
+		VariableDecExp vdec = new VariableDecExp(new IntType(), new VariableExp("foo"));
+		ArrayList<Statement> s = new ArrayList<Statement>();
+		s.add(vdec);
+		
+		Program p = new Program(s, new ArrayList<ClassDefExp>());
+		
+		assertProgramGeneration("include <stdio.h>include <stdlib.h>int main(){int foo;return 0;}", p);
 	}
 	
 }

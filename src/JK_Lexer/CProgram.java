@@ -22,7 +22,10 @@ public class CProgram {
 	}
 	
 	public String toString() {
-		String str = includes +"\n";
+		String str = "";
+		for (String include : includes) {
+			str += include + "\n";
+		}
 		for(CClassStructandFuncs csf : structandfuncs) {
 			str += csf.struct.toString() + "\n";
 		}

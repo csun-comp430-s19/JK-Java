@@ -13,7 +13,8 @@ import java.util.HashMap;
 public class CCodeGenerator {
 	private final List<CInstruction> instructions;
 	
-
+		private Program inputprogram;
+		
 	// List of any statements outside of classes in program
 		private final ArrayList<Statement> statements;
 		// Map for Variables declared in statements outside of classes
@@ -39,6 +40,7 @@ public class CCodeGenerator {
 		
 	//CCodeGenerator object will output an arraylist of c instructions
 	public CCodeGenerator() {
+		this.inputprogram = null;
 		this.instructions = new ArrayList<CInstruction>(); 
 		this.statements = new ArrayList<Statement>();
 		this.classes = new HashMap<String, ClassDefExp>();
@@ -55,6 +57,7 @@ public class CCodeGenerator {
 	
 	//For codegen with full programs, incomplete
 	public CCodeGenerator(Program prog) {
+		this.inputprogram = prog;
 		this.instructions = new ArrayList<CInstruction>(); 
 		this.statements = prog.statementList;
 		this.classes = new HashMap<String, ClassDefExp>();
@@ -204,7 +207,27 @@ public class CCodeGenerator {
 		}
 	}
 	
-	public CProgram compileProgram(Program p) throws CCodeGeneratorException {
+	//Compile variable declaration
+	public void compileVariableDec(VariableDecExp v) throws CCodeGeneratorException {
+		if(v.type instanceof IntType) {
+			add(new CVariableDec(new Cint(),new CVariableExp(v.var.name)));
+		}
+		else if(v.type instanceof StringType) {
+			add(new CVariableDec(new CChar(),new CVariableExp(v.var.name)));
+		}
+		else if(v.type instanceof VoidType) {
+			add(new CVariableDec(new CVoid(), new CVariableExp(v.var.name)));
+		}
+		
+		//ADD NEW CLASS OBJECT HERE, INCOMPLETE
+		
+		else {
+			throw new CCodeGeneratorException("Invalid type:"+v.type.toString());
+		}
+	}
+	
+	//convert Program to CProgram
+	public CProgram convertProgram(Program p) throws CCodeGeneratorException {
 		ArrayList<ClassDefExp> classdef = p.classDefList;
 		ArrayList<Statement> statements = p.statementList;
 		
@@ -224,24 +247,6 @@ public class CCodeGenerator {
 		return program;
 	}
 	
-	//Compile variable declaration
-	public void compileVariableDec(VariableDecExp v) throws CCodeGeneratorException {
-		if(v.type instanceof IntType) {
-			add(new CVariableDec(new Cint(),new CVariableExp(v.var.name)));
-		}
-		else if(v.type instanceof StringType) {
-			add(new CVariableDec(new CChar(),new CVariableExp(v.var.name)));
-		}
-		else if(v.type instanceof VoidType) {
-			add(new CVariableDec(new CVoid(), new CVariableExp(v.var.name)));
-		}
-		
-		//ADD NEW CLASS OBJECT HERE, INCOMPLETE
-		
-		else {
-			throw new CCodeGeneratorException("Invalid type:"+v.type.toString());
-		}
-	}
 	
 	//Compile Call Method Exp
 	public CFunctionCall convertCallMethod(CallMethodExp exp) throws CCodeGeneratorException{
@@ -492,6 +497,20 @@ public class CCodeGenerator {
 		}
 	}
 	
+	//Writes entire CProgram object to file
+		public void writeCProgramToFile(final File file) throws IOException{
+			final PrintWriter output= new PrintWriter(new BufferedWriter(new FileWriter(file))); 
+			try {
+				for(final CInstruction i: instructions) {
+					String s = i.toString(); 
+					output.println(s);
+				}
+			}finally {
+				output.close(); 
+			}
+		}
+	
+	
 	//Writes individual instructions to file, for testing exp and statement 
 	public void writeIndividualLinesToFile(final File file) throws IOException{
 		final PrintWriter output= new PrintWriter(new BufferedWriter(new FileWriter(file))); 
@@ -543,6 +562,23 @@ public class CCodeGenerator {
 		gen.writeMainToFile(file); 
 	}
 	
+	public void writeProgramToFile(final Program p, final File file) throws IOException, CCodeGeneratorException{
+		final CCodeGenerator gen = new CCodeGenerator(p);
+		gen.generate(file);
+	}
+	
+	public void generate(File file) throws CCodeGeneratorException, IOException {
+		CProgram c = convertProgram(this.inputprogram);
+		
+		final PrintWriter output= new PrintWriter(new BufferedWriter(new FileWriter(file)));
+		try {
+			output.println(c.toString());
+		}finally {
+			output.close(); 
+		}
+		
+		
+	}
 	
 	// looks up variable from the rest of the class
 		public Type lookupVariable(final String name) throws CCodeGeneratorException{
