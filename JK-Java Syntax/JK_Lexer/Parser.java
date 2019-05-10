@@ -244,6 +244,9 @@ public class Parser {
 	public ClassDefExp parseClassDef() throws ParserException {
 		return parseClassDef(0).result;
 	}
+	public ClassDefExp parseGenericClassDef() throws ParserException {
+		return parseGenericClassDef(0).result;
+	}
 
 	public Program parseProgram() throws ParserException {
 		return parseProgram(0).result;
@@ -257,7 +260,7 @@ public class Parser {
 		boolean extending = false;
 		String extendingName = "";
 
-		if ((current instanceof PublicToken) || (current instanceof PrivateToken)) { // (EXP)
+		if ((current instanceof PublicToken) || (current instanceof PrivateToken)) { 
 			ParseResult<Modifier> modifierResult = parseModifier(startPos);
 			Modifier modifier = modifierResult.result;
 			assertTokenAtPos(new ClassToken(), startPos + 1);
@@ -320,7 +323,90 @@ public class Parser {
 			throw new ParserException("Expected Modifier for Class Declaration at: " + startPos);
 		}
 	}
-
+	
+	private ParseResult<GenericClassDefinition> parseGenericClassDef(final int startPos) throws ParserException{
+		final Token current = getToken(startPos); 
+		ArrayList<ConstructorDef> constructorlist = new ArrayList<ConstructorDef>();
+		ArrayList<MethodDefExp> methodlist = new ArrayList<MethodDefExp>();
+		ArrayList<InstanceDecExp> memberlist = new ArrayList<InstanceDecExp>();
+		boolean extending = false;
+		String extendingName = "";
+		ArrayList<VariableExp> genericList = new ArrayList<VariableExp>(); 
+		
+		if((current instanceof PublicToken) || (current instanceof PrivateToken)) {
+			ParseResult<Modifier> modifierResult = parseModifier(startPos); 
+			Modifier modifier = modifierResult.result; 
+			assertTokenAtPos(new ClassToken(), startPos+1); 
+			if (!(getToken(startPos + 2) instanceof NameToken)) {
+				throw new ParserException("Expected Valid Name of Class at: " + startPos + 2);
+			}
+			String classname = ((NameToken)getToken(startPos+2)).name; 
+			assertTokenAtPos(new LessThanToken(), startPos+3);
+			int tempPos = startPos+4; 
+			while(!(getToken(tempPos) instanceof GreaterThanToken)) {
+				if(getToken(tempPos) instanceof NameToken) {
+					genericList.add(((VariableExp)parseExp(tempPos).result)); 
+					tempPos++; 
+				} else if(getToken(tempPos) instanceof CommaToken && getToken(tempPos-1) instanceof NameToken) {
+					tempPos++; 
+				} else {
+					throw new ParserException("NameToken expected in generic class definition at pos: " +tempPos); 
+				}
+			}
+			assertTokenAtPos(new GreaterThanToken(), tempPos); 
+			Token currentToken; 
+			int currentPos; 
+			if(getToken(tempPos+1) instanceof ExtendsToken) {
+				extending = true; 
+				if(!(getToken(tempPos+2) instanceof NameToken)) {
+					throw new ParserException("Expected valid name of class at pos: "+  (tempPos+2)); 
+				}
+				extendingName = ((NameToken) getToken(tempPos+2)).name; 
+				assertTokenAtPos(new LeftCurlyToken(), tempPos+3);
+				currentToken = getToken(tempPos+4); 
+				currentPos = tempPos+4; 
+			} else {
+				assertTokenAtPos(new LeftCurlyToken(), tempPos+1); 
+				currentToken= getToken(tempPos+2); 
+				currentPos = tempPos+2; 
+			}
+			while(!(currentToken instanceof RightCurlyToken)) {
+				ParseResult<Modifier> mod = parseModifier(currentPos);
+				if(getToken(currentPos+1) instanceof NameToken && getToken(currentPos+2) instanceof LeftParenToken) {
+					ParseResult<ConstructorDef> constructorDef = parseConstructorDef(currentPos, classname); 
+					currentPos = constructorDef.tokenPos; 
+					constructorlist.add(constructorDef.result);
+				} else if(getToken(currentPos+2) instanceof NameToken) {
+					ParseResult<Type> type = parseType(currentPos+1); 
+					if(!(getToken(currentPos+2) instanceof NameToken)) {
+						throw new ParserException("Expected Valid Name of Member Variable or method at: "+(currentPos+2));
+					}
+					String name = getToken(currentPos+2).toString();
+					
+					if(getToken(currentPos+3) instanceof LeftParenToken) {
+						//method dec
+						ParseResult<MethodDefExp> methodDefExp = parseMethodDefExp(currentPos); 
+						currentPos = methodDefExp.tokenPos; 
+						methodlist.add(methodDefExp.result);
+					} else {
+						//member var dec
+						assertTokenAtPos(new SemicolonToken(), currentPos+3); 
+						memberlist.add(new InstanceDecExp(mod.result, new VariableDecExp(type.result, new VariableExp(name))));
+						currentPos+=4; 
+					} 
+				} else {
+					throw new ParserException("Unexpected " + getToken(currentPos+1).toString()+ " at: "+ (currentPos+1)); 
+				}
+				currentToken = getToken(currentPos); 
+			}
+			return new ParseResult<GenericClassDefinition>(
+						new GenericClassDefinition(modifier, classname, constructorlist, memberlist, methodlist, extending, extendingName, genericList), currentPos+1);
+		} else {
+			throw new ParserException("Expected Modifier for Class Declaration at: "+ startPos); 
+		}
+		
+	}
+	
 	private ParseResult<ConstructorDef> parseConstructorDef(int startPos, String className) throws ParserException {
 		int pos = startPos;
 		ParseResult<Modifier> mod = parseModifier(pos);
@@ -416,9 +502,15 @@ public class Parser {
 			if ((currentToken instanceof PublicToken || currentToken instanceof PrivateToken)
 					&& getToken(pos + 1) instanceof ClassToken) {
 				// ClassDecExp
-				ParseResult<ClassDefExp> classDef = parseClassDef(pos);
-				classDefList.add(classDef.result);
-				pos = classDef.tokenPos;
+				if(getToken(pos+3) instanceof LessThanToken) {
+					ParseResult<GenericClassDefinition> gClassDef = parseGenericClassDef(pos); 
+					classDefList.add(gClassDef.result); 
+					pos = gClassDef.tokenPos; 
+				} else {
+					ParseResult<ClassDefExp> classDef = parseClassDef(pos);
+					classDefList.add(classDef.result);
+					pos = classDef.tokenPos;
+				}
 			} else {
 				// Statement
 				ParseResult<Statement> statement = parseSingleStatement(pos);

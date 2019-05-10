@@ -975,30 +975,4 @@ public class TypecheckerTest {
     	final Program prog = parser.parseProgram(); 
     	Typechecker.typecheckProgram(prog); 
     }
-    @Test
-    public void failsTestMultipleConstructorsDuplicate() throws TypeErrorException, TokenizerException, ParserException{
-    	//Standard class declaration with duplicate constructors, should fail
-    	final String input = "public class Student{"
-    						+"private int age; "
-    						+"public Student(int a) {"
-    						+"	age = a; "
-    						+"}"
-    						+"public Student(int a) {"
-    						+"	age = a; "
-    						+"}"
-    						+"public int getAge() {"
-    							+"return age; "
-    						+"}"
-    						+"public void setAge(int n) {"
-    							+"age=n; "
-    						+"}"
-    				  + "}";
-    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
-    	final List<Token> tokenList = tokenizer.tokenize(); 
-    	Token[] tokenArray = new Token[tokenList.size()];
-    	tokenArray = tokenList.toArray(tokenArray); 
-    	final Parser parser = new Parser(tokenArray); 
-    	final Program prog = parser.parseProgram(); 
-    	Typechecker.typecheckProgram(prog); 
-    }
 }

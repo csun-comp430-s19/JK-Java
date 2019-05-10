@@ -51,7 +51,7 @@ public class ClassDefExp {
 				   "Name: " + name +"\n" +
 				   "Constructors"+members.toString()+"\n"+
 				   "Members: " + members.toString()+ "\n"+
-				   "Methods: " + methods.toString();
+				   "Methods: " + methods.toString()+ "\n";
 		return s;
 	}
 }

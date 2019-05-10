@@ -24,9 +24,9 @@ stmt::=vardec; 	|			Declares variable
 accessModifier::= public | private			Access modifiers
 methoddef::=accessModifier type METHODNAME(vardec*) stmt		Creates method
 instancedec::= accessModifier vardec;				Declares instance of variable
-classdef::= class CLASSNAME{ |					Normal class declaration
-                   class CLASSNAME<type>{ |				Generic class declaration
-                   class CLASSNAME extends CLASSNAME{	Class with inheritance declaration
+classdef::= accessModifier class CLASSNAME{ |			Normal class declaration
+                   accessModifier class CLASSNAME<type>{ |			Generic class declaration
+                   accessModifier class CLASSNAME extends CLASSNAME{	Class with inheritance declaration
 		instancedec*				
 		constructor(vardec*) stmt
 		methoddef*
