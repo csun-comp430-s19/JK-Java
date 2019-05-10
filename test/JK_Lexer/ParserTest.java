@@ -731,4 +731,29 @@ public class ParserTest {
     	final GenericClassDefinition expected = new GenericClassDefinition(new PublicModifier(), "Student", new ArrayList<ConstructorDef>(), new ArrayList<InstanceDecExp>(), methodList, true, "Person", genericList);
     	assertParsesGenericClassDef(tokenArray, expected); 
     }
+    @Test
+    public void TestGenericClassDefinitionWithinProgram() throws TypeErrorException, TokenizerException, ParserException{
+    	final String input = "public class Student<A, B> extends Person{"
+    							+"public A getAge(){"
+    							+	"return age;"
+    							+"}"
+    						+"}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	ArrayList<MethodDefExp> methodList = new ArrayList<MethodDefExp>();
+    	ArrayList<Statement> block = new ArrayList<Statement>();
+    	block.add(new ReturnStmt(new VariableExp("age")));
+    	methodList.add(new MethodDefExp(new PublicModifier(), new ObjectType("A"), "getAge", new ArrayList<VariableDecExp>(), block));
+    	ArrayList<VariableExp> genericList = new ArrayList<VariableExp>(); 
+    	genericList.add(new VariableExp("A"));
+     	genericList.add(new VariableExp("B"));
+    	final GenericClassDefinition expected = new GenericClassDefinition(new PublicModifier(), "Student", new ArrayList<ConstructorDef>(), new ArrayList<InstanceDecExp>(), methodList, true, "Person", genericList);
+    	ArrayList<Statement> emptyList = new ArrayList<Statement>(); 
+    	ArrayList<ClassDefExp> classDefList = new ArrayList<ClassDefExp>(); 
+    	classDefList.add(expected); 
+    	final Program prog = new Program(emptyList,classDefList); 
+    	assertParsesProgram(tokenArray, prog);
+    }
 }
