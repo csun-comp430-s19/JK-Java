@@ -648,4 +648,36 @@ public class ParserTest {
     	typeList.add(new StringType());
     	assertParsesSingleStatement(tokenArray, new VariableDecExp(new GenericObjectType("Student", typeList), new VariableExp("s")));
     }
+    @Test
+    public void testGenericNewExp() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "new.Student<int,String>(age, name)";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	ArrayList<Type> typeList = new ArrayList<Type>(); 
+    	typeList.add(new IntType()); 
+    	typeList.add(new StringType());
+    	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
+    	varList.add(new VariableExp("age")); 
+    	varList.add(new VariableExp("name")); 
+    	assertParses(tokenArray, new GenericNewExp(new VariableExp("Student"), typeList, varList));
+    }
+    @Test(expected=AssertionError.class)
+    public void failsTestGenericNewExpInvalidParameter1() throws TypeErrorException, TokenizerException, ParserException{
+    	
+    	final String input = "new.Student<int, String>(int, String)";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	ArrayList<Type> typeList = new ArrayList<Type>(); 
+    	typeList.add(new IntType()); 
+    	typeList.add(new StringType());
+    	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
+    	varList.add(new VariableExp("age")); 
+    	varList.add(new VariableExp("name")); 
+    	assertParses(tokenArray, new GenericNewExp(new VariableExp("Student"), typeList, varList));
+    }
 }

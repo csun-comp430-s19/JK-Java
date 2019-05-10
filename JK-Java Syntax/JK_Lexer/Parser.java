@@ -181,7 +181,7 @@ public class Parser {
 			resultExp = new CallMethodExp(new VariableExp(((NameToken) current).name), (VariableExp)methodname.result,
 					params);
 			resultPos = startPos + i + 1;
-		} else if (current instanceof NewToken) {
+		} else if (current instanceof NewToken && getToken(startPos+3) instanceof LeftParenToken) {    //NEW EXP FOR NON GENERIC CLASSES
 			assertTokenAtPos(new PeriodToken(), startPos + 1);
 			final ParseResult<Exp> classname = parseExp(startPos + 2);
 			assertTokenAtPos(new LeftParenToken(), startPos + 3);
@@ -189,6 +189,38 @@ public class Parser {
 			assertTokenAtPos(new RightParenToken(), startPos + 5);
 			resultExp = new NewExp(classname.result, variable.result);
 			resultPos = startPos + 6;
+		} else if(current instanceof NewToken && getToken(startPos+3) instanceof LessThanToken){	// NEW EXP FOR GENERIC CLASSES
+			assertTokenAtPos(new PeriodToken(), startPos + 1);
+			final ParseResult<Exp> classname = parseExp(startPos+2); 
+			assertTokenAtPos(new LessThanToken(), startPos+3); 
+			int newPos = startPos+4; 
+			ArrayList<Type> typeList = new ArrayList<Type>(); 
+			ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
+			while(!(getToken(newPos) instanceof GreaterThanToken)) {
+				if(getToken(newPos) instanceof IntToken || getToken(newPos) instanceof StringToken || getToken(newPos) instanceof VoidToken || getToken(newPos) instanceof NameToken) {
+					typeList.add(parseType(newPos).result);
+					newPos++; 
+				} else if(getToken(newPos) instanceof CommaToken && (getToken(newPos-1) instanceof IntToken || getToken(newPos-1) instanceof StringToken || getToken(newPos-1) instanceof VoidToken ||getToken(newPos-1) instanceof NameToken)) {
+					newPos++; 
+				} else {
+					throw new ParserException("Expected CommaToken or any TypeToken at pos: "+ newPos); 
+				}
+			}
+			assertTokenAtPos(new GreaterThanToken(), newPos); 
+			assertTokenAtPos(new LeftParenToken(), newPos+1); 
+			int newPos2 = newPos+2; 
+			while(!(getToken(newPos2) instanceof RightParenToken)) {
+				if(getToken(newPos2) instanceof NameToken) {
+					varList.add((VariableExp)parseExp(newPos2).result);
+					newPos2++; 
+				} else if(getToken(newPos2) instanceof CommaToken && getToken(newPos2-1) instanceof NameToken) {
+					newPos2++; 
+				} else {
+					throw new ParserException("Expected CommaToken or any NameToken at pos:"+ newPos2); 
+				}
+			}
+			resultExp = new GenericNewExp(((VariableExp)classname.result), typeList, varList);
+			resultPos = newPos2+1; 
 		} else if (current instanceof LeftParenToken) { // (EXP)
 			final ParseResult<Exp> nested = parseExp(startPos + 1);
 			assertTokenAtPos(new RightParenToken(), nested.tokenPos);
@@ -427,10 +459,10 @@ public class Parser {
 				if(getToken(newPos) instanceof IntToken || getToken(newPos) instanceof StringToken ||getToken(newPos) instanceof VoidToken|| getToken(newPos) instanceof NameToken) {
 					typeList.add(parseType(newPos).result);
 					newPos++; 
-				} else if(getToken(newPos) instanceof CommaToken) {
+				} else if(getToken(newPos) instanceof CommaToken && (getToken(newPos-1) instanceof IntToken) || getToken(newPos-1) instanceof StringToken || getToken(newPos-1) instanceof VoidToken || getToken(newPos-1) instanceof NameToken) {
 					newPos++; 
 				} else {
-					throw new ParserException("Invalid Token, expected NameToken or CommaToken at pos: " + newPos);
+					throw new ParserException("Invalid Token, expected TypeToken or CommaToken at pos: " + newPos);
 				}
 			}
 			return new ParseResult<Type>(new GenericObjectType(((NameToken)m).name, typeList), newPos+1);
