@@ -2,7 +2,7 @@ package JK_Lexer;
 
 import java.util.ArrayList;
 
-public class CNewStruct implements CStatement {
+public class CNewStruct implements CExp {
 	String classname;
 	int methodcount;
 	String constructorname;

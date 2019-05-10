@@ -199,7 +199,9 @@ public class CCodeGenerator {
 		else if(exp instanceof CallMethodExp) {
 			return convertCallMethod((CallMethodExp)exp);
 		}
-		
+		else if(exp instanceof NewExp) {
+			return convertNew((NewExp)exp);
+		}
 		//Add this, method call, and new class when planned out
 		
 		else {
@@ -360,7 +362,7 @@ public class CCodeGenerator {
 		Exp var = exp.variable;
 		
 		CExp cvar = convertExp(var);
-		Type vartype = typeofExp(exp);
+		Type vartype = typeofExp(var);
 		ArrayList<CExp> tl = new ArrayList<CExp>();
 		tl.add(cvar);
 		ClassDefExp classdef = classes.get(classname);
@@ -370,7 +372,7 @@ public class CCodeGenerator {
 		int i = 0;
 		for(i = 0; i < constructorl.size(); i++) {
 			ConstructorDef temp = constructorl.get(i);
-			if(temp.parameters.size() != 1 && temp.parameters.get(0).type.equals(vartype)) {//Check for size 1 since newexp only hold 1 param
+			if(temp.parameters.size() == 1 && temp.parameters.get(0).type.equals(vartype)) {//Check for size 1 since newexp only hold 1 param
 				c = temp;
 				break;
 			}
