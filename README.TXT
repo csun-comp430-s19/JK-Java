@@ -31,7 +31,7 @@ classdef::= accessModifier class CLASSNAME{ |			Normal class declaration
 		constructor(vardec*) stmt
 		methoddef*
 	      }
-program::= classdef* 
+program::= classdef* stmt*
 
 
 
