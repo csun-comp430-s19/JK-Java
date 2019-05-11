@@ -25,10 +25,10 @@ public class CAssignment implements CStatement{
 	
 	public String toString() {
 		if(e instanceof CStringExp) {
-			return v.toString()+ " = "+ "\""+e.toString()+"\""+";";
+			return v.toString()+ " = "+ "\""+e.toString()+"\"";
 		}
 		else {
-			return v.toString() + " = " + e.toString() +";";
+			return v.toString() + " = " + e.toString();
 		}
 	}
 }

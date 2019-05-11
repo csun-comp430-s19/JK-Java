@@ -34,7 +34,7 @@ public class CFunctionCall implements CExp{
 				s+= parameters.get(i).toString() + ", ";
 			}
 		}
-		s+= ");";
+		s+= ")";
 		
 		return s;
 	}
