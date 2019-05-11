@@ -25,10 +25,10 @@ public class CVariableDec implements CStatement{
 	}
 	public String toString() {
 		if(type instanceof CChar) {
-			return type.toString() + " " + var.toString() + "[];";
+			return type.toString() + " " + var.toString() + "[]";
 		}
 		else {		
-			return type.toString() + " " +  var.toString()+ ";";
+			return type.toString() + " " +  var.toString();
 		}
 	}
 }

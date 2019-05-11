@@ -35,7 +35,7 @@ public class CProgram {
 		
 		str += "int main(){\n";
 		for(CStatement s : statement) {
-			str+= s.toString() + "\n";
+			str+= s.toString() + ";\n";
 		}
 		str += "return 0;\n}\n";
 		

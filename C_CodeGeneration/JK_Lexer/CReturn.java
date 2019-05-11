@@ -27,10 +27,10 @@ public class CReturn implements CStatement{
 	
 	public String toString() {
 		if(e instanceof CStringExp) {
-			return "return " + "\""+e.toString()+"\"" +";";
+			return "return " + "\""+e.toString()+"\"";
 		}
 		else {
-			return "return " + e.toString()+ ";";
+			return "return " + e.toString();
 		}
 	}
 }
