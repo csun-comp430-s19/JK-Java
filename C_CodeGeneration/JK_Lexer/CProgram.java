@@ -30,7 +30,9 @@ public class CProgram {
 			str += csf.struct.toString() + "\n";
 		}
 		for(CClassStructandFuncs csf : structandfuncs) {
-			str += csf.functions.toString() + "\n";
+				for(CFunctionDec func : csf.functions) {
+					str += func.toString() + "\n";
+				}
 		}
 		
 		str += "int main(){\n";

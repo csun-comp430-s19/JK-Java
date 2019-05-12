@@ -32,7 +32,7 @@ public class CNewStruct implements CExp {
 				str+= params.get(i).toString() + ", ";
 			}
 		}
-		str+= ");";
+		str+= ")";
 		return str;
 	}
 }
