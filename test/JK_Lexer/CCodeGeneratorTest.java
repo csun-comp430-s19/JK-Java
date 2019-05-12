@@ -172,40 +172,40 @@ public class CCodeGeneratorTest {
 	}
 	@Test 
 	public void testAssignmentInt() throws IOException{
-		assertStatementGeneration("foo1 = 1;", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1)));
+		assertStatementGeneration("foo1 = 1;", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1), false));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestAssignmentInt() throws IOException{
-		assertStatementGeneration("foo1 = 2;", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1)));
+		assertStatementGeneration("foo1 = 2;", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1), false));
 	}
 	@Test 
 	public void testAssignmentBinop() throws IOException{
-		assertStatementGeneration("foo1 = (1 + 2);", new AssignmentStmt(new VariableExp("foo1"), new BinopExp(new NumberExp(1), new PlusOp(),new NumberExp(2))));
+		assertStatementGeneration("foo1 = (1 + 2);", new AssignmentStmt(new VariableExp("foo1"), new BinopExp(new NumberExp(1), new PlusOp(),new NumberExp(2)), false));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestAssignmentBinop() throws IOException{
-		assertStatementGeneration("foo1 = (1 + 7);", new AssignmentStmt(new VariableExp("foo1"), new BinopExp(new NumberExp(1), new PlusOp(),new NumberExp(2))));
+		assertStatementGeneration("foo1 = (1 + 7);", new AssignmentStmt(new VariableExp("foo1"), new BinopExp(new NumberExp(1), new PlusOp(),new NumberExp(2)), false));
 	}
 	@Test 
 	public void testAssignmentString() throws IOException{
-		assertStatementGeneration("foo1 = \"hello\";", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello")));
+		assertStatementGeneration("foo1 = \"hello\";", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello"), false));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestAssignmentString() throws IOException{
-		assertStatementGeneration("foo1 = \"goodbye\";", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello")));
+		assertStatementGeneration("foo1 = \"goodbye\";", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello"), false));
 	}
 	@Test 
 	public void testAssignmentVarToVar() throws IOException{
-		assertStatementGeneration("foo1 = foo2;", new AssignmentStmt(new VariableExp("foo1"), new VariableExp("foo2")));
+		assertStatementGeneration("foo1 = foo2;", new AssignmentStmt(new VariableExp("foo1"), new VariableExp("foo2"), false));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestAssignmentVarToVar() throws IOException{
-		assertStatementGeneration("foo1 = foo3;", new AssignmentStmt(new VariableExp("foo1"), new VariableExp("foo2")));
+		assertStatementGeneration("foo1 = foo3;", new AssignmentStmt(new VariableExp("foo1"), new VariableExp("foo2"), false));
 	}
 	@Test
 	public void testMainMethod() throws IOException{
 		Statement[] sArray = new Statement[] { new VariableDecExp(new IntType(), new VariableExp("foo")),
-											   new AssignmentStmt(new VariableExp("foo"), new NumberExp(100)),
+											   new AssignmentStmt(new VariableExp("foo"), new NumberExp(100), false),
 											   new ReturnStmt(new NumberExp(0))};
 		
 		assertMainMethodGeneration("int main(){"
@@ -217,7 +217,7 @@ public class CCodeGeneratorTest {
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestMainMethod() throws IOException{
 		Statement[] sArray = new Statement[] { new VariableDecExp(new IntType(), new VariableExp("foo")),
-											   new AssignmentStmt(new VariableExp("foo"), new NumberExp(100)),
+											   new AssignmentStmt(new VariableExp("foo"), new NumberExp(100), false),
 											   new ReturnStmt(new NumberExp(0))};
 		
 		assertMainMethodGeneration("int main(){"
@@ -274,11 +274,11 @@ public class CCodeGeneratorTest {
     	ArrayList<VariableDecExp> setparam = new ArrayList<VariableDecExp>();
     	ArrayList<VariableDecExp> constructorParam = new ArrayList<VariableDecExp>();
     	ArrayList<Statement> constructorblock = new ArrayList<Statement>();
-    	constructorblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a")));
+    	constructorblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a"), false));
     	constructorParam.add(new VariableDecExp(new IntType(), new VariableExp("a")));
     	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
     	block.add(new ReturnStmt(new VariableExp("age")));
-    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
+    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n"), false));
     	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
     	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
     	constructorList.add(new ConstructorDef(new PublicModifier(), "Student", constructorParam, constructorblock));
@@ -287,9 +287,9 @@ public class CCodeGeneratorTest {
     	ArrayList<Statement> statementList = new ArrayList<Statement>();
     	classDefList.add(classStudent);
     	statementList.add(new VariableDecExp(new IntType(), new VariableExp("age")));
-    	statementList.add(new AssignmentStmt(new VariableExp("age"), new NumberExp(21)));
+    	statementList.add(new AssignmentStmt(new VariableExp("age"), new NumberExp(21), false));
     	statementList.add(new VariableDecExp(new ObjectType("Student"), new VariableExp("student")));
-    	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),new VariableExp("age"))));
+    	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),new VariableExp("age")), false));
     	
     	Program p = new Program(statementList, classDefList);
 		

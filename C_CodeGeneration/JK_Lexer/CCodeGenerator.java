@@ -202,6 +202,9 @@ public class CCodeGenerator {
 		else if(exp instanceof NewExp) {
 			return convertNew((NewExp)exp);
 		}
+		else if(exp instanceof ThisExp) {
+			return new CVariableExp("structptr->user_"+((ThisExp)exp).variable.toString(), false);
+		}
 		//Add this, method call, and new class when planned out
 		
 		else {

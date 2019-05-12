@@ -321,7 +321,7 @@ public class ParserTest {
     	ArrayList<VariableDecExp> setparam = new ArrayList<VariableDecExp>();
     	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
     	block.add(new ReturnStmt(new VariableExp("age")));
-    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
+    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n"),false));
     	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
     	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
     	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", new ArrayList<ConstructorDef>(), memberVarList, methodList, false, "");
@@ -405,11 +405,11 @@ public class ParserTest {
     	ArrayList<VariableDecExp> setparam = new ArrayList<VariableDecExp>();
     	ArrayList<VariableDecExp> constructorParam = new ArrayList<VariableDecExp>();
     	ArrayList<Statement> constructorblock = new ArrayList<Statement>();
-    	constructorblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a")));
+    	constructorblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a"),false));
     	constructorParam.add(new VariableDecExp(new IntType(), new VariableExp("a")));
     	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
     	block.add(new ReturnStmt(new VariableExp("age")));
-    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
+    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n"),false));
     	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
     	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
     	constructorList.add(new ConstructorDef(new PublicModifier(), "Student", constructorParam, constructorblock));
@@ -418,9 +418,9 @@ public class ParserTest {
     	ArrayList<Statement> statementList = new ArrayList<Statement>();
     	classDefList.add(classStudent);
     	statementList.add(new VariableDecExp(new IntType(), new VariableExp("age")));
-    	statementList.add(new AssignmentStmt(new VariableExp("age"), new NumberExp(21)));
+    	statementList.add(new AssignmentStmt(new VariableExp("age"), new NumberExp(21),false));
     	statementList.add(new VariableDecExp(new ObjectType("Student"), new VariableExp("student")));
-    	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),new VariableExp("age"))));
+    	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),new VariableExp("age")),false));
     	
     	Program expected = new Program(statementList, classDefList);
     	assertParsesProgram(tokens, expected); 
@@ -433,7 +433,7 @@ public class ParserTest {
     	final List<Token> tokenList = tokenizer.tokenize(); 
     	Token[] tokenArray = new Token[tokenList.size()];
     	tokenArray = tokenList.toArray(tokenArray); 
-    	assertParsesSingleStatement(tokenArray, new AssignmentStmt(new VariableExp("age"), new NumberExp(18)));
+    	assertParsesSingleStatement(tokenArray, new AssignmentStmt(new VariableExp("age"), new NumberExp(18),true));
     }
     @Test
     public void testReturnVoid() throws TypeErrorException, TokenizerException, ParserException{
@@ -476,7 +476,7 @@ public class ParserTest {
     	ArrayList<VariableExp> vareA = new ArrayList<VariableExp>(); 
     	vareA.add(new VariableExp("a"));
     	stmtA.add(new IndependentMethodCallStmt(new CallMethodExp(new VariableExp("b"), new VariableExp("add"), vareA )));
-    	stmtA.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a")));
+    	stmtA.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a"),true));
     	assertParsesConstructorDef(tokenArray, new ConstructorDef(new PublicModifier(), "Student", varA, stmtA));
     }
     @Test(expected=AssertionError.class)
@@ -513,7 +513,7 @@ public class ParserTest {
     	tokenArray = tokenList.toArray(tokenArray); 
     	
     	//fails before comparison, expected statement is arbitrary
-    	assertParsesSingleStatement(tokenArray, new AssignmentStmt(new VariableExp("1"), new NumberExp(2)));
+    	assertParsesSingleStatement(tokenArray, new AssignmentStmt(new VariableExp("1"), new NumberExp(2),false));
     }
     @Test(expected = AssertionError.class)
     public void failVariableDec() throws TypeErrorException, TokenizerException, ParserException{
@@ -548,7 +548,7 @@ public class ParserTest {
     	ArrayList<VariableExp> varA = new ArrayList<VariableExp>(); 
     	varA.add(new VariableExp("foo"));
     	varA.add(new VariableExp("foo1"));
-    	assertParsesSingleStatement(tokenArray, new AssignmentStmt(new VariableExp("age"),new CallMethodExp(new VariableExp("s"), new VariableExp("add"), varA)));
+    	assertParsesSingleStatement(tokenArray, new AssignmentStmt(new VariableExp("age"),new CallMethodExp(new VariableExp("s"), new VariableExp("add"), varA),false));
     }
     @Test(expected=AssertionError.class)
     public void failsTestConstructorNoComma() throws TypeErrorException, TokenizerException, ParserException{
@@ -577,7 +577,7 @@ public class ParserTest {
     	varA.add(new VariableDecExp(new IntType(), new VariableExp("a")));
     	varA.add(new VariableDecExp(new IntType(), new VariableExp("b")));
     	ArrayList<Statement> stmtA=new ArrayList<Statement>(); 
-    	stmtA.add(new AssignmentStmt(new VariableExp("age"), new BinopExp(new VariableExp("a"), new PlusOp(), new VariableExp("b"))));
+    	stmtA.add(new AssignmentStmt(new VariableExp("age"), new BinopExp(new VariableExp("a"), new PlusOp(), new VariableExp("b")),true));
     	assertParsesConstructorDef(tokenArray, new ConstructorDef(new PublicModifier(), "Student", varA, stmtA));
     }
     @Test(expected=AssertionError.class)
@@ -623,7 +623,7 @@ public class ParserTest {
     	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
     	setparam.add(new VariableDecExp(new IntType(), new VariableExp("a")));
     	block.add(new ReturnStmt(new VariableExp("age")));
-    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n")));
+    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n"),false));
     	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
     	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
     	final ClassDefExp expected = new ClassDefExp(new PublicModifier(), "Student", new ArrayList<ConstructorDef>(), memberVarList, methodList, false, "");
