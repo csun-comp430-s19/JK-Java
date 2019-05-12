@@ -314,8 +314,8 @@ public class CCodeGenerator {
 		for(Statement s : block) {
 			cblock.add(convertStatement(s));
 		}
-		
-		CFunctionDec result = new CFunctionDec(new CVoid(), constructorname, cparams, cblock);
+		cblock.add(new CReturn((CExp)cparams.get(0).var));
+		CFunctionDec result = new CFunctionDec(new CStructType(parentClass+"*"), constructorname, cparams, cblock);
 		
 		return result;
 		
@@ -338,12 +338,12 @@ public class CCodeGenerator {
 		}
 		
 		CStructDec cstruct = new CStructDec(c.name, structmembers);
-		
 		ArrayList<CFunctionDec> functions = new ArrayList<CFunctionDec>();
+		ArrayList<CFunctionDec> structconstructors = new ArrayList<CFunctionDec>();
 		ArrayList<ConstructorDef> constructorindexlist = constructors.get(c.name);
 		for(ConstructorDef constructor : constructorlist) {
 			int num = constructorindexlist.indexOf(constructor);
-			functions.add(convertConstructorDef(constructor, c.name,num));
+			structconstructors.add(convertConstructorDef(constructor, c.name,num));
 			inConstructor = false;
 			num++;
 		}		
@@ -351,7 +351,7 @@ public class CCodeGenerator {
 			functions.add(convertMethodDefExp(m, c.name));
 		}
 		
-		CClassStructandFuncs result = new CClassStructandFuncs(cstruct, functions);
+		CClassStructandFuncs result = new CClassStructandFuncs(cstruct, structconstructors, functions);
 		
 		return result;
 	}
