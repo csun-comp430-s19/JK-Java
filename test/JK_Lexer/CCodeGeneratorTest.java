@@ -274,7 +274,7 @@ public class CCodeGeneratorTest {
     	ArrayList<VariableDecExp> setparam = new ArrayList<VariableDecExp>();
     	ArrayList<VariableDecExp> constructorParam = new ArrayList<VariableDecExp>();
     	ArrayList<Statement> constructorblock = new ArrayList<Statement>();
-    	constructorblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a"), false));
+    	constructorblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a"), true));
     	constructorParam.add(new VariableDecExp(new IntType(), new VariableExp("a")));
     	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
     	block.add(new ReturnStmt(new VariableExp("age")));

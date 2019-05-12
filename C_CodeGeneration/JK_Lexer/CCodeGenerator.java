@@ -450,7 +450,9 @@ public class CCodeGenerator {
 	}
 	
 	public CAssignment convertAssignment(AssignmentStmt a) throws CCodeGeneratorException{
-		CVariableExp left = new CVariableExp(a.v.name, true);
+		CVariableExp left;
+		if(a.leftIsThis) left = new CVariableExp("structptr->user_"+a.v.name, false);
+		else left = new CVariableExp(a.v.name, true);
 		CExp right = convertExp(a.e); 
 		return new CAssignment(left, right);
 	}
