@@ -129,7 +129,7 @@ public class CCodeGenerator {
 	
 	//Compile VariableExp function
 	public void compileVariableExp(final VariableExp exp) {
-		add(new CVariableExp(exp.name));
+		add(new CVariableExp("user_"+exp.name, true));
 	}
 	
 	//Compile BinopExp function
@@ -186,7 +186,7 @@ public class CCodeGenerator {
 			return new CStringExp(((StringExp)exp).fullstring);
 		}
 		else if(exp instanceof VariableExp) {
-			return new CVariableExp(((VariableExp)exp).name);
+			return new CVariableExp(((VariableExp)exp).name, true);
 		}
 		else if(exp instanceof BinopExp) {
 			CExp left = convertExp(((BinopExp)exp).left);
@@ -212,13 +212,13 @@ public class CCodeGenerator {
 	//Compile variable declaration
 	public void compileVariableDec(VariableDecExp v) throws CCodeGeneratorException {
 		if(v.type instanceof IntType) {
-			add(new CVariableDec(new Cint(),new CVariableExp(v.var.name)));
+			add(new CVariableDec(new Cint(),new CVariableExp(v.var.name, true)));
 		}
 		else if(v.type instanceof StringType) {
-			add(new CVariableDec(new CChar(),new CVariableExp(v.var.name)));
+			add(new CVariableDec(new CChar(),new CVariableExp(v.var.name, true)));
 		}
 		else if(v.type instanceof VoidType) {
-			add(new CVariableDec(new CVoid(), new CVariableExp(v.var.name)));
+			add(new CVariableDec(new CVoid(), new CVariableExp(v.var.name, true)));
 		}
 		
 		//ADD NEW CLASS OBJECT HERE, INCOMPLETE
@@ -280,7 +280,7 @@ public class CCodeGenerator {
 		
 		CType c_type = convertType(jk_type);
 		
-		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("structptr")));
+		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("structptr", false)));
 		
 		for(VariableDecExp p: params) {
 			cparams.add(convertVariableDec(p));
@@ -298,6 +298,7 @@ public class CCodeGenerator {
 		currentConstructor = constructornumber;
 		inConstructor = true;
 		String constructorname = parentClass + "_constructor"+constructornumber;
+		ClassDefExp parentClassDef = classes.get(parentClass);
 		
 		ArrayList<VariableDecExp> params = c.parameters;
 		ArrayList<Statement> block = c.block;
@@ -305,7 +306,7 @@ public class CCodeGenerator {
 		ArrayList<CVariableDec> cparams = new ArrayList<CVariableDec>();
 		ArrayList<CStatement> cblock = new ArrayList<CStatement>();
 		
-		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("structptr")));
+		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("structptr", false)));
 		
 		for(VariableDecExp p: params) {
 			cparams.add(convertVariableDec(p));
@@ -330,7 +331,7 @@ public class CCodeGenerator {
 		
 		ArrayList<CVariableDec> structmembers = new ArrayList<CVariableDec>();
 		if(c.extending) {
-			CVariableDec basestruct = new CVariableDec(new CStructType(c.extendingClass), new CVariableExp("parent"));
+			CVariableDec basestruct = new CVariableDec(new CStructType(c.extendingClass), new CVariableExp("parent", false));
 			structmembers.add(basestruct);
 		}
 		for(InstanceDecExp i : varmembers) {
@@ -406,7 +407,7 @@ public class CCodeGenerator {
 	}
 	
 	public CVariableDec convertInstanceDec(InstanceDecExp i) throws CCodeGeneratorException{
-		return new CVariableDec(convertType(i.var.type), new CVariableExp(i.var.var.name));
+		return new CVariableDec(convertType(i.var.type), new CVariableExp(i.var.var.name, true));
 	}
 	
 	public CStatement convertStatement(Statement s) throws CCodeGeneratorException{
@@ -429,16 +430,16 @@ public class CCodeGenerator {
 	
 	public CVariableDec convertVariableDec(VariableDecExp v) throws CCodeGeneratorException{
 		if(v.type instanceof IntType) {
-			return new CVariableDec(new Cint(),new CVariableExp(v.var.name));
+			return new CVariableDec(new Cint(),new CVariableExp(v.var.name, true));
 		}
 		else if(v.type instanceof StringType) {
-			return new CVariableDec(new CChar(),new CVariableExp(v.var.name));
+			return new CVariableDec(new CChar(),new CVariableExp(v.var.name, true));
 		}
 		else if(v.type instanceof VoidType) {
-			return new CVariableDec(new CVoid(), new CVariableExp(v.var.name));
+			return new CVariableDec(new CVoid(), new CVariableExp(v.var.name, true));
 		}
 		else if(v.type instanceof ObjectType) {
-			return new CVariableDec(new CStructType(((ObjectType)v.type).className), new CVariableExp(v.var.name));
+			return new CVariableDec(new CStructType(((ObjectType)v.type).className), new CVariableExp(v.var.name, true));
 		}
 		else {
 			throw new CCodeGeneratorException("Invalid type:"+v.type.toString());
@@ -446,7 +447,7 @@ public class CCodeGenerator {
 	}
 	
 	public CAssignment convertAssignment(AssignmentStmt a) throws CCodeGeneratorException{
-		CVariableExp left = new CVariableExp(a.v.name);
+		CVariableExp left = new CVariableExp(a.v.name, true);
 		CExp right = convertExp(a.e); 
 		return new CAssignment(left, right);
 	}
@@ -468,7 +469,7 @@ public class CCodeGenerator {
 	
 	//Compile assignment statement
 	public void compileAssignment(AssignmentStmt a) throws CCodeGeneratorException {
-		CVariableExp left = new CVariableExp(a.v.name);
+		CVariableExp left = new CVariableExp(a.v.name, true);
 		CExp right = convertExp(a.e); 
 		add(new CAssignment(left, right));
 	}
