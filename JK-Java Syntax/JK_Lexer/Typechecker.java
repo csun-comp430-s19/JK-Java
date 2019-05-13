@@ -220,8 +220,28 @@ public class Typechecker {
 	}
 
 	public void typecheckAssignment(final AssignmentStmt as) throws TypeErrorException {
-		Type left = lookupVariable(as.v.name);
-		Type right = typeofExp(as.e);
+		Type left;
+		Type right;
+		//If left is this.exp, make sure it checks instance variables only for assigning type to left
+		if(as.leftIsThis) {
+			InstanceDecExp temp3 = null;
+			try {
+				temp3 = this.instances.get(this.currentClass).get(as.v.name);
+			} catch (Exception e2) {
+			}
+			// Instance variables check
+			if (temp3 != null) {
+				left = temp3.var.type;
+				right = typeofExp(as.e);
+			}
+			else {
+				throw new TypeErrorException("Using this.var when there is no instance var declared: "+as.v.name);
+			}
+		}
+		else {
+			left = lookupVariable(as.v.name);
+			right = typeofExp(as.e);
+		}
 		if(right instanceof CustomType && classes.get(left.toString())!=null){
 			String s1 = classes.get(left.toString()).extendingClass;
 			String s2 = classes.get(right.toString()).name; 
@@ -251,6 +271,14 @@ public class Typechecker {
 			return new IntType();
 		} else if (e instanceof VariableExp) {
 			String name = ((VariableExp) e).name;
+			InstanceDecExp temp3 = null;
+			try {
+				temp3 = this.instances.get(this.currentClass).get(name);
+			} catch (Exception e2) {
+			}
+			if (temp3 != null) {
+				throw new TypeErrorException("Trying to call instance variable without this.exp");
+			}
 			return lookupVariable(name);
 		} else if (e instanceof ThisExp) {
 			String name = ((VariableExp) ((ThisExp) e).variable).name;
