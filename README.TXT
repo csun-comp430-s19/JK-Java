@@ -1,4 +1,10 @@
+JK-Java
 Jason Dang, Kodi Winterer
+
+Tokens/Tokenizer under "Tokens" 
+Syntax, Parser, and Typechecker under "JK-Java Syntax" 
+CodeGenerator files under "C_CodeGeneration" 
+All test files located in "test" 
 
 VAR is variable
 INT is an int
