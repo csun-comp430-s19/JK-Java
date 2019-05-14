@@ -362,16 +362,25 @@ public class CCodeGenerator {
 	
 	public CNewStruct convertNew(NewExp exp) throws CCodeGeneratorException{
 		String classname = ((VariableExp)(exp.classname)).name;
+		ArrayList<CExp> tl = new ArrayList<CExp>(); 
+		ArrayList<Type> typeList = new ArrayList<Type>(); 
+		for(VariableExp v: exp.variable) {
+			CExp cvar = convertExp(v); 
+			Type vartype = typeofExp(v); 
+			tl.add(cvar); 
+			typeList.add(vartype); 
+		}
 		
-		Exp var = exp.variable;
+		/*Exp var = exp.variable;
 		
 		CExp cvar = convertExp(var);
 		Type vartype = typeofExp(var);
 		ArrayList<CExp> tl = new ArrayList<CExp>();
-		tl.add(cvar);
+		tl.add(cvar);*/
+		
 		ClassDefExp classdef = classes.get(classname);
 		
-		ArrayList<ConstructorDef> constructorl = constructors.get(classdef.name);
+		/*ArrayList<ConstructorDef> constructorl = constructors.get(classdef.name);
 		ConstructorDef c = null;
 		int i = 0;
 		for(i = 0; i < constructorl.size(); i++) {
@@ -381,7 +390,22 @@ public class CCodeGenerator {
 				break;
 			}
 		}
-		if(c == null) throw new CCodeGeneratorException("Constructor not found: " + exp.toString());
+		if(c == null) throw new CCodeGeneratorException("Constructor not found: " + exp.toString());*/
+		
+		ArrayList<ConstructorDef> constructorl = constructors.get(classdef.name);
+		ConstructorDef c = null; 
+		int i=0; 
+		for(i=0; i<constructorl.size();i++) {
+			ConstructorDef temp = constructorl.get(i); 
+			ArrayList<Type> tempTList = new ArrayList<Type>(); 
+			for(VariableDecExp v: temp.parameters) {
+				tempTList.add(v.type);
+			}
+			if(tempTList.equals(typeList)) {
+				c = temp; 
+				break; 
+			}
+		}
 		
 		//Get Indexed CConstructor
 		String cConstructorCall = classname + "_constructor" + i;
