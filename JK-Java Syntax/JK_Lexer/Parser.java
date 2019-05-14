@@ -185,10 +185,21 @@ public class Parser {
 			assertTokenAtPos(new PeriodToken(), startPos + 1);
 			final ParseResult<Exp> classname = parseExp(startPos + 2);
 			assertTokenAtPos(new LeftParenToken(), startPos + 3);
-			final ParseResult<Exp> variable = parseExp(startPos + 4);
-			assertTokenAtPos(new RightParenToken(), startPos + 5);
-			resultExp = new NewExp(classname.result, variable.result);
-			resultPos = startPos + 6;
+			int currentPos = startPos+4; 
+			ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
+			while(!(getToken(currentPos) instanceof RightParenToken)) {
+				if(getToken(currentPos) instanceof NameToken) {
+					varList.add((VariableExp)(parseExp(currentPos).result));
+					currentPos++; 
+				} else if(getToken(currentPos) instanceof CommaToken && getToken(currentPos-1) instanceof NameToken){
+					currentPos++; 
+				} else {
+					throw new ParserException("Expected name or comma token at pos: "+ currentPos); 
+				}
+			}
+			assertTokenAtPos(new RightParenToken(), currentPos);
+			resultExp = new NewExp((VariableExp)(classname.result), varList);
+			resultPos = currentPos+1;
 		} else if(current instanceof NewToken && getToken(startPos+3) instanceof LessThanToken){	// NEW EXP FOR GENERIC CLASSES
 			assertTokenAtPos(new PeriodToken(), startPos + 1);
 			final ParseResult<Exp> classname = parseExp(startPos+2); 

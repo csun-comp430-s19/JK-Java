@@ -289,7 +289,9 @@ public class CCodeGeneratorTest {
     	statementList.add(new VariableDecExp(new IntType(), new VariableExp("age")));
     	statementList.add(new AssignmentStmt(new VariableExp("age"), new NumberExp(21), false));
     	statementList.add(new VariableDecExp(new ObjectType("Student"), new VariableExp("student")));
-    	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),new VariableExp("age")), false));
+    	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
+    	varList.add(new VariableExp("age"));
+    	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),varList), false));
     	
     	Program p = new Program(statementList, classDefList);
 		

@@ -240,8 +240,10 @@ public class ParserTest {
     							 new LeftParenToken(),
     							 new NameToken("grade"),
     							 new RightParenToken() };
+    	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
+    	varList.add(new VariableExp("grade"));
     	final Exp expected = new NewExp(new VariableExp("Student"),
-    									new VariableExp("grade"));
+    									varList);
     	assertParses(tokens, expected); 
     }
     @Test
@@ -420,7 +422,9 @@ public class ParserTest {
     	statementList.add(new VariableDecExp(new IntType(), new VariableExp("age")));
     	statementList.add(new AssignmentStmt(new VariableExp("age"), new NumberExp(21),false));
     	statementList.add(new VariableDecExp(new ObjectType("Student"), new VariableExp("student")));
-    	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),new VariableExp("age")),false));
+    	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
+    	varList.add(new VariableExp("age"));
+    	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),varList ),false));
     	
     	Program expected = new Program(statementList, classDefList);
     	assertParsesProgram(tokens, expected); 
@@ -755,5 +759,22 @@ public class ParserTest {
     	classDefList.add(expected); 
     	final Program prog = new Program(emptyList,classDefList); 
     	assertParsesProgram(tokenArray, prog);
+    }
+    @Test
+    public void testNewClassExpWithMultipleParameters() {
+    	final Token[] tokens = { new NewToken(), 
+    							 new PeriodToken(), 
+    							 new NameToken("Student"),
+    							 new LeftParenToken(),
+    							 new NameToken("grade"),
+    							 new CommaToken(),
+    							 new NameToken("age"),
+    							 new RightParenToken() };
+    	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
+    	varList.add(new VariableExp("grade"));
+    	varList.add(new VariableExp("age"));
+    	final Exp expected = new NewExp(new VariableExp("Student"),
+    									varList);
+    	assertParses(tokens, expected); 
     }
 }

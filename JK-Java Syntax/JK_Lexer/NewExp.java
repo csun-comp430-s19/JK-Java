@@ -1,11 +1,14 @@
 package JK_Lexer;
+
+import java.util.ArrayList;
+
 //EXP that Creates new instance of a class
 public class NewExp implements Exp{
-	public final Exp classname; 
-	public final Exp variable; 
+	public final VariableExp classname; 
+	public ArrayList<VariableExp> variable; 
 	
-	public NewExp(final Exp classname,
-				  final Exp variable) {
+	public NewExp(final VariableExp classname,
+				  ArrayList<VariableExp> variable) {
 		this.classname=classname;
 		this.variable=variable;
 	}

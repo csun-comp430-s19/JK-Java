@@ -310,8 +310,12 @@ public class Typechecker {
 			}
 		} else if (e instanceof NewExp) {
 			String classname = ((VariableExp) ((NewExp) e).classname).name;
-			String varname = ((VariableExp) ((NewExp) e).variable).name;
-			lookupVariable(varname);
+			for(VariableExp v: ((NewExp)e).variable) {
+			//String varname = ((VariableExp) ((NewExp)e).variable).name;
+			//lookupVariable(varname);
+				String varname = v.name; 
+				lookupVariable(varname); 
+			}
 			if (ensureClassExists(classname)) {
 				return new CustomType(classname);
 			} else {
