@@ -131,6 +131,9 @@ public class Typechecker {
 				throw new TypeErrorException("Extending class does not exist: "+c.extendingClass);
 			}
 		}
+		for(InstanceDecExp i: c.members) {
+			typecheckInstances(i);
+		}
 		this.currentClass = c.name;
 		for (ConstructorDef cd : c.constructors) {
 			typecheckConstructor(cd);
@@ -139,10 +142,52 @@ public class Typechecker {
 			typecheckMethod(m);
 		}
 	}
-
+	//Typechecking for instances, added for class object types and generics 
+	public void typecheckInstances(final InstanceDecExp i) throws TypeErrorException{ 
+		//Checking if type exists if instanceof class object type
+		if(i.var.type instanceof ObjectType) {
+			Boolean b = false;
+			for(ClassDefExp c: classes.values()) {
+				if(c.name.equals(i.var.type.toString())) {
+					b=true; 
+				}
+				//Check for generic variables if they exist
+				if(c instanceof GenericClassDefinition) {
+					for(VariableExp v: ((GenericClassDefinition)c).genericList) {
+						if(v.name.equals(i.var.type.toString())) {
+							b=true; 
+						}
+					}
+				}
+			}
+			if(!b) {
+				throw new TypeErrorException("Class type or generic type not found: "+i.var.type.toString()+" for instance variable: "+i.var.var.name.toString());
+			}
+		}
+	}
 	// Typechecking for methods
 	public void typecheckMethod(final MethodDefExp m) throws TypeErrorException {
 		this.currentMethod = m.name;
+		//Checking if return type exists if instanceof class object type
+		if(m.type instanceof ObjectType) {
+			Boolean b = false; 
+			for(ClassDefExp c: classes.values()) {
+				if(c.name.equals(m.type.toString())) {
+					b=true; 
+				}
+				//Check for generic variables if they exist
+				if(c instanceof GenericClassDefinition) {
+					for(VariableExp v: ((GenericClassDefinition)c).genericList) {
+						if(v.name.equals(m.type.toString())) {
+							b=true; 
+						}
+					}
+				}
+			}
+			if(!b) {
+				throw new TypeErrorException("Class type or generic type not found: "+m.type.toString()+" for method: "+ m.name);
+			}
+		}
 		for (Statement s : m.block) {
 			typecheckStmt(s);
 		}

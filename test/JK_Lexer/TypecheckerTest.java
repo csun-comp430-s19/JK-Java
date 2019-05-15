@@ -1118,4 +1118,119 @@ public class TypecheckerTest {
     	final Program prog = parser.parseProgram(); 
     	Typechecker.typecheckProgram(prog); 
     }
+    @Test
+    public void testGenericFullClassWithMethods() throws TypeErrorException, TokenizerException, ParserException{
+    	//Generic class with getters and setters
+    	final String input = "public class Student<A>{"
+    						+	"public A variable;"
+    						+	"public Student(A var){"
+    						+		"this.variable = var;"
+    						+ 	"}"
+    						+	"public A getVariable(){"
+    						+		"return this.variable;"
+    						+	"}"
+    						+	"public void setVariable(A var){"
+    						+		"this.variable = var; "
+    						+ 	"}"
+    					   + "}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected=TypeErrorException.class)
+    public void failsTestGenericFullClassWithMethodsWrongReturnType() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since return type is int when variable is of generic type A in getVariable
+    	final String input = "public class Student<A>{"
+    						+	"public A variable;"
+    						+	"public Student(A var){"
+    						+		"this.variable = var;"
+    						+ 	"}"
+    						+	"public int getVariable(){"
+    						+		"return this.variable;"
+    						+	"}"
+    						+	"public void setVariable(A var){"
+    						+		"this.variable = var; "
+    						+ 	"}"
+    					   + "}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected=TypeErrorException.class)
+    public void failsTestGenericFullClassWithMethodsWrongAssignmentType() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since assignment is comparing int with generic type A in setVariable
+    	final String input = "public class Student<A>{"
+    						+	"public A variable;"
+    						+	"public Student(A var){"
+    						+		"this.variable = var;"
+    						+ 	"}"
+    						+	"public A getVariable(){"
+    						+		"return this.variable;"
+    						+	"}"
+    						+	"public void setVariable(int var){"
+    						+		"this.variable = var; "
+    						+ 	"}"
+    					   + "}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected=TypeErrorException.class)
+    public void failsTestGenericFullClassWrongGenericInstance() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since using non declared generic in instance variable 
+    	final String input = "public class Student<A>{"
+    						+	"public B variable;"
+    						+	"public Student(A var){"
+    						+		"this.variable = var;"
+    						+ 	"}"
+    						+	"public A getVariable(){"
+    						+		"return this.variable;"
+    						+	"}"
+    						+	"public void setVariable(A var){"
+    						+		"this.variable = var; "
+    						+ 	"}"
+    					   + "}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected=TypeErrorException.class)
+    public void failsTestGenericFullClassWrongGenericMethod() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since using non declared generic in instance variable 
+    	final String input = "public class Student<A>{"
+    						+	"public A variable;"
+    						+	"public Student(A var){"
+    						+		"this.variable = var;"
+    						+ 	"}"
+    						+	"public B getVariable(){"
+    						+		"return this.variable;"
+    						+	"}"
+    						+	"public void setVariable(A var){"
+    						+		"this.variable = var; "
+    						+ 	"}"
+    					   + "}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
 }
