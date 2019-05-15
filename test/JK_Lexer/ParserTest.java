@@ -233,7 +233,7 @@ public class ParserTest {
     	assertParses(tokens,expected); 
     }
     @Test
-    public void testNewClass() {
+    public void testNewClassExp() {
     	final Token[] tokens = { new NewToken(), 
     							 new PeriodToken(), 
     							 new NameToken("Student"),
@@ -242,6 +242,23 @@ public class ParserTest {
     							 new RightParenToken() };
     	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
     	varList.add(new VariableExp("grade"));
+    	final Exp expected = new NewExp(new VariableExp("Student"),
+    									varList);
+    	assertParses(tokens, expected); 
+    }
+    @Test
+    public void testNewClassExpWithMultipleParameters() {
+    	final Token[] tokens = { new NewToken(), 
+    							 new PeriodToken(), 
+    							 new NameToken("Student"),
+    							 new LeftParenToken(),
+    							 new NameToken("grade"),
+    							 new CommaToken(),
+    							 new NameToken("age"),
+    							 new RightParenToken() };
+    	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
+    	varList.add(new VariableExp("grade"));
+    	varList.add(new VariableExp("age"));
     	final Exp expected = new NewExp(new VariableExp("Student"),
     									varList);
     	assertParses(tokens, expected); 
@@ -759,22 +776,5 @@ public class ParserTest {
     	classDefList.add(expected); 
     	final Program prog = new Program(emptyList,classDefList); 
     	assertParsesProgram(tokenArray, prog);
-    }
-    @Test
-    public void testNewClassExpWithMultipleParameters() {
-    	final Token[] tokens = { new NewToken(), 
-    							 new PeriodToken(), 
-    							 new NameToken("Student"),
-    							 new LeftParenToken(),
-    							 new NameToken("grade"),
-    							 new CommaToken(),
-    							 new NameToken("age"),
-    							 new RightParenToken() };
-    	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
-    	varList.add(new VariableExp("grade"));
-    	varList.add(new VariableExp("age"));
-    	final Exp expected = new NewExp(new VariableExp("Student"),
-    									varList);
-    	assertParses(tokens, expected); 
     }
 }

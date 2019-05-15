@@ -193,7 +193,14 @@ public class Typechecker {
 					throw new TypeErrorException("Method type of method " + this.currentMethod
 							+ " does not match type returned by: " + s.toString());
 			} else if (s instanceof VariableDecExp) {
-				if (methods.get(this.currentClass).get(currentMethod).parameters.contains(s))
+				//Generic type check
+				if(((VariableDecExp)s).type instanceof GenericObjectType) {
+					VariableDecExp temp = (VariableDecExp)s; 
+					if(!ensureGenericClassExists(((GenericObjectType)(temp.type)).className, ((GenericObjectType)temp.type).typeArray.size())){
+						throw new TypeErrorException("Generic class does not exist: "+temp.var.name+"<"+ ((GenericObjectType)temp.type).typeArray.toString());
+					}
+				}
+				if (methods.get(this.currentClass).get(this.currentMethod).parameters.contains(s))
 					throw new TypeErrorException(
 							"Variable " + ((VariableDecExp) s).var.name + " already declared in parameters");
 				else {
@@ -207,6 +214,13 @@ public class Typechecker {
 			if (s instanceof AssignmentStmt) {
 				typecheckAssignment((AssignmentStmt) s);
 			} else if (s instanceof VariableDecExp) {
+				//Generic type check
+				if(((VariableDecExp)s).type instanceof GenericObjectType) {
+					VariableDecExp temp = (VariableDecExp)s; 
+					if(!ensureGenericClassExists(((GenericObjectType)(temp.type)).className, ((GenericObjectType)temp.type).typeArray.size())){
+						throw new TypeErrorException("Generic class does not exist: "+temp.var.name+"<"+ ((GenericObjectType)temp.type).typeArray.toString());
+					}
+				}
 				if (programVariables.containsKey(((VariableDecExp) s).var.name))
 					throw new TypeErrorException(
 							"Variable " + ((VariableDecExp) s).var.name + " already declared in parameters");
@@ -321,6 +335,17 @@ public class Typechecker {
 			} else {
 				throw new TypeErrorException("Class does not exist: " + classname);
 			}
+		} else if (e instanceof GenericNewExp) {
+			String classname = ((VariableExp)((GenericNewExp)e).className).name;
+			for(VariableExp v: ((GenericNewExp)e).varList) {
+				String varname = v.name; 
+				lookupVariable(varname); 
+			}
+			if (ensureGenericClassExists(classname, ((GenericNewExp)e).typeList.size())) {
+				return new GenericObjectType(classname, ((GenericNewExp)e).typeList);
+			} else {
+				throw new TypeErrorException("Generic Class does not exist: " + classname+ "<"+((GenericNewExp)e).typeList.toString()+">");
+			}
 		}
 		
 		//Code should never get here
@@ -433,6 +458,16 @@ public class Typechecker {
 			return false;
 		}
 		return true;
+	}
+	// looks to see if generic class exists by string name, checks amount of generic parameters
+	public boolean ensureGenericClassExists(final String name, final int numG) {
+		if((GenericClassDefinition)(this.classes.get(name))==null) {
+			return false; 
+		}
+		if(((GenericClassDefinition)this.classes.get(name)).genericList.size() != numG){
+			return false; 
+		}
+		return true; 
 	}
 	//Sees if method is private or not, throw exception if private and outside class defined in 
 	public void ensureAccessModifier(String methodname) throws TypeErrorException{

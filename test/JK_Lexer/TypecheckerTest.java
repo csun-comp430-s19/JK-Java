@@ -1001,4 +1001,121 @@ public class TypecheckerTest {
     	final Program prog = parser.parseProgram(); 
     	Typechecker.typecheckProgram(prog); 
     }
+    @Test
+    public void testGenericNewExp() throws TypeErrorException, TokenizerException, ParserException{
+    	//Simple test for genericnewexp
+    	final String input = "public class Student<A, B>{"
+    					   +	"public Student(){"
+    					   + 	"}"
+    					   + "}"
+    					   + "Student<int, int> s;"
+    					   + "s = new.Student<int, int>();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestGenericNewExp() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since wrong number of generic parameters
+    	final String input = "public class Student<A>{"
+    						+	"public Student(){"
+    						+ 	"}"
+    					   + "}"
+    					   + "Student<int, int> s;"
+    					   + "s = new.Student<int, int>();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestGenericNewExp2() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since wrong name of generic class
+    	final String input = "public class Person<A,B>{"
+    						+	"public Person(){"
+    						+ 	"}"
+    					   + "}"
+    					   + "Student<int, int> s;"
+    					   + "s = new.Student<int, int>();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestGenericVarDec() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since wrong name of generic class
+    	final String input = "public class Person<A,B>{"
+    						+	"public Person(){"
+    						+ 	"}"
+    					   + "}"
+    					   + "Student<int,String> s;";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestGenericVarDec2() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since wrong parameters in generic class in var declaration
+    	final String input = "public class Student<A,B>{"
+    						+	"public Student(){"
+    						+ 	"}"
+    					   + "}"
+    					   + "Student<int> s;";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsGenericAssignment() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since assignment is comparing <int,String> and <int, int> 
+    	final String input = "public class Student<A,B>{"
+    						+	"public Student(){"
+    						+ 	"}"
+    					   + "}"
+    					   + "Student<int, String> s;"
+    					   + "s = new.Student<int,int>();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsGenericAssignment2() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since assignment is comparing <int, int> with just <int> (different number of parameters)
+    	final String input = "public class Student<A,B>{"
+    						+	"public Student(){"
+    						+ 	"}"
+    					   + "}"
+    					   + "Student<int, int> s;"
+    					   + "s = new.Student<int>();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
 }
