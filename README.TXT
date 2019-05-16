@@ -28,7 +28,7 @@ stmt::=vardec; 	|			Declares variable
 	VAR=exp; |			Assignment			
 	return exp; |			return an expression
 	return; 				return Void
-	println(VAR) |			Print statement
+	println(exp) |			Print statement
 accessModifier::= public | private			Access modifiers
 methoddef::=accessModifier type METHODNAME(vardec*) stmt		Creates method
 instancedec::= accessModifier vardec;				Declares instance of variable
