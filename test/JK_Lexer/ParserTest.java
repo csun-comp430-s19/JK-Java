@@ -199,9 +199,7 @@ public class ParserTest {
     }
     @Test
     public void testString() {
-    	final Token[] tokens = { new QuoteToken(), 
-    							 new QuotedStringToken("woo"),
-    							 new QuoteToken() }; 
+    	final Token[] tokens = { new QuotedStringToken("woo")}; 
     	final Exp expected = new StringExp("woo");
     	assertParses(tokens, expected); 
     }

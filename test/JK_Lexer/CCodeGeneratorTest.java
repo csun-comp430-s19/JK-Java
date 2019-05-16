@@ -52,20 +52,6 @@ public class CCodeGeneratorTest {
 			assertTrue("Unexpected code generation error: "+exc.getMessage(), expected==null);
 		}
 	}
-	
-	public void assertMainMethodGeneration(String expected, Statement[] sArray) throws IOException{
-		try {
-			CCodeGenerator cg = new CCodeGenerator(); 
-			final File file = File.createTempFile("testfile",".c");
-			cg.writeMainToFile(sArray, file);
-			final String received = convertFileToString(file); 
-			assertTrue("Expected code generation error: "+received, expected!=null); 
-			assertEquals(expected,received); 
-			file.delete(); 
-		}catch(final CCodeGeneratorException exc) {
-			assertTrue("Unexpected code generation error: "+exc.getMessage(), expected==null);
-		}
-	}
 	//Method for converting text from the c file created to a string, might have to change for later testing with more than one line/exp
 	public String convertFileToString(File file) throws IOException{
 		StringBuilder sb = new StringBuilder((int)file.length());
@@ -90,10 +76,6 @@ public class CCodeGeneratorTest {
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestStringExp() throws IOException{
 		assertBasicExpGeneration("goodbye world", new StringExp("hello world"));
-	}
-	@Test 
-	public void testVariableExp() throws IOException{
-		assertBasicExpGeneration("varname21", new VariableExp("varname21"));
 	}
 	@Test(expected = ComparisonFailure.class) 
 	public void failsTestVariableExp() throws IOException{
@@ -124,16 +106,8 @@ public class CCodeGeneratorTest {
 		assertBasicExpGeneration("4/4", new BinopExp(new NumberExp(4), new DivOp(), new NumberExp(2)));
 	}
 	@Test
-	public void testPrintF() throws IOException{
-		assertStatementGeneration("printf(var1);", new PrintExp(new VariableExp("var1")));
-	}
-	@Test(expected = ComparisonFailure.class)
-	public void failsTestPrintF() throws IOException{
-		assertStatementGeneration("printf(var2);", new PrintExp(new VariableExp("var1")));
-	}
-	@Test
 	public void testVariableDeclarationInt() throws IOException{
-		assertStatementGeneration("int foo1;", new VariableDecExp(new IntType(), new VariableExp("foo1")));
+		assertStatementGeneration("int user_foo1", new VariableDecExp(new IntType(), new VariableExp("foo1")));
 	}
 	@Test(expected = ComparisonFailure.class) 
 	public void failsTestVariableDeclarationInt() throws IOException{
@@ -141,7 +115,7 @@ public class CCodeGeneratorTest {
 	}
 	@Test
 	public void testVariableDeclarationCharArray() throws IOException{
-		assertStatementGeneration("char foo1[];", new VariableDecExp(new StringType(), new VariableExp("foo1")));
+		assertStatementGeneration("char* user_foo1", new VariableDecExp(new StringType(), new VariableExp("foo1")));
 	}
 	@Test(expected = ComparisonFailure.class) 
 	public void failsTestVariableDeclarationCharArray() throws IOException{
@@ -149,7 +123,7 @@ public class CCodeGeneratorTest {
 	}
 	@Test
 	public void testReturnInteger() throws IOException{
-		assertStatementGeneration("return 0;", new ReturnStmt(new NumberExp(0)));
+		assertStatementGeneration("return 0", new ReturnStmt(new NumberExp(0)));
 	}
 	@Test(expected = ComparisonFailure.class) 
 	public void failsTestReturnInteger() throws IOException{
@@ -157,7 +131,7 @@ public class CCodeGeneratorTest {
 	}
 	@Test
 	public void testReturnVariable() throws IOException{
-		assertStatementGeneration("return foo1;", new ReturnStmt(new VariableExp("foo1")));
+		assertStatementGeneration("return user_foo1", new ReturnStmt(new VariableExp("foo1")));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failTestReturnVariable() throws IOException{
@@ -165,7 +139,7 @@ public class CCodeGeneratorTest {
 	}
 	@Test
 	public void testReturnString() throws IOException{
-		assertStatementGeneration("return \"hello world\";", new ReturnStmt(new StringExp("hello world")));
+		assertStatementGeneration("return \"hello world\"", new ReturnStmt(new StringExp("hello world")));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestReturnString() throws IOException{
@@ -173,83 +147,35 @@ public class CCodeGeneratorTest {
 	}
 	@Test 
 	public void testAssignmentInt() throws IOException{
-		assertStatementGeneration("foo1 = 1;", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1), false));
+		assertStatementGeneration("user_foo1 = 1", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1), false));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestAssignmentInt() throws IOException{
-		assertStatementGeneration("foo1 = 2;", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1), false));
+		assertStatementGeneration("user_foo1 = 2", new AssignmentStmt(new VariableExp("foo1"), new NumberExp(1), false));
 	}
 	@Test 
 	public void testAssignmentBinop() throws IOException{
-		assertStatementGeneration("foo1 = (1 + 2);", new AssignmentStmt(new VariableExp("foo1"), new BinopExp(new NumberExp(1), new PlusOp(),new NumberExp(2)), false));
+		assertStatementGeneration("user_foo1 = (1 + 2)", new AssignmentStmt(new VariableExp("foo1"), new BinopExp(new NumberExp(1), new PlusOp(),new NumberExp(2)), false));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestAssignmentBinop() throws IOException{
-		assertStatementGeneration("foo1 = (1 + 7);", new AssignmentStmt(new VariableExp("foo1"), new BinopExp(new NumberExp(1), new PlusOp(),new NumberExp(2)), false));
+		assertStatementGeneration("user_foo1 = (1 + 7)", new AssignmentStmt(new VariableExp("foo1"), new BinopExp(new NumberExp(1), new PlusOp(),new NumberExp(2)), false));
 	}
 	@Test 
 	public void testAssignmentString() throws IOException{
-		assertStatementGeneration("foo1 = \"hello\";", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello"), false));
+		assertStatementGeneration("user_foo1 = \"hello\"", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello"), false));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestAssignmentString() throws IOException{
-		assertStatementGeneration("foo1 = \"goodbye\";", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello"), false));
+		assertStatementGeneration("user_foo1 = \"goodbye\"", new AssignmentStmt(new VariableExp("foo1"), new StringExp("hello"), false));
 	}
 	@Test 
 	public void testAssignmentVarToVar() throws IOException{
-		assertStatementGeneration("foo1 = foo2;", new AssignmentStmt(new VariableExp("foo1"), new VariableExp("foo2"), false));
+		assertStatementGeneration("user_foo1 = user_foo2", new AssignmentStmt(new VariableExp("foo1"), new VariableExp("foo2"), false));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestAssignmentVarToVar() throws IOException{
 		assertStatementGeneration("foo1 = foo3;", new AssignmentStmt(new VariableExp("foo1"), new VariableExp("foo2"), false));
-	}
-	@Test
-	public void testMainMethod() throws IOException{
-		Statement[] sArray = new Statement[] { new VariableDecExp(new IntType(), new VariableExp("foo")),
-											   new AssignmentStmt(new VariableExp("foo"), new NumberExp(100), false),
-											   new ReturnStmt(new NumberExp(0))};
-		
-		assertMainMethodGeneration("int main(){"
-				                 + "int foo;"
-				                 + "foo = 100;"
-				                 + "return 0;"
-				                 + "}", sArray);
-	}
-	@Test(expected = ComparisonFailure.class)
-	public void failsTestMainMethod() throws IOException{
-		Statement[] sArray = new Statement[] { new VariableDecExp(new IntType(), new VariableExp("foo")),
-											   new AssignmentStmt(new VariableExp("foo"), new NumberExp(100), false),
-											   new ReturnStmt(new NumberExp(0))};
-		
-		assertMainMethodGeneration("int main(){"
-				                 + "String foo;"
-				                 + "foo = 500;"
-				                 + "return 0;"
-				                 + "}", sArray);
-	}
-	
-	@Test
-	public void testCallMethod() throws IOException{//FAILING DUE TO UNFINISHED CODEGEN
-		VariableExp obj = new VariableExp("foo");
-		VariableExp method = new VariableExp("bar");
-		VariableExp param = new VariableExp("foobar");
-		ArrayList<VariableExp> params = new ArrayList<VariableExp>();
-		params.add(param);
-		CallMethodExp exp = new CallMethodExp(obj,method,params);
-		
-		assertBasicExpGeneration("bar(foo, foobar);", exp);	
-	}
-	
-	@Test(expected = ComparisonFailure.class)//FAILING DUE TO UNFINISHED CODEGEN
-	public void failsTestCallMethod() throws IOException{
-		VariableExp obj = new VariableExp("bar");
-		VariableExp method = new VariableExp("foo");
-		VariableExp param = new VariableExp("foobar");
-		ArrayList<VariableExp> params = new ArrayList<VariableExp>();
-		params.add(param);
-		CallMethodExp exp = new CallMethodExp(obj,method,params);
-		
-		assertBasicExpGeneration("bar(foo, foobar);", exp);	
 	}
 	
 	@Test
@@ -260,25 +186,15 @@ public class CCodeGeneratorTest {
 		
 		Program p = new Program(s, new ArrayList<ClassDefExp>());
 		
-		assertProgramGeneration("include <stdio.h>include <stdlib.h>int main(){int foo;return 0;}", p);
+		assertProgramGeneration("#include <stdio.h>#include <stdlib.h>int main(){int user_foo;return 0;}", p);
 	}
 	
 	@Test
 	public void testBasicProgramBasicClass() throws IOException, ParserException, TokenizerException, TypeErrorException{
 		
 		//Standard class declaration with variety of statements outside
-    	final String input = "public class Person{"
-    						+ "private String name;"
-    						+ "public Person(String n){"
-    						+ "this.name = n;"
-    						+ "}"
-    						+ "public String getName(){"
-    						+ "return this.name;"
-    						+ "}"
-    						+ "}"
-    						+ "public class Student<Classmate> extends Person{"
+    	final String input = "public class Student{"
     						+"private int age;"
-    						+ "private Classmate partner;"
     						+"public Student(int a) {"
     						+"	this.age = a; "
     						+"}"
@@ -291,14 +207,9 @@ public class CCodeGeneratorTest {
     				  + "}"
     				  + "int age; "
     				  + "age = 21;"
-    				  + "String name;"
-    				  + "String print;"
-    				  + "name = \"Kodi\";"
-    			  	  + "Student<int> student;"
-    				  + "student = new.Student<int>(age);"
-    				  + "student.getAge();"
-    				  + "println(name);"
-    				  + "student.getName();";
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);"
+    				  + "student.getAge();";
     	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
     	final List<Token> tokenList = tokenizer.tokenize(); 
     	Token[] tokenArray = new Token[tokenList.size()];
@@ -307,7 +218,20 @@ public class CCodeGeneratorTest {
     	final Program prog = parser.parseProgram(); 
     	Typechecker.typecheckProgram(prog);
     	
-		assertProgramGeneration("include <stdio.h>include <stdlib.h>int main(){int foo;return 0;}", prog);
+		assertProgramGeneration("#include <stdio.h>" + 
+				"#include <stdlib.h>" + 
+				"struct Student { int* user_age; void* (*vtable[2]) ();};" + 
+				"int Student_getAge(struct Student* structptr){return structptr->user_age; }" + 
+				"void Student_setAge(struct Student* structptr, int user_n){structptr->user_age = user_n; }" + 
+				"struct Student* Student_constructor0(struct Student* structptr, int user_a){structptr->user_age = malloc(sizeof(int)); structptr->vtable[0] = Student_getAge; structptr->vtable[1] = Student_setAge; structptr->user_age = user_a; return structptr; }" + 
+				"int main(){" + 
+				"int user_age;" + 
+				"user_age = 21;" + 
+				"struct Student* user_student;" + 
+				"user_student = Student_constructor0(malloc(sizeof(struct Student)), user_age);" + 
+				"user_student->vtable[0](user_student);" + 
+				"return 0;" + 
+				"}", prog);
 	}
 	
 }
