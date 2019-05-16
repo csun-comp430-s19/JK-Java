@@ -370,16 +370,28 @@ public class Typechecker {
 		} else if (e instanceof NewExp) {
 			String classname = ((VariableExp) ((NewExp) e).classname).name;
 			for(VariableExp v: ((NewExp)e).variable) {
-			//String varname = ((VariableExp) ((NewExp)e).variable).name;
-			//lookupVariable(varname);
 				String varname = v.name; 
 				lookupVariable(varname); 
 			}
 			if (ensureClassExists(classname)) {
+				//Check constructors to see if parameters are same in new exp and any class constructors
+				ClassDefExp c = retrieveClass(classname); 
+				ArrayList<VariableExp> v = ((NewExp)e).variable;
+				for(ConstructorDef cd: c.constructors) {
+					if((v.size() == cd.parameters.size())){
+						for(int i=0; i<v.size(); i++) {
+							Type temp = lookupVariable(v.get(i).name);
+							ensureTypesSame(temp, cd.parameters.get(i).type);
+						}
+					}
+					else {
+						throw new TypeErrorException("No constructor found for variable: "+((NewExp)e).variable.toString()+" for declared class: "+classname);
+					}
+				}
 				return new CustomType(classname);
 			} else {
 				throw new TypeErrorException("Class does not exist: " + classname);
-			}
+			} 
 		} else if (e instanceof GenericNewExp) {
 			String classname = ((VariableExp)((GenericNewExp)e).className).name;
 			for(VariableExp v: ((GenericNewExp)e).varList) {
@@ -387,6 +399,24 @@ public class Typechecker {
 				lookupVariable(varname); 
 			}
 			if (ensureGenericClassExists(classname, ((GenericNewExp)e).typeList.size())) {
+				GenericClassDefinition c = (GenericClassDefinition)(retrieveClass(classname)); 
+				ArrayList<VariableExp> v = ((GenericNewExp)e).varList; 
+				ArrayList<Type> t = ((GenericNewExp)e).typeList; 
+				for(ConstructorDef cd: c.constructors) {
+					if((v.size()==cd.parameters.size())){
+						for(int i=0;i<v.size();i++) {
+							Type temp = lookupVariable(v.get(i).name);
+							Type temp2 = cd.parameters.get(i).type;
+							if(temp2 instanceof ObjectType && c.genericList.contains(new VariableExp(((ObjectType)temp2).className))) {
+								temp2=t.get(c.genericList.indexOf(new VariableExp(((ObjectType)temp2).className))); 
+							}
+							ensureTypesSame(temp, temp2) ;
+						}
+					}
+					else {
+						throw new TypeErrorException("No constructor found for variable: "+((GenericNewExp)e).varList.toString()+" for declared class: "+classname);
+					}
+				}
 				return new GenericObjectType(classname, ((GenericNewExp)e).typeList);
 			} else {
 				throw new TypeErrorException("Generic Class does not exist: " + classname+ "<"+((GenericNewExp)e).typeList.toString()+">");
@@ -403,6 +433,7 @@ public class Typechecker {
 
 	// ensures type of expected is the same as type of actual
 	public void ensureTypesSame(final Type expected, final Type actual) throws TypeErrorException {
+
 		if (!expected.equals(actual)) {
 			throw new TypeErrorException("Expected: " + expected.toString() + " got: " + actual.toString());
 		}
@@ -540,6 +571,14 @@ public class Typechecker {
 			}
 		}
 		throw new TypeErrorException("Method not found: " +m);
+	}
+	public ClassDefExp retrieveClass(String classname) throws TypeErrorException{
+		for(ClassDefExp cl: classes.values()) {
+			if(cl.name.contentEquals(classname)) {
+				return cl; 
+			}
+		}
+		throw new TypeErrorException("Class not found: "+ classname);
 	}
 	public void ensureParametersSame(MethodDefExp m, ArrayList<VariableExp> params) throws TypeErrorException {
 		int i=0; 

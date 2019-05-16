@@ -1233,4 +1233,160 @@ public class TypecheckerTest {
     	final Program prog = parser.parseProgram(); 
     	Typechecker.typecheckProgram(prog); 
     }
+    @Test
+    public void testGenericFullClassWithMethodsAndStatements() throws TypeErrorException, TokenizerException, ParserException{
+    	//Generic class with getters and setters with statements outside
+    	final String input = "public class Student<A>{"
+    						+	"public A variable;"
+    						+	"public Student(A var){"
+    						+		"this.variable = var;"
+    						+ 	"}"
+    						+	"public A getVariable(){"
+    						+		"return this.variable;"
+    						+	"}"
+    						+	"public void setVariable(A var){"
+    						+		"this.variable = var; "
+    						+ 	"}"
+    					   + "}"
+    					   + "int age;"
+    					   + "Student<int> s;"
+    					   + "s = new.Student<int>(age);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestGenericFullClassWithMethodsAndStatements() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since A is set to int and name is String
+    	final String input = "public class Student<A>{"
+    						+	"public A variable;"
+    						+	"public Student(A var){"
+    						+		"this.variable = var;"
+    						+ 	"}"
+    						+	"public A getVariable(){"
+    						+		"return this.variable;"
+    						+	"}"
+    						+	"public void setVariable(A var){"
+    						+		"this.variable = var; "
+    						+ 	"}"
+    					   + "}"
+    					   + "String name;"
+    					   + "Student<int> s;"
+    					   + "s = new.Student<int>(name);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestWrongNewExpParameterType() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since name is string and constructor for student takes in int
+    	final String input = "public class Student{"
+    						+	"public int age;"
+    						+	"public Student(int a){"
+    						+		"this.age = a;"
+    						+ 	"}"
+    						+	"public int getVariable(){"
+    						+		"return this.age;"
+    						+	"}"
+    						+	"public void setVariable(int a){"
+    						+		"this.age = a; "
+    						+ 	"}"
+    					   + "}"
+    					   + "String name;"
+    					   + "Student s;"
+    					   + "s = new.Student(name);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestWrongNewExpParameterNumber() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since there are two inputs for new student but student only has a constructor with one input
+    	final String input = "public class Student{"
+    						+	"public int age;"
+    						+	"public Student(int a){"
+    						+		"this.age = a;"
+    						+ 	"}"
+    						+	"public int getVariable(){"
+    						+		"return this.age;"
+    						+	"}"
+    						+	"public void setVariable(int a){"
+    						+		"this.age = a; "
+    						+ 	"}"
+    					   + "}"
+    					   + "String name;"
+    					   + "Student s;"
+    					   + "s = new.Student(name,name);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test
+    public void TestMultipleGenericFullClassWithMethodsAndStatements() throws TypeErrorException, TokenizerException, ParserException{
+    	//Multiple generic class with new class object call outside
+    	final String input = "public class Student<A,B>{"
+    						+	"public B variable;"
+    						+	"public Student(B var){"
+    						+		"this.variable = var;"
+    						+ 	"}"
+    						+	"public B getVariable(){"
+    						+		"return this.variable;"
+    						+	"}"
+    						+	"public void setVariable(B var){"
+    						+		"this.variable = var; "
+    						+ 	"}"
+    					   + "}"
+    					   + "String name;"
+    					   + "Student<int, String> s;"
+    					   + "s = new.Student<int, String>(name);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
+    @Test(expected = TypeErrorException.class)
+    public void failsTestMultipleGenericFullClassWithMethodsAndStatements() throws TypeErrorException, TokenizerException, ParserException{
+    	//Fails since B is set to int and new student with type B is called with a string 
+    	final String input = "public class Student<A,B>{"
+    						+	"public B variable;"
+    						+	"public Student(B var){"
+    						+		"this.variable = var;"
+    						+ 	"}"
+    						+	"public B getVariable(){"
+    						+		"return this.variable;"
+    						+	"}"
+    						+	"public void setVariable(B var){"
+    						+		"this.variable = var; "
+    						+ 	"}"
+    					   + "}"
+    					   + "String name;"
+    					   + "Student<String, int> s;"
+    					   + "s = new.Student<String, int>(name);";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
 }
