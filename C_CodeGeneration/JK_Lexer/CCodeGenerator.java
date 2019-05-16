@@ -202,6 +202,9 @@ public class CCodeGenerator {
 		else if(exp instanceof NewExp) {
 			return convertNew((NewExp)exp);
 		}
+		else if(exp instanceof GenericNewExp) {
+			return convertGenericNew((GenericNewExp)exp);
+		}
 		else if(exp instanceof ThisExp) {
 			return new CVariableExp("structptr->user_"+((ThisExp)exp).variable.toString(), false);
 		}
@@ -221,7 +224,7 @@ public class CCodeGenerator {
 			add(new CVariableDec(new CChar(true),new CVariableExp(v.var.name, true)));
 		}
 		else if(v.type instanceof VoidType) {
-			add(new CVariableDec(new CVoid(), new CVariableExp(v.var.name, true)));
+			add(new CVariableDec(new CVoid(false), new CVariableExp(v.var.name, true)));
 		}
 		
 		//ADD NEW CLASS OBJECT HERE, INCOMPLETE
@@ -257,7 +260,11 @@ public class CCodeGenerator {
 	//Compile Call Method Exp
 	public CFunctionCall convertCallMethod(CallMethodExp exp) throws CCodeGeneratorException{
 		VariableExp objname = exp.input;
-		String classname = ((ObjectType) lookupVariable(objname.name)).className;
+		String classname;
+		Type t = lookupVariable(objname.name);
+		if(t instanceof ObjectType) classname= ((ObjectType) lookupVariable(objname.name)).className;
+		else if(t instanceof GenericObjectType) classname= ((GenericObjectType) lookupVariable(objname.name)).className;
+		else throw new CCodeGeneratorException("Unexpected primative");
 		VariableExp methodname = exp.methodname;
 		ArrayList<String> funcptr = getFunctionPointers(classname);
 		int num = -1;
@@ -382,7 +389,12 @@ public class CCodeGenerator {
 			structmembers.add(basestruct);
 		}
 		for(InstanceDecExp i : varmembers) {
-			structmembers.add(convertInstanceDec(i));
+			if(c instanceof GenericClassDefinition) {
+				if(((GenericClassDefinition)c).genericList.contains(new VariableExp(i.var.type.toString()))) {
+					structmembers.add(new CVariableDec(new CVoid(true), new CVariableExp(i.var.var.name, true)));
+				}
+			}
+			else structmembers.add(convertInstanceDec(i));
 		}
 		
 		CStructDec cstruct = new CStructDec(c.name, structmembers, getFunctionPointers(c.name).size());
@@ -415,26 +427,43 @@ public class CCodeGenerator {
 			typeList.add(vartype); 
 		}
 		
-		/*Exp var = exp.variable;
-		
-		CExp cvar = convertExp(var);
-		Type vartype = typeofExp(var);
-		ArrayList<CExp> tl = new ArrayList<CExp>();
-		tl.add(cvar);*/
-		
 		ClassDefExp classdef = classes.get(classname);
 		
-		/*ArrayList<ConstructorDef> constructorl = constructors.get(classdef.name);
-		ConstructorDef c = null;
-		int i = 0;
-		for(i = 0; i < constructorl.size(); i++) {
-			ConstructorDef temp = constructorl.get(i);
-			if(temp.parameters.size() == 1 && temp.parameters.get(0).type.equals(vartype)) {//Check for size 1 since newexp only hold 1 param
-				c = temp;
-				break;
+		ArrayList<ConstructorDef> constructorl = constructors.get(classdef.name);
+		ConstructorDef c = null; 
+		int i=0; 
+		for(i=0; i<constructorl.size();i++) {
+			ConstructorDef temp = constructorl.get(i); 
+			ArrayList<Type> tempTList = new ArrayList<Type>(); 
+			for(VariableDecExp v: temp.parameters) {
+				tempTList.add(v.type);
+			}
+			if(tempTList.equals(typeList)) {
+				c = temp; 
+				break; 
 			}
 		}
-		if(c == null) throw new CCodeGeneratorException("Constructor not found: " + exp.toString());*/
+		
+		//Get Indexed CConstructor
+		String cConstructorCall = classname + "_constructor" + i;
+		
+		CNewStruct cstruct = new CNewStruct(classdef, cConstructorCall, tl);
+		return cstruct;
+		
+	}
+	
+	public CNewStruct convertGenericNew(GenericNewExp exp) throws CCodeGeneratorException{
+		String classname = ((VariableExp)(exp.className)).name;
+		ArrayList<CExp> tl = new ArrayList<CExp>(); 
+		ArrayList<Type> typeList = new ArrayList<Type>(); 
+		for(VariableExp v: exp.varList) {
+			CExp cvar = convertExp(v); 
+			Type vartype = typeofExp(v); 
+			tl.add(cvar); 
+			typeList.add(vartype); 
+		}
+		
+		ClassDefExp classdef = classes.get(classname);
 		
 		ArrayList<ConstructorDef> constructorl = constructors.get(classdef.name);
 		ConstructorDef c = null; 
@@ -467,9 +496,12 @@ public class CCodeGenerator {
 			return new CChar(true);
 		}
 		else if(t instanceof VoidType) {
-			return new CVoid();
+			return new CVoid(false);
 		}
 		else if(t instanceof ObjectType) {
+			return new CStructType(((ObjectType)t).className, true);
+		}
+		else if(t instanceof GenericObjectType) {
 			return new CStructType(((ObjectType)t).className, true);
 		}
 		else {
@@ -510,10 +542,13 @@ public class CCodeGenerator {
 			return new CVariableDec(new CChar(true),new CVariableExp(v.var.name, true));
 		}
 		else if(v.type instanceof VoidType) {
-			return new CVariableDec(new CVoid(), new CVariableExp(v.var.name, true));
+			return new CVariableDec(new CVoid(false), new CVariableExp(v.var.name, true));
 		}
 		else if(v.type instanceof ObjectType) {
 			return new CVariableDec(new CStructType(((ObjectType)v.type).className, true), new CVariableExp(v.var.name, true));
+		}
+		else if(v.type instanceof GenericObjectType) {
+			return new CVariableDec(new CStructType(((GenericObjectType)v.type).className, true), new CVariableExp(v.var.name, true));
 		}
 		else {
 			throw new CCodeGeneratorException("Invalid type:"+v.type.toString());
