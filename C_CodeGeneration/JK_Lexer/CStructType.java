@@ -18,7 +18,7 @@ public class CStructType implements CType{
 		return other instanceof CStructType && ((CStructType)other).structname.equals(this.structname) && ((CStructType)other).isPointer == isPointer;
 	}
 	public String toString() {
-		if(isPointer) return "struct *" + structname;
+		if(isPointer) return "struct " + structname + "*";
 		else return "struct " + structname;
 	}
 }

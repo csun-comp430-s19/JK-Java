@@ -247,7 +247,7 @@ public class CCodeGenerator {
 			mainstmt.add(convertStatement(s));
 		}
 		
-		String[] includes = {"include <stdio.h>", "include <stdlib.h>"};
+		String[] includes = {"#include <stdio.h>", "#include <stdlib.h>"};
 		
 		CProgram program = new CProgram(includes, structandfuncs, mainstmt);
 		return program;
@@ -495,7 +495,7 @@ public class CCodeGenerator {
 			return convertIndependentMethodCall((IndependentMethodCallStmt) s);
 		}
 		else if(s instanceof PrintExp) {
-			return new CPrintExp(((PrintExp)s).expression.toString(), convertType(typeofExp(((PrintExp)s).expression)));
+			return new CPrintExp("user_"+((PrintExp)s).expression.toString(), convertType(typeofExp(((PrintExp)s).expression)));
 		}
 		else {
 			throw new CCodeGeneratorException("Statement not found: "+s.toString());

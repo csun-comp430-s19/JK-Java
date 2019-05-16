@@ -29,16 +29,19 @@ public class CProgram {
 		for(CClassStructandFuncs csf : structandfuncs) {
 			str += csf.struct.toString() + "\n";
 		}
+		
+		for(CClassStructandFuncs csf : structandfuncs) {
+			for(CFunctionDec func : csf.functions) {
+				str += func.toString() + "\n";
+			}
+		}
+		
 		for(CClassStructandFuncs csf : structandfuncs) {
 			for(CFunctionDec cons : csf.constructors) {
 				str += cons.toString() + "\n";
 			}
-	}
-		for(CClassStructandFuncs csf : structandfuncs) {
-				for(CFunctionDec func : csf.functions) {
-					str += func.toString() + "\n";
-				}
 		}
+		
 		
 		str += "int main(){\n";
 		for(CStatement s : statement) {
