@@ -3,6 +3,7 @@ package JK_Lexer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner; 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -263,41 +264,47 @@ public class CCodeGeneratorTest {
 	}
 	
 	@Test
-	public void testBasicProgramBasicClass() throws IOException{
+	public void testBasicProgramBasicClass() throws IOException, ParserException, TokenizerException, TypeErrorException{
 		
-		ArrayList<InstanceDecExp> memberVarList = new ArrayList<InstanceDecExp>();
-    	memberVarList.add(new InstanceDecExp(new PrivateModifier(), new VariableDecExp(new IntType(), new VariableExp("age"))));
-    	ArrayList<MethodDefExp> methodList = new ArrayList<MethodDefExp>();
-    	ArrayList<ConstructorDef> constructorList = new ArrayList<ConstructorDef>();
-    	ArrayList<Statement> block = new ArrayList<Statement>();
-    	ArrayList<Statement> setblock = new ArrayList<Statement>();
-    	ArrayList<VariableDecExp> setparam = new ArrayList<VariableDecExp>();
-    	ArrayList<VariableDecExp> constructorParam = new ArrayList<VariableDecExp>();
-    	ArrayList<Statement> constructorblock = new ArrayList<Statement>();
-    	constructorblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("a"), true));
-    	constructorParam.add(new VariableDecExp(new IntType(), new VariableExp("a")));
-    	setparam.add(new VariableDecExp(new IntType(), new VariableExp("n")));
-    	block.add(new ReturnStmt(new VariableExp("age")));
-    	setblock.add(new AssignmentStmt(new VariableExp("age"), new VariableExp("n"), false));
-    	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
-    	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
-    	constructorList.add(new ConstructorDef(new PublicModifier(), "Student", constructorParam, constructorblock));
-    	ClassDefExp classStudent = new ClassDefExp(new PublicModifier(), "Student", constructorList, memberVarList, methodList, false, "");
-    	ArrayList<ClassDefExp> classDefList = new ArrayList<ClassDefExp>();
-    	ArrayList<Statement> statementList = new ArrayList<Statement>();
-    	classDefList.add(classStudent);
-    	statementList.add(new VariableDecExp(new IntType(), new VariableExp("age")));
-    	statementList.add(new AssignmentStmt(new VariableExp("age"), new NumberExp(21), false));
-    	statementList.add(new VariableDecExp(new ObjectType("Student"), new VariableExp("student")));
-    	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
-    	varList.add(new VariableExp("age"));
-    	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),varList), false));
-    	statementList.add(new IndependentMethodCallStmt(new CallMethodExp(new VariableExp("student"), new VariableExp("getAge"), new ArrayList<VariableExp>())));
-    	Program p = new Program(statementList, classDefList);
-		
-    	//System.out.println(p.toString());
+		//Standard class declaration with variety of statements outside
+    	final String input = "public class Person{"
+    						+ "private String name;"
+    						+ "public Person(String n){"
+    						+ "this.name = n;"
+    						+ "}"
+    						+ "public String getName(){"
+    						+ "return this.name;"
+    						+ "}"
+    						+ "}"
+    						+ "public class Student extends Person{"
+    						+"private int age;"
+    						+"public Student(int a) {"
+    						+"	this.age = a; "
+    						+"}"
+    						+"public int getAge() {"
+    							+"return this.age; "
+    						+"}"
+    						+"public void setAge(int n) {"
+    							+"this.age=n; "
+    						+"}"
+    				  + "}"
+    				  + "int age; "
+    				  + "age = 21;"
+    				  + "String name;"
+    				  //+ "name = \"Kodi\";"
+    			  	  + "Student student;"
+    				  + "student = new.Student(age);"
+    				  + "student.getAge();"
+    				  + "student.getName();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog);
     	
-		assertProgramGeneration("include <stdio.h>include <stdlib.h>int main(){int foo;return 0;}", p);
+		assertProgramGeneration("include <stdio.h>include <stdlib.h>int main(){int foo;return 0;}", prog);
 	}
 	
 }

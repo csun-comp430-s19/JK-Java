@@ -293,7 +293,7 @@ public class CCodeGenerator {
 		
 		CType c_type = convertType(jk_type);
 		
-		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("structptr", false)));
+		cparams.add(new CVariableDec(new CStructType(parentClass, true), new CVariableExp("structptr", false)));
 		
 		for(VariableDecExp p: params) {
 			cparams.add(convertVariableDec(p));
@@ -323,7 +323,7 @@ public class CCodeGenerator {
 			cblock.add(new CAssignment(new CVariableExp("structptr->vtable[" + i + "]", false), new CVariableExp(functionpointers.get(i), false)));
 		}
 		
-		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("structptr", false)));
+		cparams.add(new CVariableDec(new CStructType(parentClass, true), new CVariableExp("structptr", false)));
 		
 		for(VariableDecExp p: params) {
 			cparams.add(convertVariableDec(p));
@@ -333,7 +333,7 @@ public class CCodeGenerator {
 			cblock.add(convertStatement(s));
 		}
 		cblock.add(new CReturn((CExp)cparams.get(0).var));
-		CFunctionDec result = new CFunctionDec(new CStructType(parentClass+"*"), constructorname, cparams, cblock);
+		CFunctionDec result = new CFunctionDec(new CStructType(parentClass + "*", false), constructorname, cparams, cblock);
 		
 		return result;
 		
@@ -378,7 +378,7 @@ public class CCodeGenerator {
 		
 		ArrayList<CVariableDec> structmembers = new ArrayList<CVariableDec>();
 		if(c.extending) {
-			CVariableDec basestruct = new CVariableDec(new CStructType(c.extendingClass), new CVariableExp("parent", false));
+			CVariableDec basestruct = new CVariableDec(new CStructType(c.extendingClass, false), new CVariableExp("parent", false));
 			structmembers.add(basestruct);
 		}
 		for(InstanceDecExp i : varmembers) {
@@ -470,7 +470,7 @@ public class CCodeGenerator {
 			return new CVoid();
 		}
 		else if(t instanceof ObjectType) {
-			return new CStructType(((ObjectType)t).className);
+			return new CStructType(((ObjectType)t).className, true);
 		}
 		else {
 			throw new CCodeGeneratorException("Invalid type:"+t.toString());
@@ -510,7 +510,7 @@ public class CCodeGenerator {
 			return new CVariableDec(new CVoid(), new CVariableExp(v.var.name, true));
 		}
 		else if(v.type instanceof ObjectType) {
-			return new CVariableDec(new CStructType(((ObjectType)v.type).className), new CVariableExp(v.var.name, true));
+			return new CVariableDec(new CStructType(((ObjectType)v.type).className, true), new CVariableExp(v.var.name, true));
 		}
 		else {
 			throw new CCodeGeneratorException("Invalid type:"+v.type.toString());
@@ -519,7 +519,19 @@ public class CCodeGenerator {
 	
 	public CAssignment convertAssignment(AssignmentStmt a) throws CCodeGeneratorException{
 		CVariableExp left;
-		if(a.leftIsThis) left = new CVariableExp("structptr->user_"+a.v.name, false);
+		if(a.leftIsThis) {
+			ArrayList<InstanceDecExp> memlist = classes.get(currentClass).members;
+			boolean isnotinparent = false;
+			for(int i = 0; i < memlist.size(); i++) {
+				if(memlist.get(i).var.var.name.equals(a.v.name)) {
+					isnotinparent = true;
+					break;
+				}
+			}
+			//does not handle multiple levels of inheritance
+			if(isnotinparent) left = new CVariableExp("structptr->user_"+a.v.name, false);
+			else left = new CVariableExp("structptr->parent.user_"+a.v.name, false);
+		}
 		else left = new CVariableExp(a.v.name, true);
 		CExp right = convertExp(a.e); 
 		return new CAssignment(left, right);
