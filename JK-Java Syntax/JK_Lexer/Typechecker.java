@@ -284,13 +284,21 @@ public class Typechecker {
 		//If left is this.exp, make sure it checks instance variables only for assigning type to left
 		if(as.leftIsThis) {
 			InstanceDecExp temp3 = null;
+			InstanceDecExp temp4 = null; 
 			try {
 				temp3 = this.instances.get(this.currentClass).get(as.v.name);
 			} catch (Exception e2) {
 			}
+			try {
+				temp4 = this.instances.get(retrieveClass(this.currentClass).extendingClass).get(as.v.name); 
+			} catch (Exception e3) {
+			}
 			// Instance variables check
 			if (temp3 != null) {
 				left = temp3.var.type;
+				right = typeofExp(as.e);
+			} else if(temp4 != null) {
+				left = temp4.var.type; 
 				right = typeofExp(as.e);
 			}
 			else {
@@ -456,6 +464,7 @@ public class Typechecker {
 			VariableDecExp temp = null;
 			MethodDefExp temp2 = null;
 			InstanceDecExp temp3 = null;
+			InstanceDecExp temp4 = null; 
 			try {
 				temp = this.variables.get(this.currentClass).get(this.currentMethod).get(name);
 			} catch (Exception e) {
@@ -468,6 +477,10 @@ public class Typechecker {
 				temp3 = this.instances.get(this.currentClass).get(name);
 			} catch (Exception e2) {
 			}
+			try {
+				temp4 = this.instances.get(retrieveClass(currentClass).extendingClass).get(name); 
+			} catch (Exception e3) {
+			}
 			// Variables within methods check
 			if (temp != null) {
 				return temp.type;
@@ -475,6 +488,10 @@ public class Typechecker {
 			// Instance variables check
 			else if (temp3 != null) {
 				return temp3.var.type;
+			}
+			// Instance variables in parent class check 
+			else if(temp4 != null) {
+				return temp4.var.type; 
 			}
 			// Variables within method parameters check
 			else if (temp2 != null) {
@@ -493,7 +510,7 @@ public class Typechecker {
 			VariableDecExp temp = null;
 			ConstructorDef temp2 = null;
 			InstanceDecExp temp3 = null;
-
+			InstanceDecExp temp4 = null; 
 			try {
 				temp = constructorVariableDec.get(currentClass).get(currentConstructor).get(name);
 			} catch (Exception e) {
@@ -506,12 +523,20 @@ public class Typechecker {
 				temp3 = instances.get(currentClass).get(name);
 			} catch (Exception e2) {
 			}
+			try {
+				temp4=instances.get(retrieveClass(currentClass).extendingClass).get(name); 
+			} catch (Exception e3) {
+			}
 			if (temp != null) {
 				return temp.type;
 			}
 			// Instance variables check
 			else if (temp3 != null) {
 				return temp3.var.type;
+			}
+			//Instance variables from parent class check 
+			else if(temp4 != null) {
+				return temp4.var.type; 
 			}
 			// Variables within constructor parameters check
 			else if (temp2 != null) {

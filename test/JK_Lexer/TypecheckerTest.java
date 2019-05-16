@@ -1389,4 +1389,31 @@ public class TypecheckerTest {
     	final Program prog = parser.parseProgram(); 
     	Typechecker.typecheckProgram(prog); 
     }
+    @Test
+    public void testInstanceVariablesFromParentClass() throws TypeErrorException, TokenizerException, ParserException{
+    	//Testing if calling instance variables from parent class works 
+    	final String input = "public class Person{"
+    						+	"public int age;"
+    						+	"public Person(int a){"
+    						+		"this.age = a;"
+    						+ 	"}"
+    					    +"}"
+    						+"public class Student extends Person{"
+    					    +	"public int year;"
+    						+	"public Student(int a, int b){"
+    					    +		"this.age = a;"
+    					    +		"this.year = b;"
+    					    +	"}"
+    					    +	"public int getAge(){"
+    					    + 		"return this.age;"
+    					    +	"}"
+    					    +"}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    }
 }
