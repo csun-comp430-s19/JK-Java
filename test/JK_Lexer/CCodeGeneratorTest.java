@@ -125,11 +125,11 @@ public class CCodeGeneratorTest {
 	}
 	@Test
 	public void testPrintF() throws IOException{
-		assertBasicExpGeneration("printf(var1)", new PrintExp(new VariableExp("var1")));
+		assertStatementGeneration("printf(var1);", new PrintExp(new VariableExp("var1")));
 	}
 	@Test(expected = ComparisonFailure.class)
 	public void failsTestPrintF() throws IOException{
-		assertBasicExpGeneration("printf(var2)", new PrintExp(new VariableExp("var1")));
+		assertStatementGeneration("printf(var2);", new PrintExp(new VariableExp("var1")));
 	}
 	@Test
 	public void testVariableDeclarationInt() throws IOException{
@@ -291,10 +291,12 @@ public class CCodeGeneratorTest {
     				  + "int age; "
     				  + "age = 21;"
     				  + "String name;"
+    				  + "String print;"
     				  + "name = \"Kodi\";"
     			  	  + "Student student;"
     				  + "student = new.Student(age);"
     				  + "student.getAge();"
+    				  + "println(name);"
     				  + "student.getName();";
     	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
     	final List<Token> tokenList = tokenizer.tokenize(); 

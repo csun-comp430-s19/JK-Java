@@ -152,14 +152,13 @@ public class Parser {
 			final ParseResult<Exp> variable = parseExp(startPos + 2);
 			resultExp = new ThisExp(variable.result);
 			resultPos = startPos + 3;
-		} else if (current instanceof PrintToken) { // println(var);
+		} /*else if (current instanceof PrintToken) { // println(var);
 			assertTokenAtPos(new LeftParenToken(), startPos + 1);
 			final ParseResult<Exp> expression = parseExp(startPos + 2);
 			assertTokenAtPos(new RightParenToken(), startPos + 3);
-			assertTokenAtPos(new SemicolonToken(), startPos + 4);
 			resultExp = new PrintExp(expression.result);
-			resultPos = startPos + 5;
-		} else if (current instanceof NameToken && getToken(startPos + 1) instanceof PeriodToken) { // call method
+			resultPos = startPos + 4;
+		}*/ else if (current instanceof NameToken && getToken(startPos + 1) instanceof PeriodToken) { // call method
 			assertTokenAtPos(new PeriodToken(), startPos + 1);
 			final ParseResult<Exp> methodname = parseExp(startPos + 2);
 			assertTokenAtPos(new LeftParenToken(), startPos + 3);
@@ -630,8 +629,12 @@ public class Parser {
 			} else if((getToken(pos) instanceof NameToken)&&(getToken(pos+1) instanceof LessThanToken)) {
 				ParseResult<VariableDecExp> variableDecExpResult = parseVariableDecExp(pos);
 				result = new ParseResult<Statement>(variableDecExpResult.result, variableDecExpResult.tokenPos);
+			} else if ((getToken(pos) instanceof PrintToken)) { // println(var);
+				assertTokenAtPos(new LeftParenToken(), pos + 1);
+				final ParseResult<Exp> expression = parseExp(pos + 2);
+				assertTokenAtPos(new RightParenToken(), pos + 3);
+				result = new ParseResult<Statement>(new PrintExp(expression.result), startPos + 4);
 			}
-
 			if (result == null) {
 				throw new ParserException("Expected valid statement at: " + pos);
 			} else if (!(getToken(result.tokenPos) instanceof SemicolonToken)) {

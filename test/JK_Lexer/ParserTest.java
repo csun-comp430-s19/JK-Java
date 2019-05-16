@@ -220,8 +220,8 @@ public class ParserTest {
     							  new NameToken("String1"), 
     							  new RightParenToken(),
     							  new SemicolonToken()  }; 
-    	final Exp expected = new PrintExp(new VariableExp("String1"));
-    	assertParses(tokens, expected); 
+    	final Statement expected = new PrintExp(new VariableExp("String1"));
+    	assertParsesSingleStatement(tokens, expected); 
     }
     @Test 
     public void testCallMethod() {

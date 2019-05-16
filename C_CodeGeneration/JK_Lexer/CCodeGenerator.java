@@ -140,9 +140,9 @@ public class CCodeGenerator {
 	}
 	
 	//Compile PrintExp function
-	public void compilePrintExp(final PrintExp exp) {
-		add(new CPrintExp(exp.expression.toString())); 
-	}
+//	public void compilePrintExp(final PrintExp exp) {
+//		add(new CPrintExp(exp.expression.toString()), ); 
+//	}
 	
 	//Compile CallMethod Function
 	public void compileCallMethodExp(final CallMethodExp exp) throws CCodeGeneratorException {
@@ -163,9 +163,9 @@ public class CCodeGenerator {
 		else if(exp instanceof BinopExp) {
 			compileBinopExp((BinopExp)exp);
 		}
-		else if(exp instanceof PrintExp) {
-			compilePrintExp((PrintExp)exp); 
-		}
+//		else if(exp instanceof PrintExp) {
+//			compilePrintExp((PrintExp)exp); 
+//		}
 		else if(exp instanceof CallMethodExp) {
 			compileCallMethodExp((CallMethodExp) exp);
 		}
@@ -193,9 +193,9 @@ public class CCodeGenerator {
 			CExp right = convertExp(((BinopExp)exp).right);
 			return new CBinOp(left, ((BinopExp)exp).op, right);
 		}
-		else if(exp instanceof PrintExp) {
-			return new CPrintExp(((PrintExp)exp).expression.toString());
-		}
+//		else if(exp instanceof PrintExp) {
+//			return new CPrintExp(((PrintExp)exp).expression.toString());
+//		}
 		else if(exp instanceof CallMethodExp) {
 			return convertCallMethod((CallMethodExp)exp);
 		}
@@ -218,7 +218,7 @@ public class CCodeGenerator {
 			add(new CVariableDec(new Cint(),new CVariableExp(v.var.name, true)));
 		}
 		else if(v.type instanceof StringType) {
-			add(new CVariableDec(new CChar(),new CVariableExp(v.var.name, true)));
+			add(new CVariableDec(new CChar(true),new CVariableExp(v.var.name, true)));
 		}
 		else if(v.type instanceof VoidType) {
 			add(new CVariableDec(new CVoid(), new CVariableExp(v.var.name, true)));
@@ -464,7 +464,7 @@ public class CCodeGenerator {
 			return new Cint();
 		}
 		else if(t instanceof StringType) {
-			return new CChar();
+			return new CChar(true);
 		}
 		else if(t instanceof VoidType) {
 			return new CVoid();
@@ -494,6 +494,9 @@ public class CCodeGenerator {
 		else if(s instanceof IndependentMethodCallStmt) {
 			return convertIndependentMethodCall((IndependentMethodCallStmt) s);
 		}
+		else if(s instanceof PrintExp) {
+			return new CPrintExp(((PrintExp)s).expression.toString(), convertType(typeofExp(((PrintExp)s).expression)));
+		}
 		else {
 			throw new CCodeGeneratorException("Statement not found: "+s.toString());
 		}
@@ -504,7 +507,7 @@ public class CCodeGenerator {
 			return new CVariableDec(new Cint(),new CVariableExp(v.var.name, true));
 		}
 		else if(v.type instanceof StringType) {
-			return new CVariableDec(new CChar(),new CVariableExp(v.var.name, true));
+			return new CVariableDec(new CChar(true),new CVariableExp(v.var.name, true));
 		}
 		else if(v.type instanceof VoidType) {
 			return new CVariableDec(new CVoid(), new CVariableExp(v.var.name, true));

@@ -1,6 +1,6 @@
 package JK_Lexer;
 
-public class PrintExp implements Exp{
+public class PrintExp implements Statement{
 	public final Exp expression; 
 	
 	public PrintExp(final Exp expression) {

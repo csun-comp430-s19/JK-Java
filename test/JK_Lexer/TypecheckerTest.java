@@ -100,16 +100,16 @@ public class TypecheckerTest {
     	statements.add(new VariableDecExp(new IntType(), new VariableExp("foo")));
     	assertExpType(new IntType(), new VariableExp("oof"));
     }
-    @Test
-    public void	testPrintWithoutClass() {
-    	statements.add(new VariableDecExp(new IntType(), new VariableExp("oof")));
-    	assertExpType(new IntType(), new PrintExp(new VariableExp("oof")));
-    }
-    @Test(expected = java.lang.AssertionError.class)   //using java.lang.AssertionError.class since the method assertExpType throws this when finding TypeErrorException
-    public void failsTestPrintWithoutClass() throws TypeErrorException{
-    	statements.add(new VariableDecExp(new IntType(), new VariableExp("foo")));
-    	assertExpType(new IntType(), new PrintExp(new VariableExp("oof")));
-    }
+//    @Test
+//    public void	testPrintWithoutClass() {
+//    	statements.add(new VariableDecExp(new IntType(), new VariableExp("oof")));
+//    	assertExpType(new IntType(), new PrintExp(new VariableExp("oof")));
+//    }
+//    @Test(expected = java.lang.AssertionError.class)   //using java.lang.AssertionError.class since the method assertExpType throws this when finding TypeErrorException
+//    public void failsTestPrintWithoutClass() throws TypeErrorException{
+//    	statements.add(new VariableDecExp(new IntType(), new VariableExp("foo")));
+//    	assertExpType(new IntType(), new PrintExp(new VariableExp("oof")));
+//    }
     
     //Tests for full programs now fully functional with tokenizer, parser, and typechecker 
 
