@@ -218,7 +218,7 @@ public class CCodeGenerator {
 	//Compile variable declaration
 	public void compileVariableDec(VariableDecExp v) throws CCodeGeneratorException {
 		if(v.type instanceof IntType) {
-			add(new CVariableDec(new Cint(),new CVariableExp(v.var.name, true)));
+			add(new CVariableDec(new Cint(false),new CVariableExp(v.var.name, true)));
 		}
 		else if(v.type instanceof StringType) {
 			add(new CVariableDec(new CChar(true),new CVariableExp(v.var.name, true)));
@@ -326,6 +326,13 @@ public class CCodeGenerator {
 		ArrayList<CVariableDec> cparams = new ArrayList<CVariableDec>();
 		ArrayList<CStatement> cblock = new ArrayList<CStatement>();
 		ArrayList<String> functionpointers = getFunctionPointers(parentClass);
+		
+		for(int i = 0; i < parentClassDef.members.size(); i++) {
+			if(parentClassDef.members.get(i).var.type instanceof IntType) {
+				cblock.add(new CAssignment(new CVariableExp("structptr->user_"+parentClassDef.members.get(i).var.var.name, false), new CVariableExp("malloc(sizeof(int))", false)));
+			}
+		}
+		
 		for(int i = 0; i < functionpointers.size(); i++) {
 			cblock.add(new CAssignment(new CVariableExp("structptr->vtable[" + i + "]", false), new CVariableExp(functionpointers.get(i), false)));
 		}
@@ -392,6 +399,8 @@ public class CCodeGenerator {
 			if(c instanceof GenericClassDefinition) {
 				if(((GenericClassDefinition)c).genericList.contains(new VariableExp(i.var.type.toString()))) {
 					structmembers.add(new CVariableDec(new CVoid(true), new CVariableExp(i.var.var.name, true)));
+				}else {
+					structmembers.add(convertInstanceDec(i));
 				}
 			}
 			else structmembers.add(convertInstanceDec(i));
@@ -490,7 +499,7 @@ public class CCodeGenerator {
 	
 	public CType convertType(Type t) throws CCodeGeneratorException{
 		if(t instanceof IntType) {
-			return new Cint();
+			return new Cint(false);
 		}
 		else if(t instanceof StringType) {
 			return new CChar(true);
@@ -510,6 +519,7 @@ public class CCodeGenerator {
 	}
 	
 	public CVariableDec convertInstanceDec(InstanceDecExp i) throws CCodeGeneratorException{
+		if(i.var.type instanceof IntType) return new CVariableDec(new Cint(true), new CVariableExp(i.var.var.name, true));
 		return new CVariableDec(convertType(i.var.type), new CVariableExp(i.var.var.name, true));
 	}
 	
@@ -536,7 +546,7 @@ public class CCodeGenerator {
 	
 	public CVariableDec convertVariableDec(VariableDecExp v) throws CCodeGeneratorException{
 		if(v.type instanceof IntType) {
-			return new CVariableDec(new Cint(),new CVariableExp(v.var.name, true));
+			return new CVariableDec(new Cint(false),new CVariableExp(v.var.name, true));
 		}
 		else if(v.type instanceof StringType) {
 			return new CVariableDec(new CChar(true),new CVariableExp(v.var.name, true));
