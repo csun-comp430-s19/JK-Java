@@ -289,9 +289,13 @@ public class Typechecker {
 				temp3 = this.instances.get(this.currentClass).get(as.v.name);
 			} catch (Exception e2) {
 			}
-			try {
-				temp4 = this.instances.get(retrieveClass(this.currentClass).extendingClass).get(as.v.name); 
-			} catch (Exception e3) {
+			String s = this.currentClass;
+			while(retrieveClass(s).extending) {
+				if(this.instances.get(retrieveClass(s).extendingClass).get(as.v.name)!=null) {
+					temp4 = this.instances.get(retrieveClass(s).extendingClass).get(as.v.name);
+					break; 
+				}
+				s = retrieveClass(s).extendingClass;
 			}
 			// Instance variables check
 			if (temp3 != null) {
@@ -302,7 +306,7 @@ public class Typechecker {
 				right = typeofExp(as.e);
 			}
 			else {
-				throw new TypeErrorException("Using this.var when there is no instance var declared: "+as.v.name);
+				throw new TypeErrorException("Using this.var when there is no instance var declared: "+as.v.name + " in class: " +currentClass);
 			}
 		}
 		else {
@@ -477,9 +481,13 @@ public class Typechecker {
 				temp3 = this.instances.get(this.currentClass).get(name);
 			} catch (Exception e2) {
 			}
-			try {
-				temp4 = this.instances.get(retrieveClass(currentClass).extendingClass).get(name); 
-			} catch (Exception e3) {
+			String s = this.currentClass; 
+			while(retrieveClass(s).extending) {
+				if(this.instances.get(retrieveClass(s).extendingClass).get(name)!=null) {
+					temp4 = this.instances.get(retrieveClass(s).extendingClass).get(name); 
+					break; 
+				}
+				s = retrieveClass(s).extendingClass;
 			}
 			// Variables within methods check
 			if (temp != null) {
@@ -523,9 +531,13 @@ public class Typechecker {
 				temp3 = instances.get(currentClass).get(name);
 			} catch (Exception e2) {
 			}
-			try {
-				temp4=instances.get(retrieveClass(currentClass).extendingClass).get(name); 
-			} catch (Exception e3) {
+			String s = this.currentClass; 
+			while(retrieveClass(s).extending) {
+				if(this.instances.get(retrieveClass(s).extendingClass).get(name)!=null) {
+					temp4=instances.get(retrieveClass(s).extendingClass).get(name); 
+					break;
+				}
+				s = retrieveClass(s).extendingClass; 
 			}
 			if (temp != null) {
 				return temp.type;
