@@ -282,7 +282,7 @@ public class CCodeGeneratorTest {
     	methodList.add(new MethodDefExp(new PublicModifier(), new IntType(), "getAge", new ArrayList<VariableDecExp>(), block));
     	methodList.add(new MethodDefExp(new PublicModifier(), new VoidType(), "setAge", setparam, setblock));
     	constructorList.add(new ConstructorDef(new PublicModifier(), "Student", constructorParam, constructorblock));
-    	ClassDefExp classStudent = new ClassDefExp(new PublicModifier(), "Student", constructorList, memberVarList, methodList, true, "Person");
+    	ClassDefExp classStudent = new ClassDefExp(new PublicModifier(), "Student", constructorList, memberVarList, methodList, false, "");
     	ArrayList<ClassDefExp> classDefList = new ArrayList<ClassDefExp>();
     	ArrayList<Statement> statementList = new ArrayList<Statement>();
     	classDefList.add(classStudent);
@@ -292,7 +292,7 @@ public class CCodeGeneratorTest {
     	ArrayList<VariableExp> varList = new ArrayList<VariableExp>(); 
     	varList.add(new VariableExp("age"));
     	statementList.add(new AssignmentStmt(new VariableExp("student"), new NewExp(new VariableExp("Student"),varList), false));
-    	
+    	statementList.add(new IndependentMethodCallStmt(new CallMethodExp(new VariableExp("student"), new VariableExp("getAge"), new ArrayList<VariableExp>())));
     	Program p = new Program(statementList, classDefList);
 		
     	//System.out.println(p.toString());

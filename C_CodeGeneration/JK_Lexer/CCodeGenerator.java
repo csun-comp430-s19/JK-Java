@@ -242,6 +242,7 @@ public class CCodeGenerator {
 		for(ClassDefExp c : classdef) {
 			structandfuncs.add(convertClassDef(c));
 		}
+		currentClass = null;
 		for(Statement s : statements) {
 			mainstmt.add(convertStatement(s));
 		}
@@ -258,14 +259,23 @@ public class CCodeGenerator {
 		VariableExp objname = exp.input;
 		String classname = ((ObjectType) lookupVariable(objname.name)).className;
 		VariableExp methodname = exp.methodname;
+		ArrayList<String> funcptr = getFunctionPointers(classname);
+		int num = -1;
+		for(int i = 0; num < funcptr.size(); i++) {
+			String funcname = funcptr.get(i).split("_")[1];
+			if(funcname.equals(methodname.name)){
+				num = i;
+				break;
+			}
+		}
+		if(num == -1) throw new CCodeGeneratorException("Method not found in vtable");
 		ArrayList<VariableExp> parameters = exp.parameter;
 		ArrayList<CVariableExp> cparams = new ArrayList<CVariableExp>();
 		cparams.add((CVariableExp)convertExp(objname));
 		for(VariableExp p: parameters) {
 			cparams.add((CVariableExp)convertExp(p));
 		}
-		
-		CFunctionCall result = new CFunctionCall(classname, methodname.name, cparams);
+		CFunctionCall result = new CFunctionCall(((CVariableExp)convertExp(objname)).toString(), classname, methodname.name, cparams, num);
 		
 		return result;
 	}
@@ -308,6 +318,10 @@ public class CCodeGenerator {
 		
 		ArrayList<CVariableDec> cparams = new ArrayList<CVariableDec>();
 		ArrayList<CStatement> cblock = new ArrayList<CStatement>();
+		ArrayList<String> functionpointers = getFunctionPointers(parentClass);
+		for(int i = 0; i < functionpointers.size(); i++) {
+			cblock.add(new CAssignment(new CVariableExp("structptr->vtable[" + i + "]", false), new CVariableExp(functionpointers.get(i), false)));
+		}
 		
 		cparams.add(new CVariableDec(new CStructType("*"+parentClass), new CVariableExp("structptr", false)));
 		
@@ -323,6 +337,36 @@ public class CCodeGenerator {
 		
 		return result;
 		
+	}
+	
+	private ArrayList<String> getFunctionPointers(String className){
+		ClassDefExp classDef = classes.get(className);
+		ArrayList<String> result = new ArrayList<String>();
+		if(classDef.extending) {
+			//block for function pointers of a class that extends another class
+			String extendingClass = classDef.extendingClass;
+			result = getFunctionPointers(extendingClass);
+			for(MethodDefExp m : classDef.methods) {
+				String current = m.name;
+				boolean added = false;
+				for(int i = 0; i < result.size(); i++) {
+					if(result.get(i).equals(extendingClass + "_" + current)) {
+						result.set(i, className + "_" + current);
+						added = true;
+						break;
+					}
+				}
+				if(!added) result.add(className + "_" + current);
+			}
+			
+		}else {
+			//block for function pointers of a class that does not extend another class
+			for(MethodDefExp m : classDef.methods) {
+				result.add(className + "_" + m.name);
+			}
+		}
+		
+		return result;
 	}
 	
 	public CClassStructandFuncs convertClassDef(ClassDefExp c) throws CCodeGeneratorException{
@@ -341,7 +385,7 @@ public class CCodeGenerator {
 			structmembers.add(convertInstanceDec(i));
 		}
 		
-		CStructDec cstruct = new CStructDec(c.name, structmembers);
+		CStructDec cstruct = new CStructDec(c.name, structmembers, getFunctionPointers(c.name).size());
 		ArrayList<CFunctionDec> functions = new ArrayList<CFunctionDec>();
 		ArrayList<CFunctionDec> structconstructors = new ArrayList<CFunctionDec>();
 		ArrayList<ConstructorDef> constructorindexlist = constructors.get(c.name);
