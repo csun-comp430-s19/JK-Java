@@ -1,6 +1,8 @@
 JK-Java
 Jason Dang, Kodi Winterer
 
+Most recent branch is now "master"
+
 Tokens/Tokenizer under "Tokens" 
 Syntax, Parser, and Typechecker under "JK-Java Syntax" 
 CodeGenerator files under "C_CodeGeneration" 
@@ -17,7 +19,6 @@ type::= INT | VOID | 	T			Built in types, with generic type T
 op::= + | - | * | / 				Arithmetic operation
 exp::= VAR | STRING | INT | <type> |		Variables, strings, integers, generics are expressions
 	this.VAR |				My instance				
-	println(VAR) |			Print statement
 	exp op exp |			Arithmetic operation
 	VAR.METHODNAME(VAR) |		Calls method	
 	new.CLASSNAME(VAR)    |		Creates new instance of class
@@ -27,6 +28,7 @@ stmt::=vardec; 	|			Declares variable
 	VAR=exp; |			Assignment			
 	return exp; |			return an expression
 	return; 				return Void
+	println(VAR) |			Print statement
 accessModifier::= public | private			Access modifiers
 methoddef::=accessModifier type METHODNAME(vardec*) stmt		Creates method
 instancedec::= accessModifier vardec;				Declares instance of variable
@@ -41,7 +43,7 @@ program::= classdef*  stmt*
 
 
 
-Basic example of how we will represent classes in C
+Basic example of how we will represent classes in C (NOW OUTDATED, SEE TESTS FOR NEWER SYNTAX)
 Does not include constructors
 
 #include <stdio.h>
