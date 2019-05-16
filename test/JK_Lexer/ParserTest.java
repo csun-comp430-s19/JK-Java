@@ -86,6 +86,11 @@ public class ParserTest {
         assertParses(new Token[]{ new NumberToken(123) },
                      new NumberExp(123));
     }
+    
+    @Test
+    public void testParsesQuoted() {
+    	assertParses(new Token[] {new QuotedStringToken("123")}, new StringExp("123"));
+    }
 
     @Test
     public void testParsesVariable() {

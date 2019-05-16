@@ -291,7 +291,7 @@ public class CCodeGeneratorTest {
     				  + "int age; "
     				  + "age = 21;"
     				  + "String name;"
-    				  //+ "name = \"Kodi\";"
+    				  + "name = \"Kodi\";"
     			  	  + "Student student;"
     				  + "student = new.Student(age);"
     				  + "student.getAge();"

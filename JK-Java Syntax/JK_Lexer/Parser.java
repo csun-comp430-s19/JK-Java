@@ -144,11 +144,9 @@ public class Parser {
 				&& (tokens.length <= startPos + 1 || !(getToken(startPos + 1) instanceof PeriodToken))) { // VARIABLE
 			resultExp = new VariableExp(((NameToken) current).name);
 			resultPos = startPos + 1;
-		} else if (current instanceof QuoteToken) { // STRING
-			Token next = getToken(startPos + 1);
-			resultExp = new StringExp(((QuotedStringToken) next).string);
-			assertTokenAtPos(new QuoteToken(), startPos + 2);
-			resultPos = startPos + 3;
+		} else if (current instanceof QuotedStringToken) { // STRING
+			resultExp = new StringExp(((QuotedStringToken) current).string);
+			resultPos = startPos + 1;
 		} else if (current instanceof ThisToken) { // this.var
 			assertTokenAtPos(new PeriodToken(), startPos + 1);
 			final ParseResult<Exp> variable = parseExp(startPos + 2);
