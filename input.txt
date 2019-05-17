@@ -1,0 +1,29 @@
+public class Person{
+	private String name;
+	public Person(String n){
+		this.name = n; 
+	}
+	public void setName(String n){
+		this.name = n;
+	}
+	public String getName(){
+		return this.name;
+	}
+}
+public class Student extends Person{
+	private int age; 
+	public Student(int a){
+		this.age = a; 
+	}
+	public int getAge(){
+		return this.age; 
+	}
+	public void setAge(int n){
+		this.age = n;
+	}
+}
+int age; 
+age = 21; 
+Student student; 
+student = new.Student(age); 
+student.getAge(); 

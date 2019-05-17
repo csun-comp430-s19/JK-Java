@@ -5,6 +5,7 @@
 	<classpathentry kind="src" path="Tokens"/>
 	<classpathentry kind="src" path="JK-Java Syntax"/>
 	<classpathentry kind="src" path="C_CodeGeneration"/>
+	<classpathentry kind="src" path="Main"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
