@@ -59,6 +59,7 @@ public class CCodeGeneratorTest {
 		while(scanner.hasNextLine()) {
 			sb.append(scanner.nextLine());
 		}
+		scanner.close();
 		return sb.toString(); 
 	}
 	@Test
@@ -295,4 +296,135 @@ public class CCodeGeneratorTest {
 				"}", prog);
 	}
 	
+	@Test
+	public void testBasicProgramExtendingTwiceClass() throws IOException, ParserException, TokenizerException, TypeErrorException{
+		
+		//Standard class declaration with variety of statements outside
+    	final String input ="public class Person{"
+    							+ "private String name;"
+    							+ "public Person(String n){"
+    								+ "this.name = n;"
+    							+ "}"
+    							+ "public void setName(String n){"
+    								+ "this.name = n;"
+    							+ "}"
+    							+ "public String getName(){"
+    								+ "return this.name;"
+    							+ "}"
+    						+ "}"
+    							
+    						+ "public class Human extends Person{"
+    							+ "private String gender;"
+    							+ "public Human(String g){"
+    								+ "this.gender = g;"
+    							+ "}"
+    							+ "public void setGender(String g){"
+    								+ "this.gender = g;"
+    							+ "}"
+    							+ "public String getGender(){"
+    								+ "return this.gender;"
+    							+ "}"
+    						+ "}"
+    							
+    						+ "public class Student extends Human{"
+    							+"private int age;"
+    							+"public Student(int a) {"
+    								+"this.age = a; "
+    							+"}"
+    							+"public int getAge() {"
+    								+"return this.age; "
+    							+"}"
+    							+"public void setAge(int n) {"
+    								+"this.age=n; "
+    							+"}"
+    						+ "}"
+    						+ "int age; "
+    						+ "age = 21;"
+    						+ "Student student;"
+    						+ "student = new.Student(age);"
+    						+ "student.getAge();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog);
+    	
+		assertProgramGeneration("#include <stdio.h>" + 
+				"#include <stdlib.h>" + 
+				"struct Person { char* user_name; void* (*vtable[2]) ();};" + 
+				"struct Human { struct Person parent; char* user_gender; void* (*vtable[4]) ();};" + 
+				"struct Student { struct Human parent; int* user_age; void* (*vtable[6]) ();};" + 
+				"void Person_setName(struct Person* structptr, char* user_n){structptr->user_name = user_n; }" + 
+				"char* Person_getName(struct Person* structptr){return structptr->user_name; }" + 
+				"void Human_setGender(struct Human* structptr, char* user_g){structptr->user_gender = user_g; }" + 
+				"char* Human_getGender(struct Human* structptr){return structptr->user_gender; }" + 
+				"int Student_getAge(struct Student* structptr){return structptr->user_age; }" + 
+				"void Student_setAge(struct Student* structptr, int user_n){structptr->user_age = user_n; }" + 
+				"struct Person* Person_constructor0(struct Person* structptr, char* user_n){structptr->vtable[0] = Person_setName; structptr->vtable[1] = Person_getName; structptr->user_name = user_n; return structptr; }" + 
+				"struct Human* Human_constructor0(struct Human* structptr, char* user_g){structptr->vtable[0] = Person_setName; structptr->vtable[1] = Person_getName; structptr->vtable[2] = Human_setGender; structptr->vtable[3] = Human_getGender; structptr->user_gender = user_g; return structptr; }" + 
+				"struct Student* Student_constructor0(struct Student* structptr, int user_a){structptr->user_age = malloc(sizeof(int)); structptr->vtable[0] = Person_setName; structptr->vtable[1] = Person_getName; structptr->vtable[2] = Human_setGender; structptr->vtable[3] = Human_getGender; structptr->vtable[4] = Student_getAge; structptr->vtable[5] = Student_setAge; structptr->user_age = user_a; return structptr; }" + 
+				"int main(){" + 
+				"int user_age;" + 
+				"user_age = 21;" + 
+				"struct Student* user_student;" + 
+				"user_student = Student_constructor0(malloc(sizeof(struct Student)), user_age);" + 
+				"user_student->vtable[4](user_student);" + 
+				"return 0;" + 
+				"}", prog);
+	}
+	
+	@Test
+	public void testBasicProgramGenericClass() throws IOException, ParserException, TokenizerException, TypeErrorException{
+		
+		//Standard class declaration with variety of statements outside
+    	final String input = "public class Node<E>{"
+    							+"private E element;"
+    							+"public Node<E>(E elem) {"
+    								+"this.element = elem; "
+    							+"}"
+    							+"public A getElement() {"
+    								+"return this.element; "
+    							+"}"
+    							+"public void setElement(E elem) {"
+    								+"this.element=elem; "
+    							+"}"
+    						+ "}"
+    						+ "int element;"
+    						+ "element = 123;"
+    						+ "Node<int> n;"
+    						+ "n = new.Node<int>(element);"
+    						+ "node.getElement();";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog);
+    	
+		assertProgramGeneration("#include <stdio.h>" + 
+				"#include <stdlib.h>" + 
+				"struct Person { char* user_name; void* (*vtable[2]) ();};" + 
+				"struct Human { struct Person parent; char* user_gender; void* (*vtable[4]) ();};" + 
+				"struct Student { struct Human parent; int* user_age; void* (*vtable[6]) ();};" + 
+				"void Person_setName(struct Person* structptr, char* user_n){structptr->user_name = user_n; }" + 
+				"char* Person_getName(struct Person* structptr){return structptr->user_name; }" + 
+				"void Human_setGender(struct Human* structptr, char* user_g){structptr->user_gender = user_g; }" + 
+				"char* Human_getGender(struct Human* structptr){return structptr->user_gender; }" + 
+				"int Student_getAge(struct Student* structptr){return structptr->user_age; }" + 
+				"void Student_setAge(struct Student* structptr, int user_n){structptr->user_age = user_n; }" + 
+				"struct Person* Person_constructor0(struct Person* structptr, char* user_n){structptr->vtable[0] = Person_setName; structptr->vtable[1] = Person_getName; structptr->user_name = user_n; return structptr; }" + 
+				"struct Human* Human_constructor0(struct Human* structptr, char* user_g){structptr->vtable[0] = Person_setName; structptr->vtable[1] = Person_getName; structptr->vtable[2] = Human_setGender; structptr->vtable[3] = Human_getGender; structptr->user_gender = user_g; return structptr; }" + 
+				"struct Student* Student_constructor0(struct Student* structptr, int user_a){structptr->user_age = malloc(sizeof(int)); structptr->vtable[0] = Person_setName; structptr->vtable[1] = Person_getName; structptr->vtable[2] = Human_setGender; structptr->vtable[3] = Human_getGender; structptr->vtable[4] = Student_getAge; structptr->vtable[5] = Student_setAge; structptr->user_age = user_a; return structptr; }" + 
+				"int main(){" + 
+				"int user_age;" + 
+				"user_age = 21;" + 
+				"struct Student* user_student;" + 
+				"user_student = Student_constructor0(malloc(sizeof(struct Student)), user_age);" + 
+				"user_student->vtable[4](user_student);" + 
+				"return 0;" + 
+				"}", prog);
+	}
 }
