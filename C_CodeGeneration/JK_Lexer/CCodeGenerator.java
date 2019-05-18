@@ -736,7 +736,7 @@ public class CCodeGenerator {
 	
 	public void generate(File file) throws CCodeGeneratorException, IOException {
 		CProgram c = convertProgram(this.inputprogram);
-		System.out.println(c.toString());
+		//System.out.println(c.toString());
 		final PrintWriter output= new PrintWriter(new BufferedWriter(new FileWriter(file)));
 		try {
 			output.println(c.toString());

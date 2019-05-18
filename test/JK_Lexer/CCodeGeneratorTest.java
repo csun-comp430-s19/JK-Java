@@ -332,6 +332,8 @@ public class CCodeGeneratorTest {
     								+"this.age = a; "
     							+"}"
     							+"public int getAge() {"
+    								+ "String g;"
+    								//+ "g = this.gender;"
     								+"return this.age; "
     							+"}"
     							+"public void setAge(int n) {"
