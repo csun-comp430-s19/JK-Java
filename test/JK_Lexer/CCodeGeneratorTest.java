@@ -332,8 +332,6 @@ public class CCodeGeneratorTest {
     								+"this.age = a; "
     							+"}"
     							+"public int getAge() {"
-    								+ "String g;"
-    								//+ "g = this.gender;"
     								+"return this.age; "
     							+"}"
     							+"public void setAge(int n) {"
@@ -421,4 +419,64 @@ public class CCodeGeneratorTest {
 				"return 0;" + 
 				"}", prog);
 	}
+	
+	@Test
+    public void testInstanceVariablesFromParentClassNested() throws TypeErrorException, TokenizerException, ParserException, IOException{
+    	//Testing if calling instance variables from parent class works 
+    	final String input = "public class Person{"
+    						+	"public int age;"
+    						+	"public Person(int a){"
+    						+		"this.age = a;"
+    						+ 	"}"
+    					    +"}"
+    						+"public class Student extends Person{"
+    					    +	"public int grade;"
+    						+	"public Student(int a, int b){"
+    					    +		"this.age = a;"
+    					    +		"this.grade = b;"
+    					    +	"}"
+    					    +"}"
+    						+"public class Junior extends Student{"
+    					    +	"public String name;"
+    						+	"public Junior(int a, int b, String c){"
+    					    +		"this.age = a;"
+    						+		"this.grade = b;"
+    					    +		"this.name = c;"
+    					    +	"}"
+    					    +"}"
+							+"public class Foo extends Junior{"
+							+	"public String foo1;"
+							+	"public Foo(int a, int b, String c, String d){"
+							+		"this.age = a;"
+							+		"this.grade = b;"
+							+		"this.name = c;"
+							+		"this.foo1 = d;"
+							+	"}"
+							+	"public int getGrade(){"
+							+		"return this.grade;"
+							+	"}"
+							+"}";
+    	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
+    	final List<Token> tokenList = tokenizer.tokenize(); 
+    	Token[] tokenArray = new Token[tokenList.size()];
+    	tokenArray = tokenList.toArray(tokenArray); 
+    	final Parser parser = new Parser(tokenArray); 
+    	final Program prog = parser.parseProgram(); 
+    	Typechecker.typecheckProgram(prog); 
+    	
+    	assertProgramGeneration("#include <stdio.h>" + 
+    			"#include <stdlib.h>" + 
+    			"struct Person { int* user_age; void* (*vtable[0]) ();};" + 
+    			"struct Student { struct Person parent; int* user_grade; void* (*vtable[0]) ();};" + 
+    			"struct Junior { struct Student parent; char* user_name; void* (*vtable[0]) ();};" + 
+    			"struct Foo { struct Junior parent; char* user_foo1; void* (*vtable[1]) ();};" + 
+    			"int Foo_getGrade(struct Foo* structptr){return structptr->parent.parent.user_grade; }" + 
+    			"struct Person* Person_constructor0(struct Person* structptr, int user_a){structptr->user_age = malloc(sizeof(int)); structptr->user_age = user_a; return structptr; }" + 
+    			"struct Student* Student_constructor0(struct Student* structptr, int user_a, int user_b){structptr->user_grade = malloc(sizeof(int)); structptr->parent.user_age = user_a; structptr->user_grade = user_b; return structptr; }" + 
+    			"struct Junior* Junior_constructor0(struct Junior* structptr, int user_a, int user_b, char* user_c){structptr->parent.parent.user_age = user_a; structptr->parent.user_grade = user_b; structptr->user_name = user_c; return structptr; }" + 
+    			"struct Foo* Foo_constructor0(struct Foo* structptr, int user_a, int user_b, char* user_c, char* user_d){structptr->vtable[0] = Foo_getGrade; structptr->parent.parent.parent.user_age = user_a; structptr->parent.parent.user_grade = user_b; structptr->parent.user_name = user_c; structptr->user_foo1 = user_d; return structptr; }" + 
+    			"int main(){" + 
+    			"return 0;" + 
+    			"}", prog);
+    }
 }

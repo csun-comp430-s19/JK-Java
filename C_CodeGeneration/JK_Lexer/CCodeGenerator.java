@@ -206,7 +206,13 @@ public class CCodeGenerator {
 			return convertGenericNew((GenericNewExp)exp);
 		}
 		else if(exp instanceof ThisExp) {
-			return new CVariableExp("structptr->user_"+((ThisExp)exp).variable.toString(), false);
+			String name = ((VariableExp)((ThisExp)exp).variable).name;
+			int level = getNestLevel(name , currentClass);
+			String prefix = "structptr->";
+			for(int i = 0; i < level; i++) {
+				prefix += "parent.";
+			}
+			return new CVariableExp(prefix+"user_"+name, false);
 		}
 		//Add this, method call, and new class when planned out
 		
@@ -596,20 +602,36 @@ public class CCodeGenerator {
 		}
 	}
 	
+	private int getNestLevel(String name, String classname) throws CCodeGeneratorException {
+		int level = 0;
+		ClassDefExp classdef = classes.get(classname);
+		ArrayList<InstanceDecExp> memlist = classdef.members;
+		 do{
+			boolean in = false;
+				for(int i = 0; i < memlist.size(); i++) {
+					if(memlist.get(i).var.var.name.equals(name)) {
+						in = true;
+						break;
+					}
+				}
+				if(in) return level;
+				if(!classdef.extending) break;
+				classdef = classes.get(classdef.extendingClass);
+				memlist = classdef.members;
+				level++;
+			}while(true);
+		 throw new CCodeGeneratorException("member " + name + " not found in class");
+	}
+	
 	public CAssignment convertAssignment(AssignmentStmt a) throws CCodeGeneratorException{
 		CVariableExp left;
 		if(a.leftIsThis) {
-			ArrayList<InstanceDecExp> memlist = classes.get(currentClass).members;
-			boolean isnotinparent = false;
-			for(int i = 0; i < memlist.size(); i++) {
-				if(memlist.get(i).var.var.name.equals(a.v.name)) {
-					isnotinparent = true;
-					break;
-				}
+			int level = getNestLevel(a.v.name, currentClass);
+			String prefix = "structptr->";
+			for(int i = 0; i < level; i++) {
+				prefix += "parent.";
 			}
-			//does not handle multiple levels of inheritance
-			if(isnotinparent) left = new CVariableExp("structptr->user_"+a.v.name, false);
-			else left = new CVariableExp("structptr->parent.user_"+a.v.name, false);
+			left = new CVariableExp(prefix+"user_"+a.v.name, false);
 		}
 		else left = new CVariableExp(a.v.name, true);
 		CExp right = convertExp(a.e); 
