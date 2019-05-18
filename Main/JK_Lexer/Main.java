@@ -2,9 +2,9 @@ package JK_Lexer;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Scanner;
@@ -13,6 +13,10 @@ public class Main {
 
     public static void main(String[] args) throws TokenizerException, ParserException, TypeErrorException, IOException, CCodeGeneratorException {
     	File inFile = null;
+    	boolean printgccoutput = false;
+    	String filename = "output.c";
+    	String exename = filename.substring(0, filename.lastIndexOf("."));
+    	
     	if (0 < args.length) {
     	   inFile = new File(args[0]);
     	} else {
@@ -60,13 +64,33 @@ public class Main {
    	   
    	   //System.out.println(output); 
    	   
-   	   PrintWriter out = new PrintWriter("output.c"); 
+   	   PrintWriter out = new PrintWriter(filename); 
    	   try {
    		   out.println(output); 
    	   }finally {
    		   out.close(); 
    	   }
+   	   Process p = Runtime.getRuntime().exec("gcc " + filename + " -o " + exename + " -w");
    	   
+   	   BufferedReader stdInput = new BufferedReader(new 
+            InputStreamReader(p.getInputStream()));
+
+       BufferedReader stdError = new BufferedReader(new 
+            InputStreamReader(p.getErrorStream()));
+       
+       if(printgccoutput) {
+    	   // read the output from the command
+    	   String s = null;
+    	   while ((s = stdInput.readLine()) != null) {
+    		   System.out.println(s);
+    	   }
+       
+    	   // read any errors from the attempted command
+    	   while ((s = stdError.readLine()) != null) {
+    		   System.out.println(s);
+    	   }
+       }
+       
    }
     public static String convertToCProgram(Program p) throws IOException, CCodeGeneratorException {
     	CCodeGenerator cg = new CCodeGenerator(p); 
@@ -79,8 +103,9 @@ public class Main {
 		StringBuilder sb = new StringBuilder((int)file.length());
 		Scanner scanner = new Scanner(file);
 		while(scanner.hasNextLine()) {
-			sb.append(scanner.nextLine());
+			sb.append(scanner.nextLine()+"\n");
 		}
+		scanner.close();
 		return sb.toString(); 
     }
 }

@@ -26,4 +26,5 @@ int age;
 age = 21; 
 Student student; 
 student = new.Student(age); 
-student.getAge(); 
+age = student.getAge();
+println(age);
