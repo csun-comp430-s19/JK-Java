@@ -384,7 +384,7 @@ public class CCodeGeneratorTest {
     							+"public Node<E>(E elem) {"
     								+"this.element = elem; "
     							+"}"
-    							+"public A getElement() {"
+    							+"public E getElement() {"
     								+"return this.element; "
     							+"}"
     							+"public void setElement(E elem) {"
@@ -395,7 +395,7 @@ public class CCodeGeneratorTest {
     						+ "element = 123;"
     						+ "Node<int> n;"
     						+ "n = new.Node<int>(element);"
-    						+ "node.getElement();";
+    						+ "n.getElement();";
     	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
     	final List<Token> tokenList = tokenizer.tokenize(); 
     	Token[] tokenArray = new Token[tokenList.size()];
@@ -406,24 +406,16 @@ public class CCodeGeneratorTest {
     	
 		assertProgramGeneration("#include <stdio.h>" + 
 				"#include <stdlib.h>" + 
-				"struct Person { char* user_name; void* (*vtable[2]) ();};" + 
-				"struct Human { struct Person parent; char* user_gender; void* (*vtable[4]) ();};" + 
-				"struct Student { struct Human parent; int* user_age; void* (*vtable[6]) ();};" + 
-				"void Person_setName(struct Person* structptr, char* user_n){structptr->user_name = user_n; }" + 
-				"char* Person_getName(struct Person* structptr){return structptr->user_name; }" + 
-				"void Human_setGender(struct Human* structptr, char* user_g){structptr->user_gender = user_g; }" + 
-				"char* Human_getGender(struct Human* structptr){return structptr->user_gender; }" + 
-				"int Student_getAge(struct Student* structptr){return structptr->user_age; }" + 
-				"void Student_setAge(struct Student* structptr, int user_n){structptr->user_age = user_n; }" + 
-				"struct Person* Person_constructor0(struct Person* structptr, char* user_n){structptr->vtable[0] = Person_setName; structptr->vtable[1] = Person_getName; structptr->user_name = user_n; return structptr; }" + 
-				"struct Human* Human_constructor0(struct Human* structptr, char* user_g){structptr->vtable[0] = Person_setName; structptr->vtable[1] = Person_getName; structptr->vtable[2] = Human_setGender; structptr->vtable[3] = Human_getGender; structptr->user_gender = user_g; return structptr; }" + 
-				"struct Student* Student_constructor0(struct Student* structptr, int user_a){structptr->user_age = malloc(sizeof(int)); structptr->vtable[0] = Person_setName; structptr->vtable[1] = Person_getName; structptr->vtable[2] = Human_setGender; structptr->vtable[3] = Human_getGender; structptr->vtable[4] = Student_getAge; structptr->vtable[5] = Student_setAge; structptr->user_age = user_a; return structptr; }" + 
+				"struct Node { void* user_element; void* (*vtable[2]) ();};" + 
+				"struct E* Node_getElement(struct Node* structptr){return structptr->user_element; }" + 
+				"void Node_setElement(struct Node* structptr, struct E* user_elem){structptr->user_element = user_elem; }" + 
+				"struct Node* Node_constructor0(struct Node* structptr, struct E* user_elem){structptr->vtable[0] = Node_getElement; structptr->vtable[1] = Node_setElement; structptr->user_element = user_elem; return structptr; }" + 
 				"int main(){" + 
-				"int user_age;" + 
-				"user_age = 21;" + 
-				"struct Student* user_student;" + 
-				"user_student = Student_constructor0(malloc(sizeof(struct Student)), user_age);" + 
-				"user_student->vtable[4](user_student);" + 
+				"int user_element;" + 
+				"user_element = 123;" + 
+				"struct Node* user_n;" + 
+				"user_n = Node_constructor1(malloc(sizeof(struct Node)), user_element);" + 
+				"user_n->vtable[0](user_n);" + 
 				"return 0;" + 
 				"}", prog);
 	}
