@@ -288,6 +288,7 @@ public class CCodeGenerator {
 	}
 	
 	public CFunctionDec convertMethodDefExp(MethodDefExp exp, String parentClass) throws CCodeGeneratorException{
+		ClassDefExp parent = classes.get(parentClass);
 		Type jk_type = exp.type;
 		String methodname = exp.name;
 		currentMethod = methodname;
@@ -409,12 +410,9 @@ public class CCodeGenerator {
 		CStructDec cstruct = new CStructDec(c.name, structmembers, getFunctionPointers(c.name).size());
 		ArrayList<CFunctionDec> functions = new ArrayList<CFunctionDec>();
 		ArrayList<CFunctionDec> structconstructors = new ArrayList<CFunctionDec>();
-		ArrayList<ConstructorDef> constructorindexlist = constructors.get(c.name);
-		for(ConstructorDef constructor : constructorlist) {
-			int num = constructorindexlist.indexOf(constructor);
-			structconstructors.add(convertConstructorDef(constructor, c.name,num));
+		for(int i = 0; i < constructorlist.size(); i++) {
+			structconstructors.add(convertConstructorDef(constructorlist.get(i), c.name,i));
 			inConstructor = false;
-			num++;
 		}		
 		for(MethodDefExp m : methods) {
 			functions.add(convertMethodDefExp(m, c.name));
@@ -483,12 +481,28 @@ public class CCodeGenerator {
 			for(VariableDecExp v: temp.parameters) {
 				tempTList.add(v.type);
 			}
-			if(tempTList.equals(typeList)) {
+			int j = 0;
+			boolean equal = true;
+			for(Type t:tempTList) {
+				if(((GenericClassDefinition)classdef).genericList.contains(new VariableExp(t.toString()))) {
+					j++;
+					continue;
+				}
+				if(t.equals(typeList.get(j))) {
+					j++;
+					continue;
+				}
+				else {
+					equal = false;
+					break;
+				}
+			}
+			
+			if(equal) {
 				c = temp; 
 				break; 
 			}
 		}
-		
 		//Get Indexed CConstructor
 		String cConstructorCall = classname + "_constructor" + i;
 		
@@ -498,6 +512,15 @@ public class CCodeGenerator {
 	}
 	
 	public CType convertType(Type t) throws CCodeGeneratorException{
+		if(currentClass != null) {
+			ClassDefExp classdef = classes.get(currentClass);
+			if(classdef instanceof GenericClassDefinition) {
+				if(((GenericClassDefinition)classdef).genericList.contains(new VariableExp(t.toString()))) {
+					return new CVoid(true);
+				}
+			}
+		}
+		
 		if(t instanceof IntType) {
 			return new Cint(false);
 		}
@@ -545,6 +568,14 @@ public class CCodeGenerator {
 	}
 	
 	public CVariableDec convertVariableDec(VariableDecExp v) throws CCodeGeneratorException{
+		if(currentClass != null) {
+			ClassDefExp classdef = classes.get(currentClass);
+			if(classdef instanceof GenericClassDefinition) {
+				if(((GenericClassDefinition)classdef).genericList.contains(new VariableExp(v.type.toString()))) {
+					return new CVariableDec(new CVoid(true), new CVariableExp(v.var.name, true));
+				}
+			}
+		}
 		if(v.type instanceof IntType) {
 			return new CVariableDec(new Cint(false),new CVariableExp(v.var.name, true));
 		}

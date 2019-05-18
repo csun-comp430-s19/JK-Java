@@ -381,7 +381,7 @@ public class CCodeGeneratorTest {
 		//Standard class declaration with variety of statements outside
     	final String input = "public class Node<E>{"
     							+"private E element;"
-    							+"public Node<E>(E elem) {"
+    							+"public Node(E elem) {"
     								+"this.element = elem; "
     							+"}"
     							+"public E getElement() {"
@@ -391,10 +391,10 @@ public class CCodeGeneratorTest {
     								+"this.element=elem; "
     							+"}"
     						+ "}"
-    						+ "int element;"
-    						+ "element = 123;"
-    						+ "Node<int> n;"
-    						+ "n = new.Node<int>(element);"
+    						+ "String element;"
+    						+ "element = \"Hello world!\";"
+    						+ "Node<String> n;"
+    						+ "n = new.Node<String>(element);"
     						+ "n.getElement();";
     	final Tokenizer tokenizer = new Tokenizer(input.toCharArray());
     	final List<Token> tokenList = tokenizer.tokenize(); 
@@ -407,14 +407,14 @@ public class CCodeGeneratorTest {
 		assertProgramGeneration("#include <stdio.h>" + 
 				"#include <stdlib.h>" + 
 				"struct Node { void* user_element; void* (*vtable[2]) ();};" + 
-				"struct E* Node_getElement(struct Node* structptr){return structptr->user_element; }" + 
-				"void Node_setElement(struct Node* structptr, struct E* user_elem){structptr->user_element = user_elem; }" + 
-				"struct Node* Node_constructor0(struct Node* structptr, struct E* user_elem){structptr->vtable[0] = Node_getElement; structptr->vtable[1] = Node_setElement; structptr->user_element = user_elem; return structptr; }" + 
+				"void* Node_getElement(struct Node* structptr){return structptr->user_element; }" + 
+				"void Node_setElement(struct Node* structptr, void* user_elem){structptr->user_element = user_elem; }" + 
+				"struct Node* Node_constructor0(struct Node* structptr, void* user_elem){structptr->vtable[0] = Node_getElement; structptr->vtable[1] = Node_setElement; structptr->user_element = user_elem; return structptr; }" + 
 				"int main(){" + 
-				"int user_element;" + 
-				"user_element = 123;" + 
+				"char* user_element;" + 
+				"user_element = \"Hello world!\";" + 
 				"struct Node* user_n;" + 
-				"user_n = Node_constructor1(malloc(sizeof(struct Node)), user_element);" + 
+				"user_n = Node_constructor0(malloc(sizeof(struct Node)), user_element);" + 
 				"user_n->vtable[0](user_n);" + 
 				"return 0;" + 
 				"}", prog);
