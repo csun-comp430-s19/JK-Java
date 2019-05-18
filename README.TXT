@@ -7,6 +7,7 @@ Tokens/Tokenizer under "Tokens"
 Syntax, Parser, and Typechecker under "JK-Java Syntax" 
 CodeGenerator files under "C_CodeGeneration" 
 All test files located in "test" 
+COMPILER MAIN FILE IS UNDER "MAIN"
 
 VAR is variable
 INT is an int
